@@ -2,6 +2,7 @@
 
 mmt -- Master Maintenance Tool perl module.
 
+<pre>
 tree -f |perl -alne '@x=split /\s+/,`wc -l $F[-1] 2>/dev/null`;$l=sprintf("%5d %s",$x[0],$_);$l=~ s/ 0 /   /;$l=~ s{\..*/}{};print $l'
       .
     3 ├── README.md
@@ -42,4 +43,4 @@ tree -f |perl -alne '@x=split /\s+/,`wc -l $F[-1] 2>/dev/null`;$l=sprintf("%5d %
    34             └── subwin.html.ep
       
       16 directories, 20 files
-
+</pre>
