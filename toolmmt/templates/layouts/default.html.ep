@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head><title><%= title %></title>
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+     <script type="text/javascript">  <!-- [jQuery] Enterキーでフォーカスを移動するには http://blog.makotoishida.com/2013/02/javascript-enter.html -->
+            $(function(){
+              var elements = "input[type=text]";
+              $(elements).keypress(function(e) {
+                var c = e.which ? e.which : e.keyCode;
+                if (c == 13) { 
+                  var index = $(elements).index(this);
+                  var criteria = e.shiftKey ? ":lt(" + index + "):last" : ":gt(" + index + "):first";
+                  $(elements + criteria).select();
+                  $(elements + criteria).focus();
+                  e.preventDefault();
+                }
+              });
+              $('#' + $('#_focus').val()).select();             // 項目を選択
+              $('#' + $('#_focus').val()).focus();              // フォーカスをセット
+            });
+     </script>
+     <%= stylesheet '/css/default.css' %>
+     <%= javascript '/js/sortable_ja.js' %>
+  </head>
+  <body>
+    <input type=hidden name=_focus id=_focus value=<%= param('_focus') %>>
+    <div class="main">
+      <%= content %>
+    </div>
+    <div class="sidebar">
+    <%== eval{$self->make_sidebar()} %>
+    </div>
+  </body>
+</html>

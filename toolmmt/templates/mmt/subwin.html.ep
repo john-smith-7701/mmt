@@ -1,0 +1,34 @@
+% layout 'defsubwin';
+% title "mmt - $_title";
+<h1><%= $_title %></h1>
+%# <%= $_sql %><br />
+%# [<%= $_controller %>][<%= param('n') %>][<%= join '|',param('p') %>]
+<table border=1 class="sortable" id="foo"><thead><tr>
+% for my $item (@{$self->{'sth'}->{'NAME'}}){
+  <th><div id="<%= $item %>"> <%= Encode::decode('UTF-8',$item) %></div></th>
+% }
+</tr>
+</thead>
+<tbody>
+% my $count = 0;
+% while (my $ref = $self->{'sth'}->fetchrow_arrayref()){
+%   $count++;
+%   last if $count > 2000;
+<tr>
+%   my $i = 0;
+%   for my $item (@{$ref}){
+%       $i++;
+        <td>
+%       if($i == 1){
+            <a href="" onclick="setVal('<%= param('n') %>','<%= $item %>');">
+%       }
+        <%= $item %></td>
+%   }
+</tr>
+% }
+</tbody>
+</table>
+%=   "* No Data *" if ($count == 0);
+%=   "* Max over * " if ($count > 2000); 
+<p style="text-align:right;"><a href="#" onClick="subclose('<%= param('n') %>'); return false;">CLOSE</a></p>
+

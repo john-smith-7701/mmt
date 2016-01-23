@@ -1,0 +1,121 @@
+	BODY {
+		color:	white;
+		font-family:'Meiryo';
+		font-size:	10pt;
+		background-color: black;
+		scrollbar-highlight-color:silver;
+		scrollbar-arrow-color:silver;
+		scrollbar-base-color:black;
+		scrollbar-face-color:black;
+		scrollbar-track-color:#505050;
+		scrollbar-shadow-color:#404040;
+		scrollbar-darkshadow-color:black;
+	}
+	A:link { color:white; }
+	A:visited { color:white; }
+	A:active { color:red; }
+	A:hover { color:green; }
+	H1 {
+/*	  width: 90%;
+*/	  font-size: 14pt;
+	  font-family: Impact,Arial,Verdana,sans-serif;
+	  letter-spacing: 0.4em;
+	  color: #FFFFFF;
+	  background-color: #747474;
+	  padding: 1px 1em 1px 0.7em;
+	  border-left: solid 3px #DADADD;
+	  filter: alpha(opacity=100,finishopacity=10,style=1);	
+	}
+	h2{
+	  color: white;
+	  font-size: 12pt;
+	  font-weight: bold;
+	  letter-spacing: 0.1em;
+	  margin: 0px 20px 2px 12px;;
+	  padding: 1px 10px 1px 5px;
+	  border-bottom: solid 1px #747474;
+	}
+	h3 {
+	  border-left   : #AABBFF 10px solid;
+	  border-top    : #AABBFF 5px solid;
+	  border-right  : #AABBFF 1px solid;
+	  border-bottom : #AABBFF 1px solid;
+	  font-family   : Verdana,Arial,Helvetica,sans-serif;
+	  padding-left  : 3pt;
+	  margin-bottom : 5px;
+	}
+	h4 {
+	  border-left   : #505050 10px solid;
+	  padding-left  : 4px;
+	  font-family   : Verdana,Arial,Helvetica,sans-serif;
+	  padding-left  : 2pt;
+	  margin-bottom : 5px;
+	}
+	TABLE {
+	  border-collapse: collapse;
+		border-color: silver;
+	}
+	TH {
+/*	  font-size: 10pt;
+*/	  color: silver;
+	  background-color: #505050;
+		border-color: silver;
+	}
+	TD {
+	  font-size: 10pt;
+	  color: white;
+		border-color: silver;
+	}
+	.form_text    { border: 1px solid #8080C0; color:#5F5FAF }
+	.form_button    { border:1px solid #5F5FAF; color: #FFFFFF; background-color: black; text-align:center }
+
+	.total {
+	  font-size: 20;
+	  font-weight: bold;
+	}
+	.update {
+	  color: white;
+	  background-color: red;
+	  font-size: 20;
+	  font-weight: bold;
+	}
+	.error {
+	  background-color: pink;
+	  font-weight: bold;
+	}
+	.del{
+	  text-decoration : line-through;
+	}
+	.mark_yel{
+	  background-color: yellow;
+	}
+	.text_box{
+	  BORDER-RIGHT    : #000000 1px solid;
+	  BORDER-LEFT     : #000000 1px solid;
+	  BORDER-TOP      : #000000 1px solid;
+	  BORDER-BOTTOM   : #000000 1px solid;
+	  FONT-SIZE       : 10pt;
+	  COLOR           : #000000;
+	  BACKGROUND-COLOR: #ffffff
+	}
+	.fixedLay{
+	  position: absolute;
+	  color: red;
+	}
+    div.main {
+      margin-left: 100px;
+    }  
+    div.sidebar {
+	position        : absolute;
+	top             : 0px;
+	left            : 0px;
+	width           : 100px;
+	font-size       : x-small;
+	padding         : 2pt;
+	border-right    : #404040 1px solid;
+	border-bottom   : #404040 1px solid;
+	color           : white;
+	background-color: black;
+	word-break      : break-all;
+    }
+
