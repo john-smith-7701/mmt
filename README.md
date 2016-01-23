@@ -5,7 +5,7 @@ mmt -- Master Maintenance Tool perl module.
 <pre>
 tree -f |perl -alne '@x=split /\s+/,`wc -l $F[-1] 2>/dev/null`;$l=sprintf("%5d %s",$x[0],$_);$l=~ s/ 0 /   /;$l=~ s{\..*/}{};print $l'
       .
-    3 ├── README.md
+   46 ├── README.md
       └── toolmmt
           ├── lib
           │   └── Tool
@@ -23,9 +23,13 @@ tree -f |perl -alne '@x=split /\s+/,`wc -l $F[-1] 2>/dev/null`;$l=sprintf("%5d %
           ├── log
           ├── public
           │   ├── css
+    2     │   │   ├── arrow-down.gif
+    2     │   │   ├── arrow-none.gif
+    2     │   │   ├── arrow-up.gif
   121     │   │   └── default.css
    11     │   ├── index.html
           │   └── js
+  326     │       └── sortable_ja.js
           ├── script
    11     │   └── toolmmt
           ├── t
@@ -42,5 +46,5 @@ tree -f |perl -alne '@x=split /\s+/,`wc -l $F[-1] 2>/dev/null`;$l=sprintf("%5d %
    53             ├── mainform.html.ep
    34             └── subwin.html.ep
       
-      16 directories, 20 files
+      16 directories, 24 files
 </pre>
