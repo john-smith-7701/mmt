@@ -17,10 +17,10 @@ sub mainform {
     $self->set_input_names();
     $self->action_set();
     $self->look_up_set();
-    if(defined($self->param('_ation')) && $self->param('_action') eq 'get_name'){
+    if(defined($self->param('_action')) && $self->param('_action') eq 'get_name'){
         return $self->get_name();
     }
-    if(defined($self->param('_ation')) && $$self->param('_action') eq 'subwin'){
+    if(defined($self->param('_action')) && $self->param('_action') eq 'subwin'){
         return $self->subwin();
     }
 
