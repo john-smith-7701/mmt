@@ -21,11 +21,11 @@
     </td>
 %   for my $name (@{$self->{'m'}->{key}}){
         <td><%= $ref->{Encode::encode("utf8",$name)} %>
-        <%= hidden_field $self->{'n'}->{$name} => $ref->{Encode::encode("utf8",$name)} %>
+        <%= hidden_field $self->{'n'}->{$name} => $ref->{$self->my_encode("utf8",$name)} %>
         </td>
 %   }
 %   for my $name (@{$self->{'m'}->{item}}){
-        <td><%= $ref->{Encode::encode("utf8",$name)} %></td>
+        <td><%= $ref->{$self->my_encode("utf8",$name)} %></td>
 %   }
 % end
 </tr>

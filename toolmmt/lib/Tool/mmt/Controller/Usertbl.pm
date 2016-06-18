@@ -1,4 +1,4 @@
-package Tool::mmt::Usertbl;
+package Tool::mmt::Controller::Usertbl;
 use Mojo::Base 'Tool::mmt::Mmt';
 
 has 'mmtDataList' => 'mmt/datalist';

@@ -12,8 +12,10 @@ sub startup {
   # Documentation browser under "/perldoc"
   $self->plugin('PODRenderer');
   $self->plugin('TagHelpers');
+  $self->types->type(json =>'application/json;charset=UTF-8');
   # Router
   my $r = $self->routes;
+  $r->namespaces(['Tool::mmt::Controller']);
   # Normal route to controller
   $r->get('/')->to('example#welcome');
   $r->get('/mmt/:_table/desc')->to('mmt#desc');

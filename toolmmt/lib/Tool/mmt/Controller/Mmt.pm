@@ -1,9 +1,8 @@
-package Tool::mmt::Mmt;
+package Tool::mmt::Controller::Mmt;
 use Mojo::Base 'Mojolicious::Controller';
 use Mojo::Log;
 use utf8;
 use Encode;
-use Text::CSV::Encoded;
 
 has 'mmtForm' => 'mmt/mainform';
 has 'mmtDataList' => 'mmt/datalist';
@@ -18,10 +17,10 @@ sub mainform {
     $self->set_input_names();
     $self->action_set();
     $self->look_up_set();
-    if($self->param('_action') eq 'get_name'){
+    if(defined($self->param('_ation')) && $self->param('_action') eq 'get_name'){
         return $self->get_name();
     }
-    if($self->param('_action') eq 'subwin'){
+    if(defined($self->param('_ation')) && $$self->param('_action') eq 'subwin'){
         return $self->subwin();
     }
 
@@ -47,7 +46,13 @@ sub my_render{
 sub make_sidebar{
     my $s = shift;
     my $table_list = '<h4>TABLES</h4><ul>';
-    my $tables = $s->app->model->webdb->dbh->selectall_arrayref('show tables');
+    my $tables;
+    if ($s->app->model->webdb->const->{data_source} =~ /^dbi:sqlite/i ){
+        $tables = $s->app->model->webdb->dbh->selectall_arrayref(
+            'select name from sqlite_master where type="table"');
+    }else{
+        $tables = $s->app->model->webdb->dbh->selectall_arrayref('show tables');
+    }
     $table_list .= join "\n",map {qq{<li><a href="/mmt/$_->[0]">$_->[0]</a></li>}} @$tables;
     $table_list .= '</ul>';
     return $s->app->model->webdb->const->{sidebar} . $table_list;
@@ -147,6 +152,7 @@ sub action_set{
     push (@{$s->{_action}},{name=>'検索',action=>sub {$s->data_serch()}});
     push (@{$s->{_action}},{name=>'Upload',action=>sub {$s->upload_upd()}});
     push (@{$s->{_action}},{name=>'CSV',action=>sub {$s->csv_out()}});
+    push (@{$s->{_action}},{name=>'JSON',action=>sub {$s->json_out()}});
 }
 sub set_table_info{
     my $s = shift;
@@ -216,7 +222,7 @@ sub disp_field{
 }
 sub get_explan{
     my ($s,$table,$item) = @_;
-    return $s->app->model->webdb->const->{explan}->{$table}->{$item};
+    return $s->app->model->webdb->const->{explan}->{$table}->{$item} || '';
 }    
 #---------------------------------------------------------------#
 sub csv_out{
@@ -224,29 +230,51 @@ sub csv_out{
     my $s = shift;
     $s->data_serch_select();
 
-    my $csv = Text::CSV::Encoded->new({encoding_out => 'Shift_JIS'});  
-    # Scalar I/O
     my $content =  "";
-    open my $fh, '>>', \$content;
 
-  
-    # Print csv data to scalar variable
     my @name = (@{$s->{'sth'}->{'NAME'}});
-$DB::single = 1;
-    $csv->print($fh, \@name);
-    print $fh "\n";
-    while ($_ = $s->{'sth'}->fetchrow_arrayref()) {
-        $csv->print($fh, $_);
-        print $fh "\n";
+    if ($s->app->model->webdb->const->{data_source} =~ /^dbi:sqlite/i ){
+        $content = encode('shift_jis',join (",",map {'"' . $s->Label($_) . '"'} @name));
+    }else{
+        $content = encode('shift_jis',decode_utf8(join (",",map {'"' . $s->Label($_) . '"'} @name)));
+    }
+    $content .= "\n";
+    while ( my $ref = $s->{'sth'}->fetchrow_arrayref()) {
+        $content .= encode('shift_jis',join (",",map {s/(["])/"$1/g ;'"' .  $_ . '"'} @{$ref}));
+        $content .= "\n";
     }
   
     # HTTP Headers
     my $headers = $s->res->headers;
-    $headers->content_disposition("attachment; filename=" . $s->param('_table') . ".csv");
+    $headers->content_disposition("attachment; filename=" . encode('shift_jis',$s->param('_table')) . ".csv");
     $headers->content_type('text/csv;charset=Shift_JIS');
   
     # Render data
     return $s->render(data => $content);
+
+}
+#---------------------------------------------------------------#
+sub json_out{
+#---------------------------------------------------------------#
+    my $s = shift;
+    $s->data_serch_select();
+    my $data = $s->{'sth'}->fetchall_arrayref({});
+    my $data2;
+    if ($s->app->model->webdb->const->{data_source} =~ /^dbi:sqlite/i ){
+        $data2 = $data;
+    }else{
+        for my $rec (@$data){
+            my $new_rec = {};
+            for my $key (keys %$rec){
+              $new_rec->{decode_utf8($key)} = $rec->{$key};
+            }
+            push(@{$data2},$new_rec);
+        }
+    }
+
+
+    $s->{'sth'}->finish;
+    $s->render(json => $data2);
 
 }
 #---------------------------------------------------------------#
@@ -305,7 +333,7 @@ sub data_get{
     my $ref = $sth->fetchrow_hashref();
     if($ref){
         for(0..$#{$s->{'m'}->{key}}){
-            $s->param("key$_",$ref->{encode("utf8",$s->{'m'}->{key}[$_])});
+            $s->param("key$_",$ref->{$s->my_encode("utf8",$s->{'m'}->{key}[$_])});
         }
         $s->{_itemcount}++;
         $s->param('_focus','item0');
@@ -315,7 +343,7 @@ sub data_get{
     }
     if($s->{errorflag} == 0){
         for(0..$#{$s->{'m'}->{item}}){
-            $s->param("item$_",$ref->{encode("utf8",$s->{'m'}->{item}[$_])});
+            $s->param("item$_",$ref->{$s->my_encode("utf8",$s->{'m'}->{item}[$_])});
         }
     }
     if(defined $s->{'m'}->{timestamp}){
@@ -334,6 +362,17 @@ sub data_get{
 
     $s->my_render($s->mmtForm);
 }
+sub my_encode{
+    my $s = shift;
+    my $enc = shift;
+    my $data = shift;
+    if ($s->app->model->webdb->const->{data_source} =~ /^dbi:sqlite/i ){
+        return $data;
+    }else{
+        return encode($enc,$data);
+    }
+}
+ 
 sub GET_AF_CHECK(){
     my $s = shift;
 }#---------------------------------------------------------------#

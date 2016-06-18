@@ -19,6 +19,7 @@
 <%== $self->serch_input_field() %>
 %= submit_button $self->{'_action'}[4]->{'name'} ,id => '_action',name => '_action'
 %= submit_button $self->{'_action'}[6]->{'name'} ,id => '_action',name => '_action'
+%= submit_button $self->{'_action'}[7]->{'name'} ,id => '_action',name => '_action'
 <br>
 INFO:<%= $self->{errstr} %>
 <hr>

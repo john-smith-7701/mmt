@@ -17,16 +17,22 @@ has dbh => sub {
   my $user        = $self->const->{user};
   my $password    = $self->const->{password};
 
-  my $dbh = DBI->connect(
-     $data_source,
-     $user,
-     $password,
-     {RaiseError => 1,
-      mysql_enable_utf8 =>1,
-      mysql_auto_reconnect =>1,
-     }
-  );
-  $dbh->do("set names UTF8");
+  my $dbh;
+  if($self->const->{data_source} =~ /^dbi:sqlite/i ){
+      $dbh = DBI->connect($data_source);
+      $dbh->{sqlite_unicode} = 1;
+  }else{
+      $dbh = DBI->connect(
+               $data_source,
+               $user,
+               $password,
+               {RaiseError => 1,
+                mysql_enable_utf8 =>1,
+                mysql_auto_reconnect =>1,
+               }
+      );
+      $dbh->do("set names UTF8");
+  }
   return $dbh;
 };
 
@@ -48,16 +54,26 @@ sub desc_table{
    $sth->execute();
    my $flag = 0;
    while(my $ref = $sth->fetchrow_hashref()){
-        $f = $ref->{Field};
-        $s->{'m'}->{$f}->{Type} = $ref->{Type};
-        $s->{'m'}->{$f}->{Null} = $ref->{Null};
-        $s->{'m'}->{$f}->{Key} = $ref->{Key};
-        $s->{'m'}->{$f}->{Default} = $ref->{Default};
-        $s->{'m'}->{$f}->{Extra} = $ref->{Extra};
-        $s->{'m'}->{$f}->{Size} = $s->size($ref->{Type});
-        if($ref->{Key} eq 'PRI'){
+        if($s->const->{data_source} =~ /^dbi:sqlite/i ){
+            $f = $ref->{name};
+            $s->{'m'}->{$f}->{Type} = $ref->{type}|| 'varchar';
+            $s->{'m'}->{$f}->{Null} = $ref->{notnull}?'NO':'YES';
+            $s->{'m'}->{$f}->{Key} = $ref->{pk}?'PRI':'';
+            $s->{'m'}->{$f}->{Default} = $ref->{dflt_value};
+            $s->{'m'}->{$f}->{Extra} = '';
+            $s->{'m'}->{$f}->{Size} = $s->size($ref->{type});
+        }else{
+            $f = $ref->{Field};
+            $s->{'m'}->{$f}->{Type} = $ref->{Type};
+            $s->{'m'}->{$f}->{Null} = $ref->{Null};
+            $s->{'m'}->{$f}->{Key} = $ref->{Key};
+            $s->{'m'}->{$f}->{Default} = $ref->{Default};
+            $s->{'m'}->{$f}->{Extra} = $ref->{Extra};
+            $s->{'m'}->{$f}->{Size} = $s->size($ref->{Type});
+        }
+        if($s->{'m'}->{$f}->{Key} eq 'PRI'){
             push @{$s->{'m'}->{key}},$f;
-        }elsif($ref->{Type} =~ /timestamp/){
+        }elsif($s->{'m'}->{$f}->{Type} =~ /timestamp/){
             $s->{'m'}->{timestamp} = $f;
         }else{  push @{$s->{'m'}->{item}},$f;
         }
@@ -69,7 +85,11 @@ sub desc_table{
 sub desc_param{
     my $s = shift;
     my $m = shift;
-    return "desc " . "$m";
+    if($s->const->{data_source} =~ /^dbi:sqlite/i ){
+        return "pragma table_info($m)";
+    }else{
+        return "desc " . "$m";
+    }
 }
 #---------------------------------------------------------------#
 sub size{
@@ -93,8 +113,11 @@ sub size{
     my $s = shift;
     my $type = shift;
     my ($t1,$t2,$t3);
-    $type =~ /\w+\((\d+)\,{0,1}(\d{0,1})\)/;
-    $t1 = $1;
+    if($type =~ /\w+\((\d+)\,{0,1}(\d{0,1})\)/){
+        $t1 = $1;
+    }else{
+        $t1 = 20;
+    }
     $t1++ if($2);
     $t1++ if($s->type_numeric2($type));
     if($type eq 'date'){

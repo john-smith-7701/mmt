@@ -1,4 +1,4 @@
-package Tool::mmt::Example;
+package Tool::mmt::Controller::Example;
 use Mojo::Base 'Mojolicious::Controller';
 
 # This action will render a template

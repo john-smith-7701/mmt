@@ -13,6 +13,16 @@ sub _initalize{
     $s->{user}        = "YourName";
     $s->{password}    = "YourPassword";
 
+=POD
+
+SQLlite
+
+    $s->{data_source} = "DBI:SQLite:dbname=/tmp/a.db";
+    $s->{user}        = "";
+    $s->{password}    = "";
+
+=cut
+
     $s->{explan} = {
         '担当者'    => {
             'ID'    => 'admin:管理者,0～999',

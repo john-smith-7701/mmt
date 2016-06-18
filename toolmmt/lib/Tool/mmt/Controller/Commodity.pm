@@ -1,5 +1,5 @@
-package Tool::mmt::Commodity;
-use Mojo::Base 'Tool::mmt::Mmt';
+package Tool::mmt::Controller::Commodity;
+use Mojo::Base 'Tool::mmt::Controller::Mmt';
 
 has 'mmtDataList' => 'mmt/datalist';
 
