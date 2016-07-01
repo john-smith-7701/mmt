@@ -46,4 +46,19 @@
      <p>value2: <input type="text" id="value2" size="30" value="値2"></p>
      <p><button id="button" type="button">submit</button></p>
      <textarea id="response" cols=120 rows=10 disabled></textarea>
- 
+
+<p>
+<h2>パネルのラジオボタン (サンプル)</h2>
+<div class="radioPanel">
+    <input type="radio" name="s3" id="select1" value="1" checked="">
+    <label for="select1">perl</label>
+    <input type="radio" name="s3" id="select2" value="2">
+    <label for="select2">ruby</label>
+    <input type="radio" name="s3" id="select3" value="3">
+    <label for="select3">python</label>
+    <input type="radio" name="s3" id="select4" value="4">
+    <label for="select4">php</label>
+    <input type="radio" name="s3" id="select5" value="5">
+    <label for="select5">C</label>
+</div>
+ </p>

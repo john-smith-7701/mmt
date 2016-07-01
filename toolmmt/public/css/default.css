@@ -119,3 +119,41 @@
 	word-break      : break-all;
     }
 
+/* ラジオボタンを非表示にする */
+.radioPanel input{
+    display: none;
+}
+/* ラベルのスタイル */
+.radioPanel label{
+    display: block;
+    float: left;
+    cursor: pointer;
+    width: 80px;
+    margin: 0;
+    padding: 12px 5px;
+    border-right: 1px solid #abb2b7;
+    background: #bdc3c7;
+    color: #555e64;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1;
+    transition: .2s;
+}
+/* チェックされた時のスタイル*/
+.radioPanel input[type="radio"]:checked + label {
+    background-color: #a1b91d;
+    color: #fff;
+}
+/* マウスオーバーした時のスタイル */
+.radioPanel label:hover{
+    background-color: #a9a9a9;
+}
+/* 角を丸くする*/
+.radioPanel label:first-of-type{
+    border-radius: 3px 0 0 3px;
+}
+.radioPanel label:last-of-type{
+    border-right: 0px;
+    border-radius: 0 3px 3px 0;
+}
+
