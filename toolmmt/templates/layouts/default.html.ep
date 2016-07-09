@@ -17,7 +17,32 @@
               });
               $('#' + $('#_focus').val()).select();             // 項目を選択
               $('#' + $('#_focus').val()).focus();              // フォーカスをセット
-            });
+              });
+
+            function openModal(url){
+                if($("#modal-overlay")[0]) {
+                    $("#modal-overlay").fadeOut("slow",function(){
+                        $("#modal-overlay").remove() ;
+                    });
+                    return;
+                }
+                //オーバーレイ用のHTMLコードを、[body]内の最後に生成する
+                var text = (function() {/*
+<div id="modal-overlay" align=center>
+  <br><br><br><br>
+  <iframe width=75% height=75% top=10px src='+url+'>
+  </iframe>
+  <p align="center">
+  <input type="button" onclick="openModal();" value="CLOSE">
+</div>
+*/}).toString().replace(/(\n)/g, '').replace(/\+url\+/,url).split('*')[1];
+
+                $("body").append(text);
+
+                //[$modal-overlay]をフェードインさせる
+                $("#modal-overlay").fadeIn("slow");
+            }
+
      </script>
      <%= stylesheet '/css/default.css' %>
      <%= javascript '/js/sortable_ja.js' %>

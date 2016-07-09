@@ -40,15 +40,20 @@
      })
  </script>
  
-     <h2>HTMLファイルからPOSTでJSONデータを送信する</h2>
+     <h2><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=JSON">HTMLファイルからPOSTでJSONデータを送信する</a></h2>
      <p>URL: <input type="text" id="url_post" name="url" size="100" value="<%== url_for %>"></p>
      <p>value1: <input type="text" id="value1" size="30" value="値1"></p>
      <p>value2: <input type="text" id="value2" size="30" value="値2"></p>
      <p><button id="button" type="button">submit</button></p>
      <textarea id="response" cols=120 rows=10 disabled></textarea>
 
-<p>
-<h2>パネルのラジオボタン (サンプル)</h2>
+<p><a name=modalSample></a>
+<h4><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=CSS+%A5%E1%A5%E2">モーダル画面もどき(サンプル)</a></h4>
+<div class="radioPanel">
+    <button type="button" onclick="openModal('http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi')">モーダル画面を開く</button>
+</div>
+<p><a name=sample></a>
+<h4><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=CSS+%A5%E1%A5%E2">パネルのラジオボタン (サンプル)</a></h4>
 <div class="radioPanel">
     <input type="radio" name="s3" id="select1" value="1" checked="">
     <label for="select1">perl</label>
@@ -61,4 +66,64 @@
     <input type="radio" name="s3" id="select5" value="5">
     <label for="select5">C</label>
 </div>
+<br><br>
+<h4>パネルのチェックボックス (サンプル)</h4>
+<div class="radioPanel">
+    <input type="checkbox" name="s4" id="select11" value="1" checked="">
+    <label for="select11">perl</label>
+    <input type="checkbox" name="s4" id="select12" value="2">
+    <label for="select12">ruby</label>
+    <input type="checkbox" name="s4" id="select13" value="3">
+    <label for="select13">python</label>
+    <input type="checkbox" name="s4" id="select14" value="4">
+    <label for="select14">php</label>
+    <input type="checkbox" name="s4" id="select15" value="5">
+    <label for="select15">C</label>
+</div><br><br><br><hr>
+<pre>
+/* ラジオボタンを非表示にする */
+.radioPanel input{
+    display: none;
+}
+/* ラベルのスタイル */
+.radioPanel label{
+    display: block;
+    float: left;
+    cursor: pointer;
+    width: 80px;
+    margin: 0;
+    padding: 12px 5px;
+    border-right: 1px solid #000000;
+    background: #bdc3c7;
+    color: #555e64;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1;
+    transition: .2s;
+}
+/* チェックされた時のスタイル*/
+.radioPanel input[type="checkbox"]:checked + label,
+.radioPanel input[type="radio"]:checked + label {
+    background-color: #a1b91d;
+    color: #fff;
+    border-right: 1px solid #000000;
+    background-image: url(reten.png);
+    background-size: 20px;
+    background-position: right top;
+    background-repeat: no-repeat;
+}
+/* マウスオーバーした時のスタイル */
+.radioPanel label:hover{
+    background-color: #a9a9a9;
+}
+/* 角を丸くする*/
+.radioPanel label:first-of-type{
+    border-radius: 3px 0 0 3px;
+}
+.radioPanel label:last-of-type{
+    border-right: 0px;
+    border-radius: 0 3px 3px 0;
+}
+
+</pre>
  </p>
