@@ -9,17 +9,11 @@
  <script type="text/javascript">
      $(function(){
          $("#response").html("Response Values");
-         $("#button").click( function(){
-             var url = $("#url_post").val();
-                 var JSONdata = {
-                     value1: $("#value1").val(),
-                     value2: $("#value2").val()      
-                 };
-             // alert(JSON.stringify(JSONdata));
-             $.ajax({
+         var post_Json = function(url,JSONdata) {
+            $.ajax({
                  type : 'post',
                  url : url,
-                 data : JSON.stringify(JSONdata),
+                 data : JSONdata,
                  contentType: 'application/JSON',
                  dataType : 'JSON',
                  scriptCharset: 'utf-8',
@@ -36,7 +30,21 @@
                      $("#response").html(JSON.stringify(data));
                  }
              });
-         })
+         };
+         $("#button").click( function(){
+             var url = $("#url_post").val();
+             var JSONdata = {
+                 value1: $("#value1").val(),
+                 value2: $("#value2").val()      
+             };
+             // alert(JSON.stringify(JSONdata));
+             post_Json(url,JSON.stringify(JSONdata));
+         });
+         $("#button2").click( function(){
+             var url = $("#url_post").val();
+             var JSONdata = $("#jsonText").val();
+             post_Json(url,JSONdata);
+         });
      })
  </script>
  
@@ -45,6 +53,8 @@
      <p>value1: <input type="text" id="value1" size="30" value="値1"></p>
      <p>value2: <input type="text" id="value2" size="30" value="値2"></p>
      <p><button id="button" type="button">submit</button></p>
+     <textarea id="jsonText" cols=120 rows=10 placeholder="送信するJSONテキストを入力"></textarea>
+     <br><button id="button2" type="button">submit</button></p>
      <textarea id="response" cols=120 rows=10 disabled></textarea>
 
 <p><a name=modalSample></a>
