@@ -21,7 +21,7 @@
                      // Success
                      // alert("success");
                      // alert(JSON.stringify(data));
-                     $("#response").html(JSON.stringify(data));
+                     $("#response").html(JSON.stringify(data,undefined,4));
                  },
                  error : function(data) {
                      // Error
