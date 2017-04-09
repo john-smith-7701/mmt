@@ -22,7 +22,7 @@ has ref => sub {{}};
 has oref => "";
 has bottom_const => "<div align=right>Powered by perl-mojolicious</div>";
 has column => 1;
-has title => "□　マスタリスト　□";
+has title => "";
 has print_form => "rwt/print_main";
 has item_list => sub {[]};
 has dele_item => sub {{'UPD_TIME'=>1}};
