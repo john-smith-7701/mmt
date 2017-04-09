@@ -7,7 +7,7 @@ has contents => "";
 has line_count => 0;
 has page_count => 0;
 has page => 0;
-has max_line => 15;
+has max_line => 42;
 has restart_page => 1;
 has end_page => 10000;
 has rskip => 0;
@@ -20,7 +20,7 @@ has sth => "";
 has sql =>"";
 has ref => sub {{}};
 has oref => "";
-has bottom_const => "";
+has bottom_const => "<div align=right>Powered by perl-mojolicious</div>";
 has column => 1;
 has title => "□　マスタリスト　□";
 has print_form => "rwt/print_main";
@@ -68,8 +68,7 @@ sub _rwt_init{
         }
     }
 
-
-    $s->title($s->param('title')||$s->param('table')||'title');
+    $s->title($s->param('title')||$s->param('table')||'title') if ($s->title eq "");
     $s->line_count(0);
     $s->page_count(0);
     @{$s->item_list} = map { encode_utf8($_) } @{$s->item_list};
@@ -79,7 +78,6 @@ sub _rwt_init{
         $s->item_list([@{$s->sth->{NAME}}]);
     }
     @{$s->item_list} = grep { ! $dele_item->{$_} } @{$s->item_list};
-#    @{$s->item_list} = grep { ! $s->dele_item{$_} } @{$s->item_list}; 
 }
 sub print_proc{
     my $s = shift;
@@ -105,6 +103,7 @@ sub print_proc{
 }
 sub final_proc{
     my $s = shift;
+    $s->endsw(99);
     $s->break_level(0);
     $s->break_routine(0);
     $s->footer(99);
@@ -124,7 +123,6 @@ sub break_check{
     my $ref = shift;
     my $level = 99;
 
-
     if($s->line_count > $s->max_line or $s->line_count == 0){
         $s->rwt_head_print();
     }
@@ -135,11 +133,6 @@ sub break_check{
         $i++;
         $level = $break_control->{level};
 
-#        my $log = Mojo::Log->new();
-#        $log->debug($break_control->{key}
-#            . ":" . $ref->{$break_control->{key}}
-#            . " old:" . $s->dumper ($oref->{$break_control->{key}})
-#        );
         if ($ref->{$break_control->{key}} ne 
             $oref->{$break_control->{key}}){
                    $s->break_routine($i);
@@ -200,8 +193,6 @@ sub rwt_dtail{
 
     $s->line->[0] = "<tr>";
     for (@{$s->item_list}) {
-        #$s->line->[0] .= qq{<td class="overflow" style="width:200px;max-width:200px">$ref->{$_}</td>};
-        #$s->line->[0] .= qq{<td class="overflow" >$ref->{$_}</td>};
         $s->line->[0] .= $s->set_lf_spec($ref->{$_},$_);
     }
     $s->line->[0] .= "</tr>";
@@ -227,6 +218,7 @@ sub edit{
     my $s = shift;
     my $data = shift;
     my $edit = shift;
+    return $data if ($data eq "&nbsp;");
     $data = sprintf($edit->[1],$data) if $edit->[1];
     if ($edit->[0] & hex("04")){
        1 while $data =~ s/(.*\d)(\d\d\d)/$1,$2/;
@@ -282,13 +274,8 @@ sub rwt_head_print{
        my $colwidth = sprintf("width=%d%%",int(100/$s->column));
        my $mod = $s->page_count % $s->column;
        if ($mod == 1){
-          if ($s->page_count != 1){
-               $s->_bottom_print();
-          }    
           $s->printout($s->head_line->[0]);
           $s->printout(qq{<table width=100%><tr>});
-       }else{
-          #$s->printout(qq{</td>});
        } 
        $s->printout(qq{<td $colwidth aligin=center style="vertical-align:top">});
     }
@@ -311,9 +298,6 @@ sub printout{
     }
     $s->c_set(shift);
 }
-
-
-        
         
 sub rwt_prepare{
     my $s = shift;
@@ -339,7 +323,7 @@ sub rwt_data_save{
 
 sub head{
     my $s = shift;
-    $s->footer();
+    $s->footer() unless ($s->endsw);
     $s->page_count($s->page_count + 1);
     if ($s->column > 1) {
        $s->page(int($s->page_count / $s->column) + 1);
@@ -365,16 +349,23 @@ sub head{
 sub footer{
     my $s = shift;
     my $level = shift||0;
+    return if ($s->endsw == 100);
     return if ($s->page_count == 0);
 
     $s->feed();
     if ($s->column > 1){
-        $s->printout("</table></td>");
-        if ($s->page_count % $s->column == 0){
-            $s->printout("</tr>");
-        }
-        if ($level == 99 ){
-           $s->_bottom_print();
+        while (1){
+            $s->printout("</table></td>");
+            if ($s->page_count % $s->column == 0){
+                $s->printout("</tr>");
+                $s->_bottom_print();
+                last;
+            }
+            if ($s->endsw == 99 or $s->endsw == 100){
+                $s->endsw(100);
+                $s->rwt_head_print();
+                $s->feed();
+            }else{ last;}
         }
     }else{
         $s->_bottom_print();
@@ -388,9 +379,12 @@ sub feed{
     return if ($s->line_count == 0);
     $feed_count = $s->max_line if ($feed_count > $s->max_line);
     for(;$s->line_count <= $feed_count ; $s->line_count($s->line_count+1)){
-        $s->printout(qq{<tr><td>&nbsp;</td>} .
-                     "<td></td>" x (@{$s->item_list} - 1) .
-                     qq{</tr>});
+        my $text = "<tr>";
+        for (@{$s->item_list}) {
+            $text .= $s->set_lf_spec("&nbsp;",$_);
+        }
+        $text .= "</tr>";
+        $s->printout($text);
     }
 }
 sub c_set{
