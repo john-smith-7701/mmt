@@ -3,7 +3,10 @@
  <h1>mojolicious JSON Demo</h1>
  <hr><h4>JSON</h4>
  <ul>
-   <li><a href="http://www21051ue.sakura.ne.jp:3003/api/json/json_test01">json_test001</a></li>
+   <li><a href="/api/json/json_test01">json_test01</a></li>
+   <li><a href="/api/json/json_post">json_post</a></li>
+   <li><a href="/api/chabo/sample_parse">chabo/sample_parse</a></li>
+   <li><a href="/api/chabo/sample_put_together">chabo/sample_put_together</a></li>
  </ul>
  <h4>JSON POST</h4>
  <script type="text/javascript">
@@ -34,7 +37,7 @@
          $("#button").click( function(){
              var url = $("#url_post").val();
              var JSONdata = {
-                 value1: $("#value1").val(),
+                 text: $("#value1").val(),
                  value2: $("#value2").val()      
              };
              // alert(JSON.stringify(JSONdata));
@@ -50,7 +53,7 @@
  
      <h2><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=JSON">HTMLファイルからPOSTでJSONデータを送信する</a></h2>
      <p>URL: <input type="text" id="url_post" name="url" size="100" value="<%== url_for %>"></p>
-     <p>value1: <input type="text" id="value1" size="30" value="値1"></p>
+     <p>text  : <input type="text" id="value1" size="30" value="値1"></p>
      <p>value2: <input type="text" id="value2" size="30" value="値2"></p>
      <p><button id="button" type="button">submit</button></p>
      <textarea id="jsonText" cols=120 rows=10 placeholder="送信するJSONテキストを入力"></textarea>
@@ -61,6 +64,7 @@
 <h4><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=CSS+%A5%E1%A5%E2">モーダル画面もどき(サンプル)</a></h4>
 <div class="radioPanel">
     <button type="button" onclick="openModal('http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi')">モーダル画面を開く</button>
+    <button type="button" onclick="openModal('/api/json/json')">モーダル画面を開く</button>
 </div>
 <p><a name=sample></a>
 <h4><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=CSS+%A5%E1%A5%E2">パネルのラジオボタン (サンプル)</a></h4>

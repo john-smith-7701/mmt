@@ -62,8 +62,8 @@ sub registry{
 
    $self->_init_set();
    $self->action_set();
-   my $log = Mojo::Log->new();
-   $log->debug( "IN registry" );
+   #my $log = Mojo::Log->new();
+   #$log->debug( "IN registry" );
 
    for my $action  (@{$self->{'_action'}}) {
        if($action->{'name'} eq $self->param('_action')){
@@ -306,8 +306,8 @@ sub data_serch_select{
     if($s->param('serch_op') eq 'like'){
         $param[0] = "%" . $param[0] . "%";
     }
-    my $log = Mojo::Log->new();
-    $log->debug( $sql);
+    #my $log = Mojo::Log->new();
+    #$log->debug( $sql);
     $s->{'sth'} = $dbh->prepare($sql);
     $s->{'sth'}->execute(@param);
 }
