@@ -1,0 +1,13 @@
+[Sat Sep 23 09:34:51 2017] [info] Listening at "http://*:3000"
+[Sat Sep 23 09:35:16 2017] [debug] GET "/"
+[Sat Sep 23 09:35:16 2017] [debug] Routing to controller "Tool::mmt::Controller::Example" and action "welcome"
+[Sat Sep 23 09:35:16 2017] [debug] Rendering template "example/welcome.html.ep"
+[Sat Sep 23 09:35:16 2017] [debug] Rendering template "layouts/default.html.ep"
+[Sat Sep 23 09:35:16 2017] [debug] 200 OK (0.011273s, 88.708/s)
+[Sat Sep 23 09:35:29 2017] [debug] GET "/mmt"
+[Sat Sep 23 09:35:29 2017] [debug] Template "not_found.development.html.ep" not found
+[Sat Sep 23 09:35:29 2017] [debug] Template "not_found.html.ep" not found
+[Sat Sep 23 09:35:29 2017] [debug] Rendering template "mojo/debug.html.ep"
+[Sat Sep 23 09:35:29 2017] [debug] Rendering template "mojo/menubar.html.ep"
+[Sat Sep 23 09:35:29 2017] [debug] Your secret passphrase needs to be changed
+[Sat Sep 23 09:35:29 2017] [debug] 404 Not Found (0.030163s, 33.153/s)

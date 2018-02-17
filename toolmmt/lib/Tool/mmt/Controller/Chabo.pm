@@ -14,17 +14,17 @@
  sub sample_parse{
      my $s = shift;
      my $r = $s->text_parse($s->get_para('text','テスト'));
-     $s->json_or_jsonp( $s->render(json => $r, partial => 1));
+     $s->json_or_jsonp( $s->render_to_string(json => $r));
  }
  sub sample_put_together{
      my $s = shift;
      my @t = (join('',$s->put_together($s->get_para('text','わたし'))));
-     $s->json_or_jsonp( $s->render(json=>\@t,partial =>1));
+     $s->json_or_jsonp( $s->render_to_string(json=>\@t));
  }
  sub sample_get_time_line{
      my $s = shift;
      my $r = $s->time_line();
-     $s->json_or_jsonp( $s->render(json => $r, partial => 1));
+     $s->json_or_jsonp( $s->render_to_string(json => $r));
  }
  sub talk{
      my $s = shift;
@@ -32,7 +32,7 @@
      my $w = $s->select_word($r);
      my @ans = (join('',$s->put_together($w)));
      unshift(@ans,$w);
-     $s->json_or_jsonp( $s->render(json=>\@ans,partial =>1));
+     $s->json_or_jsonp( $s->render_to_string(json=>\@ans));
  }
  sub chatbot{
      my $s = shift;
@@ -42,6 +42,10 @@
      my $id = $s->write_log($name,$chat);
      my $r = $s->text_parse($chat);
      my ($w,$ans);
+     if($ans = $s->greeting($r,$name,$chat)){
+        $s->write_log('チャボ',$ans);
+        return $s->stash->{answer} = $ans;
+     }
      $w = $s->select_word($r);
      $ans = (join('',$s->put_together($w)));
      $ans = $s->arrange_text($ans);
@@ -53,6 +57,7 @@
      my $s = shift;
      my $text = shift;
      $text =~ s/^RT@[^:]+://g;
+     $text =~ s/\*\.jp://g;
      return $text;
  }
  sub write_log{
@@ -63,6 +68,19 @@
      my $dbh = $s->app->model->webdb->dbh;
      $dbh->do("INSERT INTO  @{[$s->chatdata]} (name,chat) values (?,?)",undef,$name,$chat); 
      return $dbh->{mysql_insertid};
+ }
+ sub greeting{
+     my $s = shift;
+     my $ws = shift;
+     my $name = shift;
+     my $chat = shift;
+     if($chat =~ m{(\)?\(?([-+]?\d+\)?\s*[-+*/%]\s*)+[-+]?\d+\)?)を計算}){
+				return eval $1;}
+     return "" if (@$ws > 6);
+     my @a = grep {$_->{feature} =~ '感動詞'} @$ws;
+     return "" if (@a == 0);
+     my $prefix = "はい、";
+     return $prefix . $a[int(rand scalar @a)]->{ surface } . " $name" . "さん";
  }
  sub select_word{
      my $s = shift;
@@ -87,9 +105,10 @@
      my $parser = Text::MeCab->new();
      my $n = $parser->parse(encode('utf-8',$text));
      my @ret = ();
-     do{
-         push(@ret,+{surface=>decode('utf-8',$n->surface),feature=>decode('utf-8',$n->feature)});
-     } while ($n = $n->next);
+     while($n){
+        push(@ret,+{surface=>decode('utf-8',$n->surface),feature=>decode('utf-8',$n->feature)});
+        $n = $n->next;
+     }
      return \@ret;
  }
   
@@ -130,6 +149,14 @@
          }else{
              last;
          }
+     }
+     my $before = "";
+     my $regex = qr/[a-zA-Z0-9!-.]{2,}/;
+     for my $word (@words){
+         if ($before =~ /$regex/ and $word =~ /$regex/){
+            $word = " " . $word;
+         }
+         $before = $word;
      }
      return @words;
  }

@@ -1,6 +1,6 @@
 package Tool::mmt::Controller::Rwt;
 use Mojo::Base 'Tool::mmt::Controller::Mmt';
-use Mojo::Util qw(slurp);
+#use Mojo::Util qw(slurp);
 use Encode qw/ decode decode_utf8 encode encode_utf8/;
 
 has contents => "";

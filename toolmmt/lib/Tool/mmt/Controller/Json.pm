@@ -21,13 +21,13 @@
 
  sub json_test01{
      my $s = shift;
-     $s->json_or_jsonp( $s->render(json => $perl_object, partial => 1)
+     $s->json_or_jsonp( $s->render_to_string(json => $perl_object)
          );
  }
  
  sub json{
      my $s = shift;
-     $s->render(json => $s->req->json);
+     $s->render(json => $s->req->json) if($s->req->json);
  }
  sub json_or_jsonp{
      my $s = shift;
@@ -44,7 +44,7 @@
      my $sql = "select name,chat from test.chatdata order by rand() limit 10";
      my $dbh = $s->app->model->webdb->dbh;
      my $data = $dbh->selectall_arrayref($sql,+{Slice => +{}});
-     $s->json_or_jsonp( $s->render(json => $data, partial => 1));
+     $s->json_or_jsonp( $s->render_to_string(json => $data));
  }
  
  1;
