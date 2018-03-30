@@ -740,7 +740,7 @@ sub get_name{
     my @names = qw/未登録/;
     #eval {
         @names = $s->app->model->webdb->dbh->selectrow_array(
-                    $s->{'m'}->{LOOK_UP}->{ref $s}->{$s->param('n')}->[0],undef,$s->param('p'));
+                    $s->{'m'}->{LOOK_UP}->{ref $s}->{$s->param('n')}->[0],undef,@{$s->every_param('p')});
     #};
     if ($@){
         $s->render(json=>$@);
@@ -757,7 +757,7 @@ sub subwin{
     my $param = $s->param('p');
     my $dbh = $s->app->model->webdb->dbh;
     $s->{'sth'} = $dbh->prepare($sql);
-    $s->{'sth'}->execute($s->param('p'));
+    $s->{'sth'}->execute(@{$s->every_param('p')});
     $s->stash->{_title} = '検索';
     $s->stash->{_sql} = $sql;
     $s->stash->{_controller} = ref $s;
