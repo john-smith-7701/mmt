@@ -258,14 +258,15 @@
      }
      $s->level($s->level + 1);
      $s->debugtext($s->debugtext . "<br>" . 
-         " N -> " . $p->{n} . "-" x $s->level .
-         join(',',@{$p->{key}}[0 ..$p->{n} - 1]));
+         " N -> " . $p->{n} . "ー" x $s->level . " [ " .
+         join(', ',@{$p->{key}}[0 ..$p->{n} - 1]) . " ]" );
      $s->tree_dump($_) for (@{$p->{node}}[0 .. $p->{n}]);
      $s->level($s->level - 1);
  }
  sub btree{
      my $s = shift;
-     $s->key(5);
+     $s->M(int(rand(8)+2));
+     $s->debugtext($s->debugtext . " (M:" . $s->M . ")"); 
      $s->insert($_ * 2) for (11 .. 15);
      $s->insert($_ * 2 - 1) for (1 .. 6);
      $s->insert($_) for (1 .. 20);
