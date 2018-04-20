@@ -18,6 +18,19 @@
      my $node = {key => [], node => [],n =>0};
      return $node;
  }
+
+ # バイナリーサーチ
+ sub first_index{
+     my ($s,$p) = @_;
+     my ($l,$r,$k,$x) = (0, $p->{n} - 1, 0, 0);
+     while($l <= $r){
+         $k = int(($l+$r)/2);
+         $x = $s->{key} <=> $p->{key}->[$k];
+         last if ($x == 0);
+         if($x<0) { $r = $k - 1 }else{ $l = $k + 1};
+     }
+     return ($x == 1)  ? ++$k : $k;
+ }
  
  # キーを検索
  sub search{
@@ -26,9 +39,8 @@
      $s->key($key);
      my $p = $s->root;
      while($p){
-         my $k = 0;
-         while($k < $p->{n} && $p->{key}->[$k] < $s->{key}){$k++;}
-         return 1 if($_ eq $s->{key});
+         my $k = $s->first_index($p,$key,$p->{n} - 1);
+         return 1 if($p->{key}->[$k] == $s->{key});
          $p = $p->{node}->[$k];
      }
      return 0;
@@ -47,10 +59,10 @@
      my ($s,$p,$k) = @_;
      my $q = $s->newpage();
      my $m = ($k <= $s->M) ? $s->M : $s->M + 1;
-     for ( my $j = $m + 1; $j <= 2 * $s->M ;$j++){
-         $q->{key}->[$j - $m - 1] = $p->{key}->[$j - 1];
-         $q->{node}->[$j - $m] = $p->{node}->[$j];
-     }
+     @{$q->{key}} = @{$p->{key}}[$m .. $p->{n} - 1];
+     @{$q->{node}} = @{$p->{node}}[$m+1 .. $p->{n}];
+     unshift @{$q->{node}},undef();
+
      $q->{n} = 2 * $s->M - $m;
      $p->{n} = $m;
      if ($k <= $s->M){
@@ -74,17 +86,14 @@
          $s->newp(undef());
          return;
      }
-     my $k = 0;
-     while($k < $p->{n} && $p->{key}->[$k] < $s->key){ $k++; }
-     if($p->{key}->[$k] == $s->key){
+     my $k = $s->first_index($p,$s->key,$p->{n} - 1);
+     if($k < $p->{n} && $p->{key}->[$k] == $s->key){
          $s->message("もう登録されています");
          $s->done(1);
          return;
      }
      $s->insertsub($p->{node}->[$k]);
-     if($s->done){
-         return;
-     }
+     return if($s->done);
      if($p->{n} < 2 * $s->M){
          # ページが割れない場合
          $s->insertitem($p,$k);
@@ -103,9 +112,8 @@
      $s->key($key);
      $s->message("登録しました");
      $s->insertsub($s->root);
-     if($s->done){
-         return;
-     }
+     return if($s->done);
+     
      my $p = $s->newpage();
      $p->{n} = 1 ;
      $p->{key}->[0] = $s->{key};
@@ -117,10 +125,8 @@
  # p->{key}[k],p-node[k+1]を外す。ページが小さくなりすぎたらundersizeフラグを立てる
  sub removeitem{
      my ($s,$p,$k) = @_;
-     while(++$k < $p->{n}){
-         $p->{key}->[$k - 1] = $p->{key}->[$k];
-         $p->{node}->[$k] = $p->{node}->[$k + 1];
-     }
+     splice(@{$p->{key}},$k,1);
+     splice(@{$p->{node}},$k+1,1);
      $s->undersize( --($p->{n}) < $s->M );
  }
  
@@ -129,15 +135,10 @@
      my ($s,$p,$k) = @_;
      my $left = $p->{node}->[$k - 1];
      my $right = $p->{node}->[$k];
-     for (my $j = $right->{n}; $j > 0 ; $j--){
-         $right->{key}->[$j] = $right->{key}->[$j - 1];
-         $right->{node}->[$j + 1] = $right->{node}->[$j];
-     }
-     $right->{node}->[1] = $right->{node}->[0];
      $right->{n}++;
-     $right->{key}->[0] = $p->{key}->[$k - 1];
+     unshift(@{$right->{key}},$p->{key}->[$k - 1]);
      $p->{key}->[$k - 1] = $left->{key}->[$left->{n} - 1];
-     $right->{node}->[0] = $left->{node}->[$left->{n}];
+     unshift(@{$right->{node}},$left->{node}->[$left->{n}]);
      $left->{n}--;
  } 
  
@@ -149,14 +150,8 @@
      my $right = $p->{node}->[$k];
      $left->{n}++;
      $left->{key}->[$left->{n} - 1] = $p->{key}->[$k - 1];
-     $left->{node}->[$left->{n}] = $right->{node}->[0];
-     $p->{key}->[$k - 1] = $right->{key}->[0];
-     $right->{node}->[0] = $right->{node}->[1];
-     $right->{n}--;
-     for (my $j = 1 ; $j <= $right->{n} ; $j++){
-         $right->{key}->[$j - 1] = $right->{key}->[$j];
-         $right->{node}->[$j] = $right->{node}->[$j + 1];
-     }
+     $left->{node}->[$left->{n}] = shift(@{$right->{node}});
+     $p->{key}->[$k - 1] = shift(@{$right->{key}});
  }
 
  # p->{node}[k -1],p->{node}[k]を統合する
@@ -165,14 +160,9 @@
 
      my $right = $p->{node}->[$k];
      my $left = $p->{node}->[$k - 1];
-     $left->{n}++;
-     $left->{key}->[$left->{n} - 1] = $p->{key}->[$k - 1];
-     $left->{node}->[$left->{n}] = $right->{node}->[0];
-     for (my $j = 1; $j <= $right->{n}; $j++){
-         $left->{n}++;
-         $left->{key}->[$left->{n} - 1] = $right->{key}->[$j - 1];
-         $left->{node}->[$left->{n}] = $right->{node}->[$j];
-     }
+     splice(@{$left->{key}},$left->{n} - 1,0,@{$right->{key}}[0 .. $right->{n} - 1]);
+     splice(@{$left->{node}},$left->{n},0,@{$right->{node}}[0 .. $right->{n}]);
+     $left->{n} += $right->{n};
      $s->removeitem($p,$k - 1);
      #free(right);
  }
@@ -204,8 +194,7 @@
          # 見つからなかった
          return;
      }
-     my $k = 0;
-     while($k < $p->{n} && $p->{key}->[$k] < $s->key) { $k++; }
+     my $k = $s->first_index($p,$s->key,$p->{n} - 1);
      if ($k < $p->{n} && $p->{key}->[$k] == $s->key) {
          # 見つかった
          $s->deleted(1);
@@ -240,7 +229,7 @@
      if($s->deleted){
          if($s->root->{n} == 0) {
              $p = $s->root;
-             $s->root = $s->root->{node}->[0];
+             $s->root($s->root->{node}->[0]);
              undef($p);
          }
          $s->message("削除しました");
@@ -263,26 +252,37 @@
      $s->tree_dump($_) for (@{$p->{node}}[0 .. $p->{n}]);
      $s->level($s->level - 1);
  }
+ sub debug_print{
+     my $s = shift;
+     $s->level(0);
+     $s->tree_dump($s->root);
+     $s->render(template => 'btree/btree','message'=> $s->message,
+            'treetext'=>$s->debugtext);
+     $s->debugtext($s->debugtext . "<br>-------------------------------"); 
+ 
+ }
  sub btree{
      my $s = shift;
      $s->M(int(rand(8)+2));
      $s->debugtext($s->debugtext . " (M:" . $s->M . ")"); 
      $s->insert($_ * 2) for (11 .. 15);
+     $s->debug_print();
+     $s->insert(25);
+     $s->debug_print();
      $s->insert($_ * 2 - 1) for (1 .. 6);
-     $s->insert($_) for (1 .. 20);
+     $s->debug_print();
+     $s->insert($_ * 2 - 1) for (1 .. 6);
+     $s->debug_print();
      $s->insert($_) for (30 .. 100);
-     $s->insert(7);
+     $s->debug_print();
      $s->delete($_) for (92 .. 99);
-     $s->delete(11);
+     $s->debug_print();
      $s->delete(51);
-     $s->insert(11);
+     $s->debug_print();
      $s->insert(51);
+     $s->debug_print();
      $s->delete(75);
-
-     $s->level(0);
-     $s->tree_dump($s->root);
-     $s->render(template => 'btree/btree','message'=> $s->message,
-            'treetext'=>$s->debugtext);
+     $s->debug_print();
  }
 
  1;
