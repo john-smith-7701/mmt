@@ -160,7 +160,9 @@
 
      my $right = $p->{node}->[$k];
      my $left = $p->{node}->[$k - 1];
-     splice(@{$left->{key}},$left->{n} - 1,0,@{$right->{key}}[0 .. $right->{n} - 1]);
+     $left->{n}++;
+     $left->{key}->[$left->{n} - 1] = $p->{key}->[$k - 1];
+     splice(@{$left->{key}},$left->{n},0,@{$right->{key}}[0 .. $right->{n} - 1]);
      splice(@{$left->{node}},$left->{n},0,@{$right->{node}}[0 .. $right->{n}]);
      $left->{n} += $right->{n};
      $s->removeitem($p,$k - 1);
