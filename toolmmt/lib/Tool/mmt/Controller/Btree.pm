@@ -200,13 +200,14 @@
      if ($k < $p->{n} && $p->{key}->[$k] == $s->key) {
          # 見つかった
          $s->deleted(1);
-         if(($q = $p->{node}->[$k + 1])){
-             $q = $q->{node}->[0] while ($q->{node}->[0]);
-             $p->{key}->[$k] = $q->{key}->[0];
-             $s->key($q->{key}->[0]);
-             $s->deletesub($p->{node}->[$k + 1]);
+         if(($q = $p->{node}->[$k])){
+             # 木をたどりキー以下の最大の値を検索
+             $q = $q->{node}->[$q->{n}] while ($q->{node}->[$q->{n}]);
+             $p->{key}->[$k] = $q->{key}->[$q->{n} - 1];
+             $s->key($q->{key}->[$q->{n} - 1]);
+             $s->deletesub($p->{node}->[$k]);
              if($s->undersize){
-                 $s->restore($p,$k + 1);
+                 $s->restore($p,$k);
              }
          }else{
              $s->removeitem($p,$k);
