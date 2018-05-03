@@ -1,10 +1,26 @@
  package Tool::mmt::Controller::Btree;
  use Mojo::Base 'Tool::mmt::Controller::Json';
- 
- has root => undef();
- has M => 5;
- has newp => undef();
- has key => '';
+
+=head1 名前
+
+B-Tree サンプル
+
+=head1 概要
+
+ C言語によるアルゴリズム辞典
+ P.316
+ Ｂ木 B-Tree
+
+ https://gist.github.com/viz3/3486656 
+ cをperlに書き換え
+
+=cut
+
+ has root => undef();               # B木の根
+ has M => 5;                        # 1ページのデータ数の上限の半分
+ has newp => undef();               # insert()の生成した新しいページ
+ has key => '';                     # キー
+ has value => '';                   # データ（未使用）
  has message => 'errmessage';
  has done => 0;
  has deleted => 0;
@@ -15,20 +31,34 @@
  # 新しいページの作成
  sub newpage{
      my $s = shift;
-     my $node = {key => [], node => [],n =>0};
+     # ページ key: キー node: 他ページへのポインタ n:データ数
+     my $node = {key => [], node => [],n =>0, value => []};
      return $node;
+ }
+ # ノードを開放する（まだ未実装）
+ sub free{
+     my $s = shift;
+     my $node = shift;
  }
 
  # バイナリーサーチ
+ #
+ # ページよりキー($s->key)以上の最初の値を検索
  sub first_index{
      my ($s,$p) = @_;
      my ($l,$r,$k,$x) = (0, $p->{n} - 1, 0, 0);
-     while($l <= $r){
-         $k = int(($l+$r)/2);
-         $x = $s->{key} <=> $p->{key}->[$k];
-         last if ($x == 0);
-         if($x<0) { $r = $k - 1 }else{ $l = $k + 1};
+     while($l <= $r){                           # 左が右以下の間ループ
+         $k = int(($l+$r)/2);                   # 左と右の真ん中を計算
+         $x = $s->{key} <=> $p->{key}->[$k];    # キーを比較
+         last if ($x == 0);                     # キーが見つかったら抜ける
+         if($x<0) { 
+             $r = $k - 1;                       # キーが小さい場合 
+         }else{                                 #     右端を真ん中の１つ前
+             $l = $k + 1;                       # 大きい場合
+         };                                     #     左端を真ん中の１つ後
      }
+
+     # キー以上の最小のINDEXを返す
      return ($x == 1)  ? ++$k : $k;
  }
  
@@ -58,6 +88,7 @@
  sub node_split{
      my ($s,$p,$k) = @_;
      my $q = $s->newpage();
+     # 挿入する場所がM以下の場合はM、Mより大きい場合はM+1以降を新しいページにコピーする。
      my $m = ($k <= $s->M) ? $s->M : $s->M + 1;
      @{$q->{key}} = @{$p->{key}}[$m .. $p->{n} - 1];
      @{$q->{node}} = @{$p->{node}}[$m+1 .. $p->{n}];
@@ -66,10 +97,11 @@
      $q->{n} = 2 * $s->M - $m;
      $p->{n} = $m;
      if ($k <= $s->M){
-         $s->insertitem($p,$k);
+         $s->insertitem($p,$k);                 # 元のページに挿入
      }else{
-         $s->insertitem($q,$k - $m);
+         $s->insertitem($q,$k - $m);            # 新しいページに挿入
      }
+     # 元ページの最後のキーを追い出し最後のノードを新しいページの最初のノードに移す。
      $s->key($p->{key}->[$p->{n} - 1]);
      $q->{node}->[0] = $p->{node}->[$p->{n}];
      $p->{n}--;
@@ -114,6 +146,7 @@
      $s->insertsub($s->root);
      return if($s->done);
      
+     # 挿入がまだ終了していない場合に新しいROOTノードを作成する。
      my $p = $s->newpage();
      $p->{n} = 1 ;
      $p->{key}->[0] = $s->{key};
@@ -166,7 +199,7 @@
      splice(@{$left->{node}},$left->{n},0,@{$right->{node}}[0 .. $right->{n}]);
      $left->{n} += $right->{n};
      $s->removeitem($p,$k - 1);
-     #free(right);
+     $s->free($right);
  }
 
  # 小さくなりすぎたページをp->{node}->[k]を修復する
