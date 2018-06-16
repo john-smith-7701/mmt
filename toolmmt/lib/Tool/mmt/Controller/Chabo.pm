@@ -3,10 +3,12 @@
  
 =head1 NAME
   chabo - AI(Artificial incompetence) chabo(chat bot) module
+
 =cut
  
  use Encode;
- use Text::MeCab;
+ #use Text::MeCab;
+ use MeCab;
 
  has chatdata => 'test.chatdata';
  has markov => 'test.markov';
@@ -102,6 +104,10 @@
  sub text_parse{
      my $s = shift;
      my $text = shift;
+
+=POD
+Text::MeCabが文字化けするのでMeCabに変えてみた
+
      my $parser = Text::MeCab->new();
      my $n = $parser->parse(encode('utf-8',$text));
      my @ret = ();
@@ -109,6 +115,13 @@
         push(@ret,+{surface=>decode('utf-8',$n->surface),feature=>decode('utf-8',$n->feature)});
         $n = $n->next;
      }
+
+=cut
+
+     my @ret = map { /(.*)\t(.*?),/
+                ? +{ surface=>decode('utf-8',$1),feature=>decode('utf-8',$2) }
+                : +{ surface=>'EOS'} }
+            split("\n",MeCab::Tagger->new()->parse(encode('utf-8',$text)));
      return \@ret;
  }
   

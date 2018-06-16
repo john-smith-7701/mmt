@@ -58,7 +58,7 @@ B-Tree サンプル
          };                                     #     左端を真ん中の１つ後
      }
 
-     # キー以上の最小のINDEXを返す
+     # キー以上の最初のINDEXを返す
      return ($x == 1)  ? ++$k : $k;
  }
  
@@ -142,7 +142,7 @@ B-Tree サンプル
      my $s = shift;
      my $key = shift||$s->key;
      $s->key($key);
-     $s->message("登録しました");
+     $s->message("[ $key ]登録しました");
      $s->insertsub($s->root);
      return if($s->done);
      
@@ -268,7 +268,7 @@ B-Tree サンプル
              $s->root($s->root->{node}->[0]);
              undef($p);
          }
-         $s->message("削除しました");
+         $s->message("[ $key ] 削除しました");
      }else{
          $s->message("見つかりません");
      }
@@ -291,23 +291,24 @@ B-Tree サンプル
  sub debug_print{
      my $s = shift;
      $s->level(0);
+     $s->debugtext($s->debugtext . "<br>" . "-" x 80 . $s->message); 
      $s->tree_dump($s->root);
      $s->render(template => 'btree/btree','message'=> $s->message,
             'treetext'=>$s->debugtext);
-     $s->debugtext($s->debugtext . "<br>-------------------------------"); 
  
  }
  sub btree{
      my $s = shift;
      $s->M(int(rand(8)+2));
+     #    $s->M(5);
      $s->debugtext($s->debugtext . " (M:" . $s->M . ")"); 
      $s->insert($_ * 2) for (11 .. 15);
      $s->debug_print();
      $s->insert(25);
      $s->debug_print();
-     $s->insert($_ * 2 - 1) for (1 .. 6);
+     $s->insert($_ * 2 - 1) for (1 .. 4);
      $s->debug_print();
-     $s->insert($_ * 2 - 1) for (1 .. 6);
+     $s->insert($_ * 2 - 1) for (1 .. 5);
      $s->debug_print();
      $s->insert($_) for (30 .. 100);
      $s->debug_print();
