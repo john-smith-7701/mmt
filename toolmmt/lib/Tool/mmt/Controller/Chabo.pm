@@ -20,7 +20,7 @@
  }
  sub sample_put_together{
      my $s = shift;
-     my @t = (join('',$s->put_together($s->get_para('text','わたし'))));
+     my @t = (join('',$s->put_together($s->get_para('text','perl'))));
      $s->json_or_jsonp( $s->render_to_string(json=>\@t));
  }
  sub sample_get_time_line{
@@ -30,7 +30,7 @@
  }
  sub talk{
      my $s = shift;
-     my $r = $s->text_parse($s->get_para('text','わたし'));
+     my $r = $s->text_parse($s->get_para('text','perl'));
      my $w = $s->select_word($r);
      my @ans = (join('',$s->put_together($w)));
      unshift(@ans,$w);
@@ -94,7 +94,7 @@
      my $s = shift;
      my $item = shift||'text';
      my $def = shift;
-     my $t = $s->param($item);
+     my $t = $s->param($item)||'';
      if ($t eq "") {
         $t = ref $s->req->json eq 'HASH' ? $s->req->json->{$item}  
                                          : $def;
