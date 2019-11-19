@@ -1,0 +1,13 @@
+% layout 'defrwt';
+% title 'login' ;
+<h2>Login</h2>
+
+%= form_for login => (method => 'post') => begin
+ <br>Name:
+ %= text_field 'user'
+ <br>password:
+ %= text_field 'passwd'
+ <br>
+ %= submit_button 'Login'
+ %= hidden_field url => $url 
+% end
