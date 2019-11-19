@@ -16,15 +16,20 @@ sub startup {
   # Router
   my $r = $self->routes;
   $r->namespaces(['Tool::mmt::Controller']);
+  # ユーザー認証
+  my $sr = $r->under->to('auth#check');
   # Normal route to controller
   $r->get('/')->to('example#welcome');
-  $r->get('/mmt/:_table/desc')->to('mmt#desc');
-  $r->get('/mmt/:_table')->to(controller => $self->controller,action =>'mainform');
-  $r->post('/mmt/:_table')->to(controller => $self->controller,action => 'registry');
-  $r->get('/mmtx/:controller')->to(controller => $self->controller,action =>'mainform');
-  $r->post('/mmtx/:controller')->to(controller => $self->controller,action => 'registry');
-  $r->any('/mmtx/:controller')->to(controller => $self->controller,action => 'mainform');
-  $r->any('/rwt/:controller')->to(controller => $self->controller,action => 'print_main');
+  $sr->get('/logout')->to('auth#logout');
+  $sr->any('/login')->to('auth#login');
+  $sr->any('/mmt/login')->to('auth#login');
+  $sr->get('/mmt/:_table/desc')->to('mmt#desc');
+  $sr->get('/mmt/:_table')->to(controller => $self->controller,action =>'mainform');
+  $sr->post('/mmt/:_table')->to(controller => $self->controller,action => 'registry');
+  $sr->get('/mmtx/:controller')->to(controller => $self->controller,action =>'mainform');
+  $sr->post('/mmtx/:controller')->to(controller => $self->controller,action => 'registry');
+  $sr->any('/mmtx/:controller')->to(controller => $self->controller,action => 'mainform');
+  $sr->any('/rwt/:controller')->to(controller => $self->controller,action => 'print_main');
   $r->any('/api/:controller/:action')->to('example#welcom');
 }
 
