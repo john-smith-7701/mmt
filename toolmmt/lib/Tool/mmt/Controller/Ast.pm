@@ -1,4 +1,5 @@
-package Ast;
+package Tool::mmt::Controller::Ast;
+use Mojo::Base 'Tool::mmt::Controller::Mmt';
 use strict;
 use warnings;
 use Data::Dumper;
@@ -14,19 +15,22 @@ my $op = +{ '-' => [sub {$_[0] - $_[1]},1],         # オペレータ定義
            ')' => [sub { },10],
         };
 sub ast{
-    Ast->new('formula'=>shift())->{anser};
+    my $s = shift;
+    my $x = $s->Astnew('formula'=>$s->param('calc'));
+    $s->stash(anser => $x->{anser});
 }
 sub _ast{
     my $s = shift;
-    $s->{anser} = $s->readTree($s->makeTree(@{$s->item_split($s->adjust(shift))->{item}}));
+    $s->{root} = $s->makeTree(@{$s->item_split($s->adjust(shift))->{item}});
+    $s->stash(tree => Dumper $s->{root});
+    $s->{anser} = $s->readTree($s->{root});
 }
-sub new {                                           # コンストラクター
-    my $class = shift;
-    my $self = {@_};
-    bless $self,$class;
-    $self->setReOps();
-    $self->_ast($self->{formula}) if (exists $self->{formula});
-    return $self;
+sub Astnew {                                           # コンストラクター
+    my $s = shift;
+    my $x = {@_};
+    $s->setReOps();
+    $s->_ast($x->{formula}) if (exists $x->{formula});
+    return $s;
 }
 sub setReOps{                                       # 演算子の正規表現作成
     my $s = shift;

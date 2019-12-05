@@ -1,0 +1,46 @@
+[Fri Nov  8 11:04:44 2019] [debug] GET "/"
+[Fri Nov  8 11:04:44 2019] [debug] Routing to controller "Tool::mmt::Controller::Example" and action "welcome"
+[Fri Nov  8 11:04:44 2019] [debug] Rendering template "example/welcome.html.ep"
+[Fri Nov  8 11:04:44 2019] [debug] Rendering template "layouts/default.html.ep"
+[Fri Nov  8 11:04:44 2019] [debug] 200 OK (0.073112s, 13.678/s)
+[Fri Nov  8 11:05:08 2019] [debug] GET "/"
+[Fri Nov  8 11:05:08 2019] [debug] Routing to controller "Tool::mmt::Controller::Example" and action "welcome"
+[Fri Nov  8 11:05:08 2019] [debug] Rendering cached template "example/welcome.html.ep"
+[Fri Nov  8 11:05:08 2019] [debug] Rendering cached template "layouts/default.html.ep"
+[Fri Nov  8 11:05:08 2019] [debug] 200 OK (0.023159s, 43.180/s)
+[Fri Nov  8 11:05:21 2019] [debug] GET "/"
+[Fri Nov  8 11:05:21 2019] [debug] Routing to controller "Tool::mmt::Controller::Example" and action "welcome"
+[Fri Nov  8 11:05:21 2019] [debug] Rendering cached template "example/welcome.html.ep"
+[Fri Nov  8 11:05:21 2019] [debug] Rendering cached template "layouts/default.html.ep"
+[Fri Nov  8 11:05:21 2019] [debug] 200 OK (0.022688s, 44.076/s)
+[Fri Nov  8 11:10:36 2019] [debug] GET "/api/btree"
+[Fri Nov  8 11:10:36 2019] [debug] Routing to controller "Tool::mmt::Controller::Btree" and action "welcom"
+[Fri Nov  8 11:10:36 2019] [debug] Action not found in controller
+[Fri Nov  8 11:10:36 2019] [debug] Template "btree/welcom.html.ep" not found
+[Fri Nov  8 11:10:36 2019] [debug] Template "not_found.development.html.ep" not found
+[Fri Nov  8 11:10:36 2019] [debug] Template "not_found.html.ep" not found
+[Fri Nov  8 11:10:36 2019] [debug] Rendering template "mojo/debug.html.ep"
+[Fri Nov  8 11:10:36 2019] [debug] Rendering template "mojo/menubar.html.ep"
+[Fri Nov  8 11:10:36 2019] [debug] Your secret passphrase needs to be changed
+[Fri Nov  8 11:10:36 2019] [debug] 404 Not Found (0.331857s, 3.013/s)
+[Fri Nov  8 11:12:28 2019] [debug] GET "/api/btree/btree"
+[Fri Nov  8 11:12:28 2019] [debug] Routing to controller "Tool::mmt::Controller::Btree" and action "btree"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering template "btree/btree.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering template "layouts/defrwt.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] 200 OK (0.024594s, 40.660/s)
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "btree/btree.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "layouts/defrwt.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "btree/btree.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "layouts/defrwt.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "btree/btree.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "layouts/defrwt.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "btree/btree.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "layouts/defrwt.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "btree/btree.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "layouts/defrwt.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "btree/btree.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "layouts/defrwt.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "btree/btree.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "layouts/defrwt.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "btree/btree.html.ep"
+[Fri Nov  8 11:12:28 2019] [debug] Rendering cached template "layouts/defrwt.html.ep"
