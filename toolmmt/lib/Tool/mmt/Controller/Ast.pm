@@ -25,7 +25,7 @@ sub _ast{
     $s->stash(tree => Dumper $s->{root});
     $s->{anser} = $s->readTree($s->{root});
 }
-sub Astnew {                                           # コンストラクター
+sub Astnew {                                           # 
     my $s = shift;
     my $x = {@_};
     $s->setReOps();
@@ -44,22 +44,22 @@ sub newNode{
 }
 sub readTree{                                       # AST計算
     my ($s,$node) = @_;
-    do{$node->{$_} = $s->readTree($node->{$_}) if(ref($node->{$_}) eq "HASH")} for ('left','right');
+    return $node if(ref($node) ne 'HASH');
+    do{$node->{$_} = $s->readTree($node->{$_}) if(ref($node->{$_}) eq 'HASH')} for ('left','right');
     exists $op->{$node->{data}} ? $op->{$node->{data}}->[0]($node->{left},$node->{right})
                                 : $node->{data};
 }
-sub makeTree{                                       # ATS組み立て
+sub makeTree{                                       # AST組み立て
     my $s = shift;
     while($_[0] eq '(' and $_[-1] eq ')'){
         my ($r,$sw) = (0,0);
         for(@_){                                    # '('の深さを計算
-            $r++ if($_ eq '(');                     
-            $r-- if($_ eq ')');
-            $sw++ if($r == 1 and $_ eq '(');
+            ++$r if($_ eq '(');                     
+            --$r if($_ eq ')');
+            ++$sw if($r == 1 and $_ eq '(');
         }
         if($sw == 1){                               #  一番外側の括弧を外す
-            shift;
-            pop;
+            shift; pop;
         }else{
             last;
         }
@@ -67,12 +67,12 @@ sub makeTree{                                       # ATS組み立て
     return shift() if(@_ <= 1);                     # 要素が一つの時は要素を返す
     my ($prio,$i,$m,$r) = (99,-1,0,0);
     for(@_){                                        # 一番右側の一番プライオリティの低いオペレータを検索
-        $i++;
+        ++$i;
         if(/^$s->{ops}$/){
-            $r++ if($_ eq '(');
-            $r-- if($_ eq ')');
+            ++$r if($_ eq '(');
+            --$r if($_ eq ')');
             next if($r or $_ eq ')');              #  括弧の間は読み飛ばす
-            if($op->{$_}->[1]+$r <= $prio){
+            if($op->{$_}->[1] <= $prio){
                 $prio = $op->{$_}->[1];
                 $m = $i;
             }
