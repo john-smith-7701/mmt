@@ -3,7 +3,7 @@
  <h1>AST</h1>
 %= form_for ast => (method => 'post') => begin
  <br>計算式:
- %= text_field 'calc'
+ %= text_field 'calc',size => 80
  %= submit_button '計算'
 % end
  <%= stash('anser') %>
