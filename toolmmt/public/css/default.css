@@ -172,3 +172,13 @@
      height:100%;
      background-color:rgba(0,0,0,0.50);
  }
+
+  input[type="checkbox"].accordion + div{
+    display:none;
+  }
+  input[type="checkbox"].accordion:checked + div{
+    display:block;
+  }
+  input[type="checkbox"].accordion{
+    display:none;
+  } 

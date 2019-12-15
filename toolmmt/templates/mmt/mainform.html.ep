@@ -21,8 +21,12 @@
 %= submit_button $self->{'_action'}[6]->{'name'} ,id => '_action',name => '_action'
 %= submit_button $self->{'_action'}[7]->{'name'} ,id => '_action',name => '_action'
 <a href=/rwt/rwt/?table=<%= param('_table') %>>一覧表</a>
-<br>
-INFO:<%= $self->{errstr} %>
+<label for="serch_add">検索条件追加</label>
+%= check_box serch_add => 1,id=>'serch_add',class=>'accordion'
+<div>
+<%== $self->serch_input_field_append(5) %>
+</div>
+<div>INFO:<%= $self->{errstr} %></div>
 <hr>
 <table border=1>
 % my $i = 0;

@@ -163,15 +163,22 @@ sub set_table_info{
 
 }
 #------------------------------------------------------------------#
+sub serch_input_field_append{
+    my $s = shift;
+    my $i = shift;
+    return if($i !~ /^[1-9]$/);
+    my $text = $s->select_field('AndOr_0'=>['','AND','OR']) . $s->serch_input_field();
+    return join('<br>',map{$text =~ s/_\d/_$_/g;$text} (1 .. $i));
+}
 sub serch_input_field{
     my $s = shift;
     my @item_list = (@{$s->{m}->{key}},@{$s->{m}->{item}});
 
-    return  $s->select_field('serch_item'=>
+    return  $s->select_field('<serch_item_0>'=>
                 [map{[$s->Label($_),$_]} @item_list]) .
-            $s->select_field('serch_op' =>
+            $s->select_field('<serch_op_0>' =>
             [qw(like = <> <= < > >= between regexp)]) .
-        $s->text_field('serch_value');
+        $s->text_field('<serch_value_0>');
 }
 #------------------------------------------------------------------#
 sub input_field{
@@ -296,20 +303,26 @@ sub data_serch_select{
     my $s = shift;
     $s->set_table_info();
     my $dbh = $s->app->model->webdb->dbh;
-    my $sql;
-    my @param = ($s->param('serch_value'));
-    $sql = "select * from @{[$s->param('_table')]} where @{[$s->param('serch_item')]} @{[$s->param('serch_op')]} ? "; 
-    if($s->param('serch_op') eq 'between'){
-        $sql .= " and ? ";
-        @param = split ",",$s->param('serch_value');
-    }
-    if($s->param('serch_op') eq 'like'){
-        $param[0] = "%" . $param[0] . "%";
+    my $sql = "select * from @{[$s->param('_table')]} where ";
+    my @p = ();
+    for (0 .. 5){
+        next if($_ != 0 and $s->param("AndOr_$_") eq "");
+        $sql .= qq( @{[$s->param("AndOr_$_")]} ) if($_ != 0);
+        my @param = $s->param("<serch_value_$_>");
+        $sql .= qq( @{[$s->param("<serch_item_$_>")]} @{[$s->param("<serch_op_$_>")]} ? ); 
+        if($s->param("<serch_op_$_>") eq 'between'){
+            $sql .= " and ? ";
+            @param = split ",",$s->param("<serch_value_$_>");
+        }
+        if($s->param("<serch_op_$_>") eq 'like'){
+            $param[0] = "%" . $param[0] . "%";
+        }
+        push @p,@param;
     }
     #my $log = Mojo::Log->new();
     #$log->debug( $sql);
     $s->{'sth'} = $dbh->prepare($sql);
-    $s->{'sth'}->execute(@param);
+    $s->{'sth'}->execute(@p);
 }
 #---------------------------------------------------------------#
 sub data_get{

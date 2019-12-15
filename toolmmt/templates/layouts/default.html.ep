@@ -44,7 +44,7 @@
             }
 
      </script>
-     <%= stylesheet '/css/default.css' %>
+     <%= stylesheet '/css/default.css?a=2' %>
      <%= javascript '/js/sortable_ja.js' %>
   </head>
   <body>
