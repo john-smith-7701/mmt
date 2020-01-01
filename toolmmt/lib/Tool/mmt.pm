@@ -8,6 +8,7 @@ has 'controller' => "mmt";
 # This method will run once at server start
 sub startup {
   my $self = shift;
+  $self->plugin('Config'=>{'file'=>'toolmmt.conf'});
 
   # Documentation browser under "/perldoc"
   $self->plugin('PODRenderer');
@@ -22,7 +23,8 @@ sub startup {
   $r->get('/')->to('example#welcome');
   $sr->get('/logout')->to('auth#logout');
   $sr->any('/login')->to('auth#login');
-  $sr->any('/mmt/login')->to('auth#login');
+  $sr->any('/*name/login')->to('auth#login');
+  $sr->any('/*name/logout')->to('auth#logout');
   $sr->get('/mmt/:_table/desc')->to('mmt#desc');
   $sr->get('/mmt/:_table')->to(controller => $self->controller,action =>'mainform');
   $sr->post('/mmt/:_table')->to(controller => $self->controller,action => 'registry');

@@ -1,8 +1,8 @@
 % layout 'defrwt';
 % title 'login' ;
 <h2>Login</h2>
-
-%= form_for login => (method => 'post') => begin
+%= join '|',@{$self->req->url->path->parts},$ENV{MOJO_REVERSE_PROXY},@{$self->req->url->base->path->parts}
+%= form_for './login' => (method => 'post') => begin
  <br>Name:
  %= text_field 'user',size => 60
  <br>password:

@@ -37,7 +37,7 @@ sub logout{
     my $s = shift;
     # セッション削除
     $s->session(expires => 1);
-    $s->stash( 'url' => 'login' );
+    $s->stash( 'url' => './login' );
     $s->render( template => 'auth/login');
 }
 sub randomStr{
