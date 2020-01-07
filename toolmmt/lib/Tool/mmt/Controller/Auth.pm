@@ -16,7 +16,7 @@ sub check {
     if($s->userAuth()){
         return 1;
     }
-    $s->stash( 'url' => $s->req->url->to_abs );
+    $s->stash( 'url' => $s->req->url);
     $s->render( template => 'auth/login');
     return undef;
 }

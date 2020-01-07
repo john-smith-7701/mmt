@@ -1,7 +1,7 @@
 % layout 'defrwt';
 % title 'login' ;
 <h2>Login</h2>
-%= join '|',@{$self->req->url->path->parts},$ENV{MOJO_REVERSE_PROXY},@{$self->req->url->base->path->parts}
+%= join '|',@{$self->req->url->path->parts},$ENV{MOJO_REVERSE_PROXY},@{$self->req->url->base->path->parts},$self->req->headers->header('X-Forwarded-Host')
 %= form_for './login' => (method => 'post') => begin
  <br>Name:
  %= text_field 'user',size => 60
