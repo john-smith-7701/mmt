@@ -32,6 +32,7 @@ sub startup {
   $sr->post('/mmtx/:controller')->to(controller => $self->controller,action => 'registry');
   $sr->any('/mmtx/:controller')->to(controller => $self->controller,action => 'mainform');
   $sr->any('/rwt/:controller')->to(controller => $self->controller,action => 'print_main');
+  $sr->any('/menu/:controller')->to(controller => $self->controller,action => 'menu');
   $r->any('/api/:controller/:action')->to('example#welcom');
 }
 

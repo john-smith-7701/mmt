@@ -50,7 +50,7 @@
   <body>
     <input type=hidden name=_focus id=_focus value=<%= param('_focus') %>>
     <div class="main">
-      <a href=./logout>logout</a>
+        <a href=/menu/menu>[TOP MENU]</a> <a href=./logout>[logout]</a>
       <%= content %>
     </div>
     <div class="sidebar">
