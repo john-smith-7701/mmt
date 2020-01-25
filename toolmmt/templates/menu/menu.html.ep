@@ -1,13 +1,14 @@
 % layout 'default';
 % title 'menu' ;
-<table width=98%><tr><td>
+<table width=98%><tr><td style="vertical-align: top;">
 %   for my $r (@$_data){
 %       if ($r->{menukbn} =~ /^(H\d)/i){
             %== tag($1,$r->{meisyo});
 %       }elsif ($r->{menukbn} eq ''){
             %== $r->{meisyo}
 %       }else{
-            %== "<a href=$r->{URL}?$r->{PARAM}>$r->{meisyo}</a><br>"
+%           $r->{PARAM} = $r->{PARAM} eq "" ? "" : "?" . $r->{PARAM};
+            %== "<a href=$r->{URL}$r->{PARAM}>$r->{meisyo}</a><br>"
 %       }
 %   }
 </td></tr></table>

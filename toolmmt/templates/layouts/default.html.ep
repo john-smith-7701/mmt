@@ -51,6 +51,7 @@
     <input type=hidden name=_focus id=_focus value=<%= param('_focus') %>>
     <div class="main">
         <a href=/menu/menu>[TOP MENU]</a> <a href=./logout>[logout]</a>
+        [ <%= $self->param('user') %> ]
       <%= content %>
     </div>
     <div class="sidebar">

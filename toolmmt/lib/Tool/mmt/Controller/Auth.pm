@@ -8,9 +8,16 @@ sub login {
 }
 sub check {
     my $s = shift;
-    # セッション確定済なら認証通貨
+    # セッション確定済なら認証通過
     if($s->session('session')){
-        return 1;
+        my $dbh = $s->app->model->webdb->dbh;
+        # セッションよりユーザを取得
+        my $data = $dbh->selectall_arrayref(
+                "select user from session where session = ?",+{Slice => +{}},$s->session('session'));
+        if($data->[0]->{'user'}){
+            $s->param('user',$data->[0]->{'user'});
+            return 1;
+        }
     }
     #パスワードチェック
     if($s->userAuth()){
@@ -30,12 +37,21 @@ sub userAuth{
         return undef; 
     }
     my $sessionId = $s->randomStr();
+    my $dbh = $s->app->model->webdb->dbh;
+    # パスワードを確認
+    my $data = $dbh->selectall_arrayref(
+                "select 1 as user from user_tbl where userid = ? and password = sha(?)",+{Slice => +{}},$s->param('user'),$s->param('passwd').'qweer.info');
+    return undef unless $data->[0]->{user};
+    # セッションにユーザーを登録
+    $dbh->do("INSERT INTO  session (session,user) values (?,?)",undef,$sessionId,$s->param('user')); 
     $s->session('session' => $sessionId);
     return 1;
 }
 sub logout{
     my $s = shift;
     # セッション削除
+    my $dbh = $s->app->model->webdb->dbh;
+    $dbh->do("DELETE FROM session where session = ?",undef,$s->session('session')); 
     $s->session(expires => 1);
     $s->stash( 'url' => './login' );
     $s->render( template => 'auth/login');
