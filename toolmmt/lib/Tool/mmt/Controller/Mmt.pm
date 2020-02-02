@@ -53,7 +53,7 @@ sub make_sidebar{
     }else{
         $tables = $s->app->model->webdb->dbh->selectall_arrayref('show tables');
     }
-    $table_list .= join "\n",map {qq{<li><a href="/mmt/$_->[0]">$_->[0]</a></li>}} @$tables;
+    $table_list .= join "\n",map {qq{<li><a href="/mmt/$_->[0]">$_->[0]</a></li>}} grep { $_->[0] !~ /user/ } @$tables;
     $table_list .= '</ul>';
     return $s->app->model->webdb->const->{sidebar} . $table_list;
 }

@@ -13,9 +13,11 @@ sub check {
         my $dbh = $s->app->model->webdb->dbh;
         # セッションよりユーザを取得
         my $data = $dbh->selectall_arrayref(
-                "select user from session where session = ?",+{Slice => +{}},$s->session('session'));
+                "select user,ニックネーム as nick from session left join user_info on userid = user where session = ?"
+                        ,+{Slice => +{}},$s->session('session'));
         if($data->[0]->{'user'}){
             $s->param('user',$data->[0]->{'user'});
+            $s->param('nick',$data->[0]->{'nick'}||'名無し');
             return 1;
         }
     }

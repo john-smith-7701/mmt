@@ -9,6 +9,7 @@ has 'controller' => "mmt";
 sub startup {
   my $self = shift;
   $self->plugin('Config'=>{'file'=>'toolmmt.conf'});
+  $self->log->level('debug');
 
   # Documentation browser under "/perldoc"
   $self->plugin('PODRenderer');
@@ -32,6 +33,7 @@ sub startup {
   $sr->post('/mmtx/:controller')->to(controller => $self->controller,action => 'registry');
   $sr->any('/mmtx/:controller')->to(controller => $self->controller,action => 'mainform');
   $sr->any('/rwt/:controller')->to(controller => $self->controller,action => 'print_main');
+  $sr->any('/menu/:controller/:action')->to(controller => $self->controller,action => 'menu');
   $sr->any('/menu/:controller')->to(controller => $self->controller,action => 'menu');
   $r->any('/api/:controller/:action')->to('example#welcom');
 }

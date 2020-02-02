@@ -43,6 +43,14 @@
                 $("#modal-overlay").fadeIn("slow");
             }
 
+            $(function() {
+                $("ul.main-menu li").hover(function() {
+                    $(this).children('ul').show();
+                }, function() {
+                    $(this).children('ul').hide();
+                });
+            });
+
      </script>
      <%= stylesheet '/css/default.css?a=2' %>
      <%= javascript '/js/sortable_ja.js' %>
@@ -50,8 +58,24 @@
   <body>
     <input type=hidden name=_focus id=_focus value=<%= param('_focus') %>>
     <div class="main">
-        <a href=/menu/menu>[TOP MENU]</a> <a href=./logout>[logout]</a>
-        [ <%= $self->param('user') %> ]
+<ul class="main-menu">
+    <li>
+    <a href="#"><%= $self->param('nick') %></a>
+        <ul class="sub-menu">
+            <li><a href=/menu/menu>TOP_MENU</a></li>
+            <li><a href=./logout>logout</a></li>
+            <li><a href="#"><%= $self->param('user') %></a>
+                <ul class="sub-menu">
+                    <li><a href=/menu/changepassword>パスワード変更</a></li>
+                    <li><a href=/mmtx/userinfo>情報修正</a></li>
+                    <li><a href="#">・・・</a></li>
+                </ul>
+            </li>
+            <hr>
+            <li><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=memo">終了</a></li>
+        </ul>
+    </li>
+</ul>
       <%= content %>
     </div>
     <div class="sidebar">

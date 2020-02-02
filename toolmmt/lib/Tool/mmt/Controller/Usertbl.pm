@@ -1,5 +1,5 @@
 package Tool::mmt::Controller::Usertbl;
-use Mojo::Base 'Tool::mmt::Mmt';
+use Mojo::Base 'Tool::mmt::Controller::Mmt';
 
 has 'mmtDataList' => 'mmt/datalist';
 
