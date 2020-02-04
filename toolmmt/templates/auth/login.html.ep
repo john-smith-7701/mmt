@@ -6,8 +6,21 @@
  <br>Name:
  %= text_field 'user',size => 60
  <br>password:
- %= text_field 'passwd',size => 60
+ %= text_field 'passwd',size => 60,id=>"passwd"
+ <br>
+ <input type="checkbox" id="password-check" checked="checked">パスワードを表示する
  <br>
  %= submit_button 'Login'
  %= hidden_field url => $url 
 % end
+<script>
+ const pwd = document.getElementById('password');
+ const pwdCheck = document.getElementById('password-check');
+ pwdCheck.addEventListener('change', function() {
+     if(pwdCheck.checked) {
+         passwd.setAttribute('type', 'text');
+     } else {
+         passwd.setAttribute('type', 'password');
+     }
+ }, false);
+</script> 

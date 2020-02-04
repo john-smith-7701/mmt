@@ -35,7 +35,7 @@ sub userAuth{
     my $pass = $s->param('passwd')||'';
     if ($user eq '' or $pass eq '' or $user =~ /(admin|root)/i){
         $s->param('user','guest');
-        $s->param('passwd','guest01');
+        $s->param('passwd','柿くへば鐘が鳴るなり法隆寺 by 子規');
         return undef; 
     }
     my $sessionId = $s->randomStr();
