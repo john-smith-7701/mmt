@@ -2,19 +2,23 @@
 		color:	white;
 		font-family:'Meiryo';
 		font-size:	10pt;
-		background-color: black;
+		background-color: lightsteelblue;
 		scrollbar-highlight-color:silver;
 		scrollbar-arrow-color:silver;
-		scrollbar-base-color:black;
-		scrollbar-face-color:black;
+		scrollbar-base-color:lightsteelblue;
+		scrollbar-face-color:lightsteelblue;
 		scrollbar-track-color:#505050;
 		scrollbar-shadow-color:#404040;
-		scrollbar-darkshadow-color:black;
+		scrollbar-darkshadow-color:lightsteelblue;
 	}
+    A {text-decoration:none;}
 	A:link { color:white; }
 	A:visited { color:white; }
 	A:active { color:red; }
-	A:hover { color:green; }
+	A:hover { color:white; 
+     box-shadow:  3px 3px 7px 1px rgba(0,0,0,0.4);
+       transform: scale(1.05,1.05);
+    }
 	H1 {
 /*	  width: 90%;
 */	  font-size: 14pt;
@@ -115,7 +119,7 @@
 	border-right    : #404040 1px solid;
 	border-bottom   : #404040 1px solid;
 	color           : white;
-	background-color: black;
+	background-color: lightsteelblue;
 	word-break      : break-all;
     }
 
