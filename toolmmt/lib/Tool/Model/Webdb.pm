@@ -31,7 +31,7 @@ has dbh => sub {
                 mysql_auto_reconnect =>1,
                }
       );
-      $dbh->do("set names utf8");
+      $dbh->do("set names utf8mb4");
   }
   return $dbh;
 };

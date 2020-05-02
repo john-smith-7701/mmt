@@ -5,7 +5,7 @@ use Encode qw/ decode decode_utf8 encode encode_utf8/;
 sub rwt_init {
     my $s = shift;
     $s->column(3);
-    $s->sql(q{select * from 分類名称 order by 大分類,中分類,小分類});
+    $s->sql(q{select * from 分類名称 where 1 /*where*/ order by 大分類,中分類,小分類});
     $s->item_list([qw/大分類 中分類 小分類 分類名 集計１/]);
     $s->title('分類マスタ');
     $s->lf_spec->{encode_utf8("大分類")}->{style} = "@{[$s->cell_width(30)]}text-align:center";

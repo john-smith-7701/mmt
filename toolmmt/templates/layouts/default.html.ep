@@ -80,6 +80,7 @@
     </div>
     <div class="sidebar">
     <%== eval{$self->make_sidebar()} %>
+    %= $@
     </div>
   </body>
 </html>

@@ -18,6 +18,8 @@ has head_line => sub {[]};
 has line => sub {[]};
 has sth => "";
 has sql =>"";
+has where =>"";
+has par => sub {[]};
 has ref => sub {{}};
 has oref => "";
 has bottom_const => "<div align=right>Powered by perl-mojolicious</div>";
@@ -49,8 +51,6 @@ sub print_main {
     $s->rwt_init;
     $s->_rwt_init;
     $init_sw = 0;
-    $s->sth($s->rwt_prepare($s->sql));
-    $s->sth->execute();
     $s->render($s->print_form);
 }
 sub rwt_init{
@@ -62,22 +62,48 @@ sub _rwt_init{
     $s->stash->{title} = "rwt sample";
     if($s->sql eq ""){
         if($s->param('table') ne ''){
-            $s->sql(qq{select * from @{[$s->param('table')]}});
+            $s->sql(qq{select * from @{[$s->param('table')]} where 1 });
         }else{
-            $s->sql("select * from 商品");
+            $s->sql("select * from 商品where 1 ");
         }
+        $s->sql($s->sql . " /*where*/"); 
     }
-
+    my @array = $s->assemble_where();
     $s->title($s->param('title')||$s->param('table')||'title') if ($s->title eq "");
     $s->line_count(0);
     $s->page_count(0);
     @{$s->item_list} = map { encode_utf8($_) } @{$s->item_list};
     $s->sth($s->rwt_prepare($s->sql));
-    $s->sth->execute();
+    $s->app->log->info($s->sql);
+    $s->app->log->info((@array));
+    $s->sth->execute(@array);
     if(@{$s->item_list} == 0){
         $s->item_list([@{$s->sth->{NAME}}]);
     }
     @{$s->item_list} = grep { ! $dele_item->{$_} } @{$s->item_list};
+}
+sub assemble_where{
+    my $s = shift;
+    my $param = $s->req->params->to_hash;
+    my (@item,@param);
+    my %op = (le => '<=',ge => '>=',lt => '<',gt =>'>',eq => '=');
+    for (sort keys %$param){
+        next unless /^s\d*_/;
+        next if ($param->{$_} eq '');
+        if(/_(.*)_([^_]*)$/){
+            push(@item," $1 $op{$2} ? ");
+            push(@param,$param->{$_});
+        }
+    } 
+    my $where = join (' and ',@item);
+    $s->app->log->info(@param+0);
+    if(@param){
+        my $sql = $s->sql;
+        $sql =~ s|/\*where\*/|and $where |;
+        $s->sql($sql);
+        @{$s->par} = @param;
+    }
+    return @param;
 }
 sub print_proc{
     my $s = shift;

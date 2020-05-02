@@ -6,6 +6,8 @@
             %== tag($1,$r->{meisyo});
 %       }elsif ($r->{menukbn} eq ''){
             %== $r->{meisyo}
+%       }elsif ($r->{menukbn} =~ /select/){
+            %== "<a href=menu/select/?no=$r->{SEQ_NO}>$r->{meisyo}</a><br>"
 %       }else{
 %           $r->{PARAM} = $r->{PARAM} eq "" ? "" : "?" . $r->{PARAM};
             %== "<a href=$r->{URL}$r->{PARAM}>$r->{meisyo}</a><br>"
