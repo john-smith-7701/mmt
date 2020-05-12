@@ -64,7 +64,7 @@ sub _rwt_init{
         if($s->param('table') ne ''){
             $s->sql(qq{select * from @{[$s->param('table')]} where 1 });
         }else{
-            $s->sql("select * from 商品where 1 ");
+            $s->sql("select * from 商品 where 1 ");
         }
         $s->sql($s->sql . " /*where*/"); 
     }

@@ -27,8 +27,13 @@
  
  sub json{
      my $s = shift;
-     $s->render(json => $s->req->json) if($s->req->json);
+     if($s->req->json){
+        $s->render(json => $s->req->json);
+     }else{
+        $s->render('json/json');
+     }
  }
+
  sub json_or_jsonp{
      my $s = shift;
      my $json = shift;

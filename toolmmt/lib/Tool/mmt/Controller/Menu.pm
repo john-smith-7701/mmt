@@ -7,6 +7,7 @@
      my $s = shift;
      my $data = $s->menu_get();
      $s->stash(_data=> $data);
+     $s->render('menu/menu');
  }
  sub menu_get{
      my $s = shift;
