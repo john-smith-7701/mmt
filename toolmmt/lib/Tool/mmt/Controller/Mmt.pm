@@ -57,6 +57,31 @@ sub make_sidebar{
     $table_list .= '</ul>';
     return $s->app->model->webdb->const->{sidebar} . $table_list;
 }
+sub make_drop_down_menu{
+    my $s = shift;
+    my $text = '';
+    $text = <<END_MENU;
+<ul class="main-menu">
+    <li>
+    <a href="#">@{[$s->param('nick')]}</a>
+        <ul class="sub-menu">
+            <li><a href=/menu/menu>TOP_MENU</a></li>
+            <li><a href=./logout>logout</a></li>
+            <li><a href="#">@{[$s->param('user')]}</a>
+                <ul class="sub-menu">
+                    <li><a href=/menu/changepassword>パスワード変更</a></li>
+                    <li><a href=/mmtx/userinfo>情報修正</a></li>
+                    <li><a href="#">・・・</a></li>
+                </ul>
+            </li>
+            <hr>
+            <li><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=memo">終了</a></li>
+        </ul>
+    </li>
+</ul>
+END_MENU
+    return $text;
+}
 sub registry{
    my $self = shift;
 
