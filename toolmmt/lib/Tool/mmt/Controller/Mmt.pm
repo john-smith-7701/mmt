@@ -78,6 +78,9 @@ sub make_drop_down_menu{
             <li><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=memo">終了</a></li>
         </ul>
     </li>
+    <li>
+    <a href="#">DUMY</a>
+    </li>
 </ul>
 END_MENU
     return $text;

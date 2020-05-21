@@ -62,4 +62,48 @@
      }
      return $text;
  }
+ sub make_panel{
+     my $s = shift;
+     my $text = <<END_SCRIPT;
+<link rel="stylesheet" type="text/css" href="/css/demo.css" />
+
+<div id="overlay" class="content">
+    <div class="inner">
+    @{[$s->panel_content()]}
+            <div id="panel" class="panel hide"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    \$(function() {
+        \$('#panel').toggle(
+            function() {
+                \$(this).addClass('show').removeClass('hide');
+                \$('#overlay').stop().animate( { left : - \$('#overlay').width() + 20 + 'px' }, 300 );
+            },
+            function() {
+                \$(this).addClass('hide').removeClass('show');
+                \$('#overlay').stop().animate( { left : '0px' }, 300 );
+            }
+        );
+        \$('#overlay').fadeIn(500);
+    });
+    window.onload = function(){
+//      document.getElementById("panel").click();
+    };
+
+</script>
+
+END_SCRIPT
+     return $text;
+ }
+ sub panel_content{
+     my $s = shift;
+     my $text = <<END_SCRIPT
+    <pre>
+    @{[`cal -3h`]}
+    @{[`date +"%a %b %d %Y"`]}
+    </pre>
+END_SCRIPT
+ }
  1;

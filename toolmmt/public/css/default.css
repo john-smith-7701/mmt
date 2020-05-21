@@ -1,8 +1,8 @@
 	BODY {
 		color:	white;
 		font-family:'Meiryo';
-		font-size:	10pt;
-		background-color: lightsteelblue;
+/*		font-size:	16pt;
+*/		background-color: lightsteelblue;
 		scrollbar-highlight-color:silver;
 		scrollbar-arrow-color:silver;
 		scrollbar-base-color:lightsteelblue;
@@ -66,8 +66,8 @@
 		border-color: silver;
 	}
 	TD {
-	  font-size: 10pt;
-	  color: white;
+/*	  font-size: 10pt;
+*/	  color: white;
 		border-color: silver;
 	}
 	.form_text    { border: 1px solid #8080C0; color:#5F5FAF }
