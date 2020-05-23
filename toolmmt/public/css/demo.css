@@ -9,7 +9,7 @@
 }
 .inner{
 	padding:10px;
-	background:transparent url(/css/black.png) repeat top left;
+	background-color:rgba(0,0,0,0.5);
 }
 .panel{
 	position:absolute;

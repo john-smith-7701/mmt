@@ -89,7 +89,9 @@
         \$('#overlay').fadeIn(500);
     });
     window.onload = function(){
-//      document.getElementById("panel").click();
+    //            \$(this).addClass('show').removeClass('hide');
+    //            \$('#overlay').stop().animate( { left : - \$('#overlay').width() + 20 + 'px' }, 300 );
+    // document.getElementById("panel").click();
     };
 
 </script>
