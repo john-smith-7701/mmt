@@ -101,10 +101,11 @@ END_SCRIPT
  }
  sub panel_content{
      my $s = shift;
+     my $m = $s->app->model;
      my $text = <<END_SCRIPT
     <pre>
-    @{[`cal -3h`]}
     @{[`date +"%a %b %d %Y"`]}
+    @{[$m->make_cal($m->today())]}
     </pre>
 END_SCRIPT
  }
