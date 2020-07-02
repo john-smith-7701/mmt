@@ -10,6 +10,7 @@ sub check {
     my $s = shift;
     # セッション確定済なら認証通過
     if($s->session('session')){
+        $s->param('session',$s->session('session'));
         my $dbh = $s->app->model->webdb->dbh;
         # セッションよりユーザを取得
         my $data = $dbh->selectall_arrayref(

@@ -71,6 +71,7 @@ sub make_drop_down_menu{
                 <ul class="sub-menu">
                     <li><a href=/menu/changepassword>パスワード変更</a></li>
                     <li><a href=/mmtx/userinfo>情報修正</a></li>
+                    <li><a href=/menu/calendar?mode=schedule>スケジュール</a></li>
                     <li><a href="#">・・・</a></li>
                 </ul>
             </li>
@@ -83,6 +84,23 @@ sub make_drop_down_menu{
     </li>
 </ul>
 END_MENU
+    return $text;
+}
+sub make_drop_down_js{
+    my $s = shift;
+    my $text = '';
+    $text = <<"End_Script";
+<script type="text/javascript">
+\$(function() {
+    \$("ul.main-menu li").hover(function() {
+        \$(this).children('ul').show();
+    }, function() {
+        \$(this).children('ul').hide();
+    });
+});
+</script>
+
+End_Script
     return $text;
 }
 sub registry{
@@ -367,7 +385,7 @@ sub data_get{
     $s->set_table_info();
     my $dbh = $s->app->model->webdb->dbh;
 
-    $s->{sql} = "select * from $s->{'m'}->{table} " . $s->where();
+    $s->{sql} = "select m.* from $s->{'m'}->{table} m " . $s->where();
     my $sth = $dbh->prepare($s->{sql});
     $sth->execute(@{$s->{'m'}->{where}});
     $s->{_itemcount} = 0;

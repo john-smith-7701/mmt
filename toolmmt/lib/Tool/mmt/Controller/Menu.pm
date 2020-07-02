@@ -102,11 +102,30 @@ END_SCRIPT
  sub panel_content{
      my $s = shift;
      my $m = $s->app->model;
+     my $ym = shift || sprintf("%04d%02d%02d",$m->today());
+     my ($yy,$mm,$dd) = $m->ymd_split($ym);
      my $text = <<END_SCRIPT
-    <pre>
-    @{[`date +"%a %b %d %Y"`]}
-    @{[$m->make_cal($m->today())]}
-    </pre>
+    <p align=center>
+    <div id=calendar>
+    @{[$s->calendar2($yy*10000+$mm*100+1)]}
+    </div>
+    <script type="text/javascript">
+    function get_cal(ym){
+        \$.ajax({
+                type: 'POST',
+                url: '/api/json/calendar',
+                data: {
+                        ym: ym,
+                        mode: '@{[$s->param('mode')]}',
+                        session: '@{[$s->session('session')]}',
+                    },
+                success: function(data){
+                        \$("#calendar").html(data);
+                    }
+        });
+    }
+    </script>
+    </p>
 END_SCRIPT
  }
  1;

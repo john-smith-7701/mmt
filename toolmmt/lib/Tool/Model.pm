@@ -1,5 +1,6 @@
 package Tool::Model;
 use Mojo::Base 'Mojolicious';
+use Data::Dumper;
 
 use Tool::Model::Webdb;
 has 'webdb' => sub { Tool::Model::Webdb->new };
@@ -263,18 +264,50 @@ sub make_days{
     return @days;
 }
 sub make_cal{
-    my ($s,$y,$m,$d,$dumy) = @_;
+    my ($s,$y,$m,$d,$dumy,$user) = @_;
     my $cal = '';
-    $cal .= "<table border=0 width=50%>";
+    my $mode = {mode => $dumy,border=>0};
+    if($mode->{mode} =~ /schedule/i){
+        $mode->{border} = 1;
+    }
+    #$cal .= "[" . $mode->{mode} ."]";
+    $cal .= "<table border=$mode->{border} width=100%>";
     $cal .= $s->tag("tr",$s->tag("td",qw(日 月 火 水 木 金 土)));
     my $i = 0;
-    $cal .= join ("",map {$s->day_class($i++,$y,$m,$_) } $s->make_days($y,$m,$d));
+    my @days = $s->make_days($y,$m,$d);
+    if($mode->{mode} =~ /schedule/i){
+        $s->get_schedules(\@days,$mode,$user);
+    }
+    $cal .= join ("",map {$s->day_class($i++,$y,$m,$_,$mode) } @days);
     $cal .= "</table>";
+    #$cal .= Dumper $mode;
     return $cal;
 }
+sub get_schedules{
+    my $s = shift;
+    my $days = shift;
+    my $mode = shift;
+    my $user = shift;
+    my $dbh = $s->webdb->dbh;
+    my $data = $dbh->selectall_arrayref(
+        "select m.* from user_schedule m join session a on a.user = m.userid where session = ? and 日付 between ? and ?",+{slice => +{}},
+        $user,
+        $days->[0]->[0]*10000+$days->[0]->[1]*100+$days->[0]->[2],
+        $days->[-1]->[0]*10000+$days->[-1]->[1]*100+$days->[-1]->[2]);
+    for(@{$data}){
+        $mode->{$_->[2]} = $_->[4];
+    }
+    #$mode->{user} = $user;
+}
 sub day_class{
-    my ($s,$i,$y,$m,$d) = @_;
+    my ($s,$i,$y,$m,$d,$mode) = @_;
     my $text ='';
+    my $app = $d->[2];
+    my $id = $d->[0]*10000+$d->[1]*100+$d->[2];
+    my $ymd = sprintf("%04d-%02d-%02d",$d->[0],$d->[1],$d->[2]);
+    if($mode->{mode} =~ /schedule/i){
+        $app = $s->schedule_url($app,$id,$mode,$ymd);
+    }
     my $class = $s->holiday(-date=>$d->[0]*10000+$d->[1]*100+$d->[2]);
     if($class ne ''){
         $class = 'hol';
@@ -284,8 +317,13 @@ sub day_class{
     $class .= ' today' if ($s->isToday($d->[0],$d->[1],$d->[2]));
     $class = 'Non' if($m != $d->[1]); 
     $text .= '<tr>' if($i % 7 == 0);
-    $text .= qq{<td class="$class">$d->[2]</td>};
+    $text .= qq{<td class="$class" id="$id">${app}</td>};
     $text .= '</tr>' if($i % 7 == 6);
+    return $text;
+}
+sub schedule_url{
+    my ($s,$app,$id,$mode,$ymd) = @_;
+    my $text = qq{$app<a href="/mmtx/schedule?ymd=$id">　　　　　　　　　<br>$mode->{$ymd}<br><br></a>};
     return $text;
 }
 sub isToday{

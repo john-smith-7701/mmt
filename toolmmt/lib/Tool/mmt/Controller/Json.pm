@@ -51,5 +51,24 @@
      my $data = $dbh->selectall_arrayref($sql,+{Slice => +{}});
      $s->json_or_jsonp( $s->render_to_string(json => $data));
  }
+ sub calendar{
+     my $s = shift;
+     my $m = $s->app->model;
+     my $ym = $s->param('ym') || sprintf("%04d%02d%02d",$m->today());
+     $s->render(text => $s->calendar2($ym));
+ }
+ sub calendar2{
+     my $s = shift;
+     my $ym = shift;
+     my $m = $s->app->model;
+     my ($yy,$mm,$dd) = $m->addmon($m->ymd_split($ym),-1);
+     my $text = qq{<button onclick="get_cal('@{[$yy*10000 + $mm*100+1]}')"><<</button>};
+     ($yy,$mm,$dd) = $m->ymd_split($ym);
+     $text .= qq{ $yy / $mm };
+     ($yy,$mm,$dd) = $m->addmon($m->ymd_split($ym),1);
+     $text .= qq{<button onclick="get_cal('@{[$yy*10000 + $mm*100+1]}')">>></button>};
+     $text .= $m->make_cal($m->ymd_split($ym),$s->param('mode'),$s->param('session'));
+     return $text;
+ }
  
  1;

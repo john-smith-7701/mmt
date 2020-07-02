@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head><title><%= title %></title>
-   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
      <script type="text/javascript">  <!-- [jQuery] Enterキーでフォーカスを移動するには http://blog.makotoishida.com/2013/02/javascript-enter.html -->
             $(function(){
               var elements = "input[type=text]";
