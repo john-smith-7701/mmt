@@ -297,7 +297,10 @@ sub get_schedules{
     for(@{$data}){
         $mode->{$_->[2]} = $_->[4];
     }
+    #    $mode->{START} = $days->[0]->[0]*10000+$days->[0]->[1]*100+$days->[0]->[2];
+    #$mode->{END} = $days->[-1]->[0]*10000+$days->[-1]->[1]*100+$days->[-1]->[2];
     #$mode->{user} = $user;
+    #$mode->{data} = $data;
 }
 sub day_class{
     my ($s,$i,$y,$m,$d,$mode) = @_;
