@@ -13,6 +13,7 @@ BODY {
        background: white;
        box-shadow: 0 .5mm 2mm rgba(0,0,0,.3);
        margin: 5mm;
+       padding: 5mm;
     }
 }
 .sheet {
