@@ -236,4 +236,17 @@ ul.main-menu:after{
     height: 0;
     visibility: hidden;
 }
-
+.fixed01,
+.fixed02{
+  position: sticky;
+  top: 0;
+  left: 0;
+  color: #fff;
+  background: #747474;
+}
+.fixed01{
+  z-index: 2;
+}
+.fixed02{
+  z-index: 1;
+}

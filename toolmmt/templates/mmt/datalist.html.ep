@@ -2,9 +2,9 @@
 % title "mmt - $_title";
 <h1><%= $_title %></h1>
 
-<table border=1 class="sortable" id="foo"><thead><tr><th class="unsortable"></th>
+<table border=1 class="sortable" id="foo"><thead><tr><th class="unsortable fixed01"></th>
 % for my $item (@{$self->{'m'}->{'key'}},@{$self->{'m'}->{'item'}}){
-  <th><div id="<%= $item %>"> <%= $self->Label($item) %></div></th>
+  <th class="fixed01"><div id="<%= $item %>"> <%= $self->Label($item) %></div></th>
 % }
 </thead>
 <tbody>
