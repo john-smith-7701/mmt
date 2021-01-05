@@ -199,6 +199,7 @@ sub action_set{
     push (@{$s->{_action}},{name=>'Upload',action=>sub {$s->upload_upd()}});
     push (@{$s->{_action}},{name=>'CSV',action=>sub {$s->csv_out()}});
     push (@{$s->{_action}},{name=>'JSON',action=>sub {$s->json_out()}});
+    push (@{$s->{_action}},{name=>'一覧表',action=>sub {$s->list_out()}});
 }
 sub set_table_info{
     my $s = shift;
@@ -331,6 +332,25 @@ sub json_out{
 
 }
 #---------------------------------------------------------------#
+sub list_out{
+#---------------------------------------------------------------#
+    my $s = shift;
+    my $url=$s->url_for("/rwt/rwt");
+    my @ret = $s->data_serch_select();
+    my $sql = $s->param_set(@ret);
+    $s->redirect_to($url->query(
+            table=>$s->param('_table'),
+            sql=>$sql));
+}
+sub param_set{
+    my $s = shift;
+    my $sql = shift;
+    for(@_){
+        $sql =~ s/\s\?/ '$_'/;
+    }
+    return $sql;
+}
+#---------------------------------------------------------------#
 sub data_serch{
 #---------------------------------------------------------------#
 
@@ -369,6 +389,7 @@ sub data_serch_select{
     #$log->debug( $sql);
     $s->{'sth'} = $dbh->prepare($sql);
     $s->{'sth'}->execute(@p);
+    return $sql,@p;
 }
 #---------------------------------------------------------------#
 sub data_get{

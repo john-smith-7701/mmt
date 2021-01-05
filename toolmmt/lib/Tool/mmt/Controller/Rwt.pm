@@ -48,6 +48,7 @@ my $init_sw = 0;
 sub print_main {
     my $s = shift;
     $dbh = $s->app->model->webdb->dbh;
+    $s->sql($s->param('sql')) if($s->param('sql') =~ /^select/i);
     $s->rwt_init;
     $s->_rwt_init;
     $init_sw = 0;
