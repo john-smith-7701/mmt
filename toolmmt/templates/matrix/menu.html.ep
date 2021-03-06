@@ -3,6 +3,12 @@
         <title>Matrix</title>
         <meta charset="UTF-8">
         %= stylesheet begin
+html {
+    font-size: 24px;
+}
+input {
+    font-size: 100%;
+}
 TABLE {
     border-collapse:collapse;
     border:1px solid

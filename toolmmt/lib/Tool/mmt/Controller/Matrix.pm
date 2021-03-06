@@ -21,7 +21,7 @@ sub matrixFixedCss{
         $left=0;
         for (my $j=1;$j<=$columns;$j++){
             $left+=$width[$j-1];
-            $css .= ".fixed${i}${j}{ position: sticky; top: @{[($i-1)*1.5+3]}rem; left: ${left}rem; z-index: 2;background: white;}\n"
+            $css .= ".fixed${i}${j}{ position: sticky; top: @{[($i-1)*1.5+3]}rem; left: ${left}rem; z-index: 2;background: white;font-size:24px;height:1.5rem;}\n"
                  .  ".fixed${i}${j}${addLine}\n";
                  $css .= ".fixed9${j}{ position: sticky; bottom: 0;                   left: ${left}rem; z-index: 2;background: #747474;}\n"
                  .  ".fixed9${j}${addLine}\n" if($i==1);
@@ -47,7 +47,7 @@ sub cell_make{
     my $y = 3;
     my $text = '';
     for (my $i=2;$i<100;$i++){
-        $text .= "<tr>\n";
+        $text .= "<tr heith=1rem>\n";
         for (my $j=1;$j<50;$j++){
             my $ci = $i < $x ? $i : $x;
             my $cj = $j < $y ? $j : $y;
