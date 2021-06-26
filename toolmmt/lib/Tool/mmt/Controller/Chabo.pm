@@ -39,6 +39,7 @@
  sub chatbot{
      my $s = shift;
      my $name = $s->get_para('name','no name');
+     #return if($name eq '$name');
      my $action = $s->get_para('action','');
      my $chat = $s->get_para('chat','');
      my $id = $s->write_log($name,$chat);

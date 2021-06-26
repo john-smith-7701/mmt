@@ -1,5 +1,10 @@
+    html {
+        overscroll-behavior: none;
+    }
 	BODY {
 		color:	white;
+        overscroll-behavior: none;
+        overscroll-behavior-y: none;
 		font-family:'Meiryo';
 /*		font-size:	16pt;
 */		background-color: lightsteelblue;
