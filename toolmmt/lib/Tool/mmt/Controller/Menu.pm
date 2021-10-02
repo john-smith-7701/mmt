@@ -80,18 +80,22 @@
             function() {
                 \$(this).addClass('show').removeClass('hide');
                 \$('#overlay').stop().animate( { left : - \$('#overlay').width() + 20 + 'px' }, 300 );
+                sessionStorage.setItem("CalPanel","hide")
             },
             function() {
                 \$(this).addClass('hide').removeClass('show');
                 \$('#overlay').stop().animate( { left : '0px' }, 300 );
+                sessionStorage.setItem("CalPanel","show")
             }
         );
         \$('#overlay').fadeIn(500);
     });
     window.onload = function(){
-    //            \$(this).addClass('show').removeClass('hide');
-    //            \$('#overlay').stop().animate( { left : - \$('#overlay').width() + 20 + 'px' }, 300 );
-    // document.getElementById("panel").click();
+        if(sessionStorage.getItem("CalPanel") == "hide"){
+            window.setTimeout(function(){
+                \$("#panel").click();
+            },1000);
+        }
     };
 
 </script>
