@@ -1,7 +1,7 @@
 % layout 'default';
 % title 'menu' ;
 %== $self->make_panel();
-<table width=98%><tr><td style="vertical-align: top;">
+<table><tr><td style="vertical-align: top;">
 %   for my $r (@$_data){
 %       if ($r->{menukbn} =~ /^(H\d)/i){
             %== tag($1,$r->{meisyo});

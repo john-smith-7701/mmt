@@ -319,14 +319,15 @@ sub day_class{
     }
     $class .= ' today' if ($s->isToday($d->[0],$d->[1],$d->[2]));
     $class = 'Non' if($m != $d->[1]); 
-    $text .= '<tr>' if($i % 7 == 0);
-    $text .= qq{<td class="$class" id="$id">${app}</td>};
+    $text .= '<tr class="weekTr">' if($i % 7 == 0);
+    $text .= qq{<td class="$class dayTd" id="$id">${app}</td>};
     $text .= '</tr>' if($i % 7 == 6);
     return $text;
 }
 sub schedule_url{
     my ($s,$app,$id,$mode,$ymd) = @_;
-    my $text = qq{$app<a href="/mmtx/schedule?ymd=$id">　　　　　　　　　<br>$mode->{$ymd}<br><br></a>};
+    my $sch = $mode->{$ymd} eq '' ? '　　　　　　' : $mode->{$ymd};
+    my $text = qq{<div class="day">$app</div><a href="/mmtx/schedule?ymd=$id">$sch</a>};
     return $text;
 }
 sub isToday{

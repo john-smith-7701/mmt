@@ -1,5 +1,11 @@
     html {
-        overscroll-behavior: none;
+        font-size:16px;
+    }
+    @media screen and (max-width: 480px)　{ 
+        html {
+            overscroll-behavior: none;
+            font-size:24px;
+        }
     }
 	BODY {
 		color:	white;
@@ -26,18 +32,18 @@
     }
 	H1 {
 /*	  width: 90%;
-*/	  font-size: 14pt;
+*/	  font-size: 1.4em;
 	  font-family: Impact,Arial,Verdana,sans-serif;
 	  letter-spacing: 0.4em;
 	  color: #FFFFFF;
 	  background-color: #747474;
 	  padding: 1px 1em 1px 0.7em;
 	  border-left: solid 3px #DADADD;
-	  filter: alpha(opacity=100,finishopacity=10,style=1);	
-	}
+/*	  filter: alpha(opacity=100,finishopacity=10,style=1);	
+*/	}
 	h2{
 	  color: white;
-	  font-size: 12pt;
+	  font-size: 1.2em;
 	  font-weight: bold;
 	  letter-spacing: 0.1em;
 	  margin: 0px 20px 2px 12px;;
@@ -112,13 +118,13 @@
 	  color: red;
 	}
     div.main {
-      margin-left: 100px;
+      margin-left: 12rem;
     }  
     div.sidebar {
 	position        : absolute;
 	top             : 0px;
 	left            : 0px;
-	width           : 100px;
+	width           : 12rem;
 	font-size       : x-small;
 	padding         : 2pt;
 	border-right    : #404040 1px solid;
