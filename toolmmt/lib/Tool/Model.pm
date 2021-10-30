@@ -271,8 +271,8 @@ sub make_cal{
         $mode->{border} = 1;
     }
     #$cal .= "[" . $mode->{mode} ."]";
-    $cal .= "<table border=$mode->{border} width=100%>";
-    $cal .= $s->tag("tr",$s->tag("td",qw(日 月 火 水 木 金 土)));
+    $cal .= "<table border=$mode->{border} width=100% id='calTable'>";
+    $cal .= qq{<tr class="dayName flick">@{[$s->tag("td",qw(日 月 火 水 木 金 土))]}</tr>};
     my $i = 0;
     my @days = $s->make_days($y,$m,$d);
     if($mode->{mode} =~ /schedule/i){
@@ -280,6 +280,7 @@ sub make_cal{
     }
     $cal .= join ("",map {$s->day_class($i++,$y,$m,$_,$mode) } @days);
     $cal .= "</table>";
+    $cal .= q{<script src="/js/cal_flick.js"></script>};
     #$cal .= Dumper $mode;
     return $cal;
 }
@@ -327,7 +328,7 @@ sub day_class{
 sub schedule_url{
     my ($s,$app,$id,$mode,$ymd) = @_;
     my $sch = $mode->{$ymd} eq '' ? '　　　　　　' : $mode->{$ymd};
-    my $text = qq{<div class="day">$app</div><a href="/mmtx/schedule?ymd=$id">$sch</a>};
+    my $text = qq{<div class="day flick">$app　　　</div><a href="/mmtx/schedule?ymd=$id">$sch</a>};
     return $text;
 }
 sub isToday{

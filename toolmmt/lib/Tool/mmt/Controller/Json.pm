@@ -62,11 +62,11 @@
      my $ym = shift;
      my $m = $s->app->model;
      my ($yy,$mm,$dd) = $m->addmon($m->ymd_split($ym),-1);
-     my $text = qq{<button onclick="get_cal('@{[$yy*10000 + $mm*100+1]}')"><<</button>};
+     my $text = qq{<button id="prevMon"onclick="get_cal('@{[$yy*10000 + $mm*100+1]}')"><<</button>};
      ($yy,$mm,$dd) = $m->ymd_split($ym);
      $text .= qq{ $yy / $mm };
      ($yy,$mm,$dd) = $m->addmon($m->ymd_split($ym),1);
-     $text .= qq{<button onclick="get_cal('@{[$yy*10000 + $mm*100+1]}')">>></button>};
+     $text .= qq{<button id="nextMon" onclick="get_cal('@{[$yy*10000 + $mm*100+1]}')">>></button>};
      $text .= $m->make_cal($m->ymd_split($ym),$s->param('mode'),$s->param('session'));
      return $text;
  }
