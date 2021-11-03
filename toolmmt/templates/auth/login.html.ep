@@ -30,6 +30,7 @@
  %= hidden_field url => $url 
 % end
 </div>
+<a href="/api/useradd/menu/">会員登録</a>
 <script>
  const pwd = document.getElementById('password');
  const pwdCheck = document.getElementById('password-check');
