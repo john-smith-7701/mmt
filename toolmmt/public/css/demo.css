@@ -30,7 +30,6 @@
 .hol{color:RED;}
 .today{ 
     box-shadow:  3px 3px 7px 1px rgba(0,0,0,0.4);
-    transform: scale(1.05,1.05);
 }
 .Non{color:GRAY;}
 

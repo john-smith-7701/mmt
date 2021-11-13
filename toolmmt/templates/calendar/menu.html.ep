@@ -8,9 +8,6 @@
       .day {
           font-size: 2.5em;
       }
-      .today {
-          background-color: #E0FFFF;
-      }
       .dayName {
           font-size: 2.5em;
       }
