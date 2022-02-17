@@ -1,12 +1,6 @@
     html {
         font-size:16px;
     }
-    @media screen and (max-width: 480px)　{ 
-        html {
-            overscroll-behavior: none;
-            font-size:24px;
-        }
-    }
 	BODY {
 		color:	white;
         overscroll-behavior: none;
@@ -134,6 +128,21 @@
 	word-break      : break-all;
     }
 
+    @media only screen and (max-width: 767px) { 
+        html {
+            overscroll-behavior: none;
+            font-size:24px;
+    		background-color: black;
+        }
+        div.main {
+            margin-left: 1rem;
+        }  
+        div.sidebar {
+            display:none;
+	        width           : 2rem;
+	        font-size       : x-small;
+        }
+    }
 /* ラジオボタンを非表示にする */
 .radioPanel input{
     display: none;
