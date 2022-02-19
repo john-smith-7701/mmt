@@ -271,3 +271,10 @@ ul.main-menu:after{
 .fixed02{
   z-index: 1;
 }
+.flex{
+    display: flex;
+    flex-wrap: wrap;
+}
+.menucel{
+    width: 20em;
+}

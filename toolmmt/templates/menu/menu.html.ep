@@ -1,7 +1,8 @@
 % layout 'default';
 % title 'menu' ;
 %== $self->make_panel();
-<table><tr><td style="vertical-align: top;">
+<div class="flex">
+ <div class="menucel">
 %   for my $r (@$_data){
 %       if ($r->{menukbn} =~ /^(H\d)/i){
             %== tag($1,$r->{meisyo});
@@ -14,7 +15,8 @@
             %== "<a href=$r->{URL}$r->{PARAM}>$r->{meisyo}</a><br>"
 %       }
 %   }
-</td></tr></table>
+ </div>
+</div>
 <%
 sub tag{
     my ($tag,$name) = @_;
