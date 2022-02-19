@@ -3,13 +3,13 @@
 <h2>名前とメールアドレスを入力して下さい。</h2>
 %= form_for url_for('') => (method => 'post') => begin
 <table border=1>
-  <tr>
-    <th>Name:</th>
-    <td><%= text_field 'name',size => 40 %></td>
+  <tr><td><div class="flex"> 
+    <div>Name:</div>
+    <div><%= text_field 'name',size => 40 %></div></td>
   </tr>
-  <tr>
-    <th>e-mail:</th>
-    <td><%= text_field 'email',size => 40 %></td>
+  <tr><td><div class="flex"> 
+    <div>e-mail:</div>
+    <div><%= text_field 'email',size => 40 %></div></td>
   </tr>
 </table>
 %= submit_button '登録'

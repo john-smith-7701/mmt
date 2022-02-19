@@ -247,13 +247,14 @@ sub input_field{
 	if($s->{'m'}->{$name}->{Type} eq 'text'){
 		return $s->text_area($s->{'n'}->{$name},
             id => $s->{'n'}->{$name},
-            rows=>5,cols=>70);
+            rows=>5,cols=>30);
 	}elsif($s->{'m'}->{$name}->{Type} =~ /enum\((.*)\)/){
 		return $s->select_field($s->{'n'}->{$name},
 			=> [map {s/'//g;$_} split /,/,$1]);
 	}else{	return $s->text_field($s->{'n'}->{$name},
             id => $s->{'n'}->{$name},
-			size=>int($s->{'m'}->{$name}->{Size}*1.3)+1,
+            #size=>int($s->{'m'}->{$name}->{Size}*1.3)+1,
+            #size=>'100%',
             style=>$style);
 	}
 }

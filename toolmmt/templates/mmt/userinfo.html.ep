@@ -10,11 +10,11 @@
 <table border=1>
 % my $i = 0;
 % for my $item (@{$self->{'m'}->{'item'}}){
- <tr>
-  <th><div id="<%= 'l_' . $self->{'n'}->{$item} %>"> <%= $self->Label($item) %></div></th>
-  <td><%== $self->input_field($item) %>
-      <%== $self->get_explan(param('_table'),$item) %></td>
-  <td><div id="<%= 'd_' . $self->{'n'}->{$item} %>"></div></td>
+ <tr><td><div class="flex"> 
+  <div id="<%= 'l_' . $self->{'n'}->{$item} %>"> <%= $self->Label($item) %></div>
+  <div><%== $self->input_field($item) %>
+      <%== $self->get_explan(param('_table'),$item) %></div>
+  <div><div id="<%= 'd_' . $self->{'n'}->{$item} %>"></div></div></td>
  </tr>
 % }
 </table>
