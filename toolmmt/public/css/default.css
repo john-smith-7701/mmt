@@ -278,3 +278,22 @@ ul.main-menu:after{
 .menucel{
     width: 20em;
 }
+.itemlabel{
+    -webkit-flex-basis: 6em;
+    flex-basis: 6em;
+}
+.itemdata{
+    -webkit-flex-basis: 40em;
+    flex-basis: 40em;
+    -webkit-flex-grow: 1;
+    flex-grow: 1;
+}
+.itemattr{
+    -webkit-flex-basis: 10em;
+    flex-basis: 10em;
+}
+.flex input[type="text"], .flex textarea {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}

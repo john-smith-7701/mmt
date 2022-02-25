@@ -53,7 +53,7 @@
             });
 
      </script>
-     <%= stylesheet '/css/default.css?a=5' %>
+     <%= stylesheet '/css/default.css?a=10' %>
      <%= javascript '/js/sortable_ja.js' %>
   </head>
   <body>

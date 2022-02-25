@@ -5,13 +5,13 @@
 %= form_for url_for('_table'=> param('_table')) => (method => 'POST') => begin
 <%= hidden_field timestamp => param('timestamp') %>
 <%= hidden_field _table => param('_table') %>
-<table border=1>
+<table border=1 width=100%>
 % for my $item (@{$self->{'m'}->{'key'}}){
  <tr><td><div class="flex"> 
-  <div id="<%= 'l_' . $self->{'n'}->{$item} %>"> <%= $self->Label($item) %></div>
-  <div><%== $self->input_field($item) %>
+  <div class="itemlabel" id="<%= 'l_' . $self->{'n'}->{$item} %>"> <%= $self->Label($item) %></div>
+  <div class="itemdata"><%== $self->input_field($item) %>
       <%== $self->get_explan(param('_table'),$item) %></div>
-  <div><div id="<%= 'd_' . $self->{'n'}->{$item} %>"></div></div></td>
+  <div class="itemattr"><div id="<%= 'd_' . $self->{'n'}->{$item} %>"></div></div></td>
  </tr>
 % }
 </table>
@@ -28,14 +28,14 @@
 </div>
 <div>INFO:<%= $self->{errstr} %></div>
 <hr>
-<table border=1>
+<table border=1 width=100%>
 % my $i = 0;
 % for my $item (@{$self->{'m'}->{'item'}}){
  <tr><td><div class="flex">
-  <div id="<%= 'l_' . $self->{'n'}->{$item} %>"> <%= $self->Label($item) %></div>
-  <div><%== $self->input_field($item) %>
+  <div class="itemlabel" id="<%= 'l_' . $self->{'n'}->{$item} %>"> <%= $self->Label($item) %></div>
+  <div class="itemdata"><%== $self->input_field($item) %>
       <%== $self->get_explan(param('_table'),$item) %></div>
-  <div><div id="<%= 'd_' . $self->{'n'}->{$item} %>"></div></div></td>
+  <div class="itemattr"><div id="<%= 'd_' . $self->{'n'}->{$item} %>"></div></div></td>
  </tr>
 % }
 </table>
@@ -53,7 +53,7 @@
         <%= hidden_field _table => param('_table') %>
         <input type="submit" value="Upload" name="_action" />
 </form>
-
+<a href="https://google.co.jp" target="_blank">google</a>
 %= javascript begin
 <%== $self->make_ajax %>
 %= end
