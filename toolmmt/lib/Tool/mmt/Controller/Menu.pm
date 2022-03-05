@@ -12,7 +12,7 @@
  sub menu_get{
      my $s = shift;
      my $menu = $s->param('menu') || 'START';
-     my $sql = "select m.SEQ_NO,m.No,m.名称 as meisyo,m.メニュー区分 as menukbn,a.URL,a.PARAM from menu_config m left join menu_item a on a.ID = m.menu_ID 
+     my $sql = "select m.SEQ_NO,m.No,m.名称 as meisyo,m.メニュー区分 as menukbn,a.URL,a.PARAM,m.memo from menu_config m left join menu_item a on a.ID = m.menu_ID 
                 where m.ID = ? order by m.No";
      my $dbh = $s->app->model->webdb->dbh;
      my $data = $dbh->selectall_arrayref($sql,+{Slice => +{}},$menu);

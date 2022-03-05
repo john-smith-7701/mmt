@@ -1,8 +1,16 @@
 % layout 'default';
 % title 'menu' ;
+       <script src="/js/jquery-qrcode-0.18.0.min.js"></script>
+<style>
+canvas {
+  width: 3em;
+  height: 3em;
+}
+</style>
 %== $self->make_panel();
 <div class="flex">
  <div class="menucel">
+%   my @qr = ();
 %   for my $r (@$_data){
 %       if ($r->{menukbn} =~ /^(H\d)/i){
             %== tag($1,$r->{meisyo});
@@ -12,10 +20,23 @@
             %== "<a href=menu/select/?no=$r->{SEQ_NO}>$r->{meisyo}</a><br>"
 %       }else{
 %           $r->{PARAM} = $r->{PARAM} eq "" ? "" : "?" . $r->{PARAM};
-            %== "<a href=$r->{URL}$r->{PARAM}>$r->{meisyo}</a><br>"
+%           my $qr = {
+%               url => "$r->{URL}$r->{PARAM}",
+%               name => $r->{'No'}
+%           };
+            <a href="<%== $qr->{'url'} %>"><%= $r->{meisyo} %></a><br>
+%           if($r->{memo} =~ /qrcode\s+on/){
+                %== qq(<div id="$qr->{'name'}"></div>);
+%               push(@qr,$qr);
+%           }
 %       }
 %   }
  </div>
+ <script>
+%   for my $qr (@qr){
+        $('#<%= $qr->{'name'} %>').qrcode({width: 64, height: 64, text: "<%= $qr->{'url'} %>"});
+%   }
+ </script>
 </div>
 <%
 sub tag{
