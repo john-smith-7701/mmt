@@ -34,7 +34,7 @@ canvas {
  </div>
  <script>
 %   for my $qr (@qr){
-        $('#<%= $qr->{'name'} %>').qrcode({width: 64, height: 64, text: "<%= $qr->{'url'} %>"});
+        $('#<%= $qr->{'name'} %>').qrcode({width: 64, height: 64, text: "<%== $qr->{'url'} %>"});
 %   }
  </script>
 </div>
