@@ -275,6 +275,10 @@ ul.main-menu:after{
     display: flex;
     flex-wrap: wrap;
 }
+.flexX{
+    display: flex;
+    flex-wrap: wrap;
+}
 .menucel{
     width: 20em;
 }

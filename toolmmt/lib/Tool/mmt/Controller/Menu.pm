@@ -40,26 +40,27 @@
      my $r = shift;
      my $text = '';
      my @cond = split("\n",$r);
-     $text .= "<fieldset><legend>条件</legend><table>";
+     $text .= "<fieldset><legend>条件</legend>\n";
      for (@cond){
          my @pars = split(/,/,$_);
-         $text .= "<tr>" . "<th>" . $pars[1] . "</th>"
+         $text .= "<div class='flexX'><div class='itemlabel'>" . $pars[1] . "</div>"
                 . $s->make_input_type(@pars)
-                . qq{</tr>}; 
+                . qq{</div>\n}; 
      }
-     $text .= "</table></fieldset>";
+     $text .= "</fieldset>\n";
      return $text;
  }
  sub make_input_type{
      my $s = shift;
      my @pars = @_;
-     my $text = "<td>";
+     my $text = "<div>";
      if($pars[0] =~ /^p/){
-         $text .= "<input type=text name=$pars[0]" . "_" . $pars[1] . "></td><td colspan=2>" . join(",",@pars[2..$#pars]) . "</td>";
+         $text .= "<input type=text name=$pars[0]" . "_" . $pars[1] . ">" . join(",",@pars[2..$#pars]) ;
      } else {
-         $text .= "<input type=text name=$pars[0]" . "_" . $pars[1] . "_ge></td><td>～</td><td>"
-                . "<input type=text name=$pars[0]" . "_" . $pars[1] . "_le></td>";
+         $text .= "<input type=text name=$pars[0]" . "_" . $pars[1] . "_ge>～"
+                . "<input type=text name=$pars[0]" . "_" . $pars[1] . "_le>";
      }
+     $text .= "</div>";
      return $text;
  }
  sub make_panel{
