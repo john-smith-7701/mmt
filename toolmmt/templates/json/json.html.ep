@@ -5,11 +5,23 @@
  <ul>
    <li><a href="/api/json/json_test01">json_test01</a></li>
    <li><a href="/api/json/json_post">json_post</a></li>
-   <li><a href="/api/chabo/sample_parse">chabo/sample_parse</a></li>
+   <li><a href="javascript:sample_parse();">chabo/sample_parse</a></li>
    <li><a href="/api/chabo/sample_put_together">chabo/sample_put_together</a></li>
  </ul>
  <h4>JSON POST</h4>
  <script type="text/javascript">
+     function sample_parse(){
+        var form = document.createElement('form');
+        var request = document.createElement('input');
+        form.method = 'POST';
+        form.action = '/api/chabo/sample_parse';
+        request.type = 'hidden'; //入力フォームが表示されないように
+        request.name = 'text';
+        request.value = $('#jsonText').val();
+        form.appendChild(request);
+        document.body.appendChild(form);
+        form.submit();
+     }
      $(function(){
          $("#response").html("Response Values");
          var post_Json = function(url,JSONdata) {
