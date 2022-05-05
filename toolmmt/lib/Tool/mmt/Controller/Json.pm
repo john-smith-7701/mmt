@@ -1,5 +1,8 @@
  package Tool::mmt::Controller::Json;
  use Mojo::Base 'Tool::mmt::Controller::Mmt';
+ use Encode qw/ decode decode_utf8 encode encode_utf8/;
+ use Mojo::JSON qw(decode_json encode_json);
+ use utf8;
 
  my $perl_object =  {head => 'Json Test Data',array=>[1,2,3,4],lang=>['perl','ruby','php'],
             日本語=>['漢字','ひらがな','ｶﾀｶﾅ']};
@@ -69,6 +72,20 @@
      $text .= qq{<button id="nextMon" onclick="get_cal('@{[$yy*10000 + $mm*100+1]}')">>></button>};
      $text .= $m->make_cal($m->ymd_split($ym),$s->param('mode'),$s->param('session'));
      return $text;
+ }
+ sub render_to_string{
+     my $s = shift;
+     my $p = shift;
+     my $t = shift;
+     my $newt = [];
+     for my $a (@$t){
+         my $newh = {};
+         for my $k (keys(%$a)){
+             $newh->{decode_utf8($k)} = $a->{$k};
+         }
+         push(@$newt,$newh);
+     }
+     return encode_json($newt);
  }
  
  1;
