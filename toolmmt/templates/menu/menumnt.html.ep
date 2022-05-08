@@ -9,6 +9,14 @@
         .menuGroup{
             vertical-align:top;
         }
+        /*　スクロールバーの実装 */
+        .table_sticky {
+            display: block;
+            overflow-y: scroll;
+            height: calc(100vh/1.5);
+            border:1px solid;
+            border-collapse: collapse;
+        }
         </style>
         <table width="100%"><tr><td>
         <select id="menuSelect">
@@ -29,9 +37,9 @@
                 <td class="menuGroup">
                     <h2>メニュー構成(menu_config)</h2>
                     <div class="dataList">
-                        <table border=1>
+                        <table border=1 class="table_sticky">
                             <thead>
-                                <tr><th>No.</th><th>menu-ID</th><th>名称</th></tr>
+                                <tr class="fixed01"><th>No.</th><th>menu-ID</th><th>名称</th></tr>
                             </thead>
                             <tbody id="menuData" class="connectedSortable">
                             </tbody>
@@ -45,9 +53,9 @@
                 <td class="menuGroup">
                     <h2>リンク先(menu_item)</h2>
                     <div class="linkList">
-                        <table border=1>
+                        <table border=1 class="table_sticky">
                             <thead>
-                                <tr><th>No.</th><th>menu-ID</th><th>名称</th></tr>
+                                <tr class="fixed01"><th>No.</th><th>menu-ID</th><th>名称</th></tr>
                             </thead>
                             <tbody id="linkData" class="connectedSortable">
                                 <tr><td></td><td></td><td></td></tr>
@@ -104,11 +112,13 @@
                 $("#linkData").append(line);
             });
         }
+        var menuDataList;
         function menuList(data){
             $.each(data,function(i,v){
                 line = "<tr SEQ_NO="+v['SEQ_NO']+"><td name='num_data'>"+v['No']+"</td><td>"+v['menu_ID']+"</td><td><input type='text' value='"+v['名称']+"' name='meisyo' class='meisyo' size='45'></td></tr>";
                 $("#menuData").append(line);
             });
+            menuDataList = $("#menuData").sortable("toArray",{ attribute: 'SEQ_NO'});
         }
         $(function(){
             $('#menuSelect').change(function() {
@@ -149,6 +159,14 @@
             $('#cmdUpd').on('click',function(){
                 // tableを読み込み各行の要素をJSONに変換しPOSTする
                 postdata = [];
+                newMenuDataList = $("#menuData").sortable("toArray",{ attribute: 'SEQ_NO'});
+                delList = [];
+                $.each(menuDataList,function(i,v){
+                    if(!newMenuDataList.find((num) => num === v)){
+                        delList.push(v);
+                    }
+                });
+                postdata.push({delelist:delList});
                 tr = $("#menuData tr");
                 for(var i=0;i<tr.length;i++){
                     x = tr.eq(i);

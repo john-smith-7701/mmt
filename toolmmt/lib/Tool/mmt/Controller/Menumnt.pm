@@ -72,14 +72,22 @@ sub updateMenuConfig{
 END_Script
     my $insertsql = <<END_Script;
     insert menu_config (SEQ_NO,ID,No,メニュー区分,menu_ID,名称,追加パラメータ,memo,権限)
-        values (0,?,?,'0010',?,?,'','','')
+        values (0,?,?,?,?,?,'','','')
 END_Script
     my $dbh = $s->app->model->webdb->dbh;
     for my $r (@$data){
-        if($r->{'seq_no'} != 0){
+        if(exists($r->{'delelist'})){
+            if(@{$r->{delelist}}){
+                my $keys = join(',',@{$r->{delelist}});
+                my $delesql = <<END_Script;
+delete from menu_config where SEQ_NO in ($keys)
+END_Script
+                $dbh->do($delesql);
+            }
+        }elsif($r->{'seq_no'} != 0){
             $dbh->do($updsql,undef,$r->{'num_data'},$r->{'name'},$r->{'seq_no'});
         }else{
-            $dbh->do($insertsql,undef,$r->{'menu'},$r->{'num_data'},$r->{'menu_id'},$r->{'name'});
+            $dbh->do($insertsql,undef,$r->{'menu'},$r->{'num_data'},($r->{'menu_id'} eq '' ? '':'0010'),$r->{'menu_id'},$r->{'name'});
         }
     }
     $s->json_or_jsonp( $s->render_to_string(json => [{return=>'OK'}]));
