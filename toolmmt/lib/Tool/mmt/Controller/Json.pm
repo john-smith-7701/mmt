@@ -73,7 +73,7 @@
      $text .= $m->make_cal($m->ymd_split($ym),$s->param('mode'),$s->param('session'));
      return $text;
  }
- sub render_to_string{
+ sub db_render_to_string{
      my $s = shift;
      my $p = shift;
      my $t = shift;

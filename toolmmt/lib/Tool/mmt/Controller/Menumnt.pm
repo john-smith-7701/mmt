@@ -39,7 +39,7 @@ sub getMenuItem {
 END_Script
     my $dbh = $s->app->model->webdb->dbh;
     my $data = $dbh->selectall_arrayref($sql,+{Slice => +{}});
-    $s->json_or_jsonp( $s->render_to_string(json => $data));
+    $s->json_or_jsonp( $s->db_render_to_string(json => $data));
 }
 sub getMenuId {
     my $s = shift;
@@ -48,12 +48,12 @@ sub getMenuId {
 END_Script
     my $dbh = $s->app->model->webdb->dbh;
     my $data = $dbh->selectall_arrayref($sql,+{Slice => +{}});
-    $s->json_or_jsonp( $s->render_to_string(json => $data));
+    $s->json_or_jsonp( $s->db_render_to_string(json => $data));
 }
 sub getMenu{
     my $s = shift;
     my $data = $s->menu_get();
-    $s->json_or_jsonp( $s->render_to_string(json => $data));
+    $s->json_or_jsonp( $s->db_render_to_string(json => $data));
 }
 sub insertMenuItem {
     my $s = shift;
@@ -63,7 +63,7 @@ sub insertMenuItem {
 END_Script
     my $dbh = $s->app->model->webdb->dbh;
     my $ret = $dbh->do($sql,undef,$s->param('ID'),$s->param('NAME'),$s->param('URL'));
-    $s->json_or_jsonp( $s->render_to_string(json => [{return=>$ret}]));
+    $s->json_or_jsonp( $s->db_render_to_string(json => [{return=>$ret}]));
 
 }
 sub updateMenuConfig{
@@ -93,6 +93,6 @@ END_Script
             $dbh->do($insertsql,undef,$r->{'menu'},$r->{'num_data'},($r->{'menu_id'} eq '' ? '':'0010'),$r->{'menu_id'},$r->{'name'});
         }
     }
-    $s->json_or_jsonp( $s->render_to_string(json => [{return=>'OK'}]));
+    $s->json_or_jsonp( $s->db_render_to_string(json => [{return=>'OK'}]));
 }
 1;
