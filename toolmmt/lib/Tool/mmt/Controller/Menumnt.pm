@@ -9,7 +9,7 @@ sub menu{
     my $s = shift;
     my $data = $s->menu_get();
     $s->param('_focus','menu_ID');
-    $s->stash(_data=> $data,_user => $s->param('user'));
+    $s->stash(_data=> $data,_user => $s->param('session'));
     $s->render('menu/menumnt');
 }
 sub menu_get{
@@ -19,9 +19,12 @@ sub menu_get{
 
     select m.*
     from menu_config m 
-    left join menu_item a on a.ID = m.menu_ID 
+    left join menu_item a on a.ID = m.menu_ID and a.ID <> ''
     where m.ID = ? AND
-        exists (select 1 from user_group a inner join user_group b on b.groupId = a.groupId and b.id = ? where a.id = m.ID)
+        exists (
+            select 1 from user_group a 
+            inner join session c on c.session = ?
+            inner join user_group b on b.groupId = a.groupId and b.id = c.user where a.id = m.ID)
      order by m.No
 END_Script
 

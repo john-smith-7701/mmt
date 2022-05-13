@@ -82,7 +82,7 @@
         }).disableSelection();
 
         $.ajax({
-            url: "https://qweer.info/api/menumnt/getMenuId",
+            url: "/api/menumnt/getMenuId",
             type: 'GET',
             dataType: "jsonp",
             data: {
@@ -93,7 +93,7 @@
         function getMenuItem(){
             $("#linkData").html("");
             $.ajax({
-                url: "https://qweer.info/api/menumnt/getMenuItem",
+                url: "/api/menumnt/getMenuItem",
                 type: 'GET',
                 dataType: "jsonp",
                 data: {
@@ -124,7 +124,7 @@
             $('#menuSelect').change(function() {
                 $("#menuData").html('');
                 $.ajax({
-                    url: "https://qweer.info/api/menumnt/getMenu",
+                    url: "/api/menumnt/getMenu",
                     type: 'GET',
                     dataType: "jsonp",
                     data: {
@@ -143,7 +143,7 @@
             });
             $('#reg').on('click',function(){
                 $.ajax({
-                    url: "https://qweer.info/api/menumnt/insertMenuItem",
+                    url: "/api/menumnt/insertMenuItem",
                     type: 'POST',
                     dataType: "json",
                     data: {
@@ -181,7 +181,7 @@
                 }
                 // JSONをPOSTする (contentType: 'application/JSON')
                 $.ajax({
-                    url: "https://qweer.info/api/menumnt/updateMenuConfig",
+                    url: "/api/menumnt/updateMenuConfig",
                     type: 'POST',
                     contentType: 'application/JSON',
                     dataType: "json",

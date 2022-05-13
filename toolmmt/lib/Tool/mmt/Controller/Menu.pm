@@ -16,7 +16,7 @@
 
      select m.SEQ_NO,m.No,m.名称 as meisyo,m.メニュー区分 as menukbn,a.URL,a.PARAM,m.memo 
      from menu_config m 
-     left join menu_item a on a.ID = m.menu_ID 
+     left join menu_item a on a.ID = m.menu_ID and a.ID <> ''
      where m.ID = ? AND
         exists (select 1 from user_group a inner join user_group b on b.groupId = a.groupId and b.id = ? where a.id = m.ID)
      order by m.No
