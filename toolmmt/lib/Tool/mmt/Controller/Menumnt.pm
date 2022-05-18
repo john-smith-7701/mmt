@@ -44,7 +44,7 @@ END_Script
 sub getMenuId {
     my $s = shift;
     my $sql = <<END_Script;
-    select ID from menu_config group by ID
+    select substring(PARAM,6) as ID from menu_item where URL = '/menu/menu' and PARAM like ('menu=%')
 END_Script
     my $dbh = $s->app->model->webdb->dbh;
     my $data = $dbh->selectall_arrayref($sql,+{Slice => +{}});
@@ -59,10 +59,14 @@ sub insertMenuItem {
     my $s = shift;
     my $sql = <<END_Script;
     insert into menu_item 
-        (SEQ_NO,ID,名称,URL,略称,PARAM,権限) values (0,?,?,?,'','','')
+        (SEQ_NO,ID,名称,URL,略称,PARAM,権限) values (0,?,?,?,'',?,'')
 END_Script
     my $dbh = $s->app->model->webdb->dbh;
-    my $ret = $dbh->do($sql,undef,$s->param('ID'),$s->param('NAME'),$s->param('URL'));
+    my $param = '';
+    if($s->param('URL') eq '/menu/menu'){
+        $param = "menu=@{[$s->param('ID')]}";
+    }
+    my $ret = $dbh->do($sql,undef,$s->param('ID'),$s->param('NAME'),$s->param('URL'),$param);
     $s->json_or_jsonp( $s->db_render_to_string(json => [{return=>$ret}]));
 
 }

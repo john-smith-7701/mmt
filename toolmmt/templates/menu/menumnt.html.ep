@@ -118,6 +118,7 @@
                 line = "<tr SEQ_NO="+v['SEQ_NO']+"><td name='num_data'>"+v['No']+"</td><td>"+v['menu_ID']+"</td><td><input type='text' value='"+v['名称']+"' name='meisyo' class='meisyo' size='45'></td></tr>";
                 $("#menuData").append(line);
             });
+            $("#menuData").append('<tr><td></td><td></td><td></td></tr>');
             menuDataList = $("#menuData").sortable("toArray",{ attribute: 'SEQ_NO'});
         }
         $(function(){
@@ -163,13 +164,18 @@
                 delList = [];
                 $.each(menuDataList,function(i,v){
                     if(!newMenuDataList.find((num) => num === v)){
-                        delList.push(v);
+                        if(/^\d+$/.test(v)){
+                            delList.push(v);
+                        }
                     }
                 });
                 postdata.push({delelist:delList});
                 tr = $("#menuData tr");
                 for(var i=0;i<tr.length;i++){
                     x = tr.eq(i);
+                    if(x.attr("seq_no") == undefined){
+                        continue;
+                    }
                     var rec = {
                         seq_no: x.attr("seq_no"),
                         num_data: x.children("td").eq(0).text(),
