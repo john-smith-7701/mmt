@@ -12,7 +12,7 @@
      use Mojo::UserAgent;
      my $ua = Mojo::UserAgent->new;
      my $data = $ua->post('http://www21051ue.sakura.ne.jp:8888/index.cgi' =>
-                                {Accept=> '*/*'} => json => $perl_object);
+                                {Accept=> '*/*','yb-application-token'=>'XXXXX'} => json => $perl_object);
      if (my $res = $data->success){
          $s->render(data => $res->body ,format=>'html');
      }else{
