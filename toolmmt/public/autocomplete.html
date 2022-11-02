@@ -1,0 +1,36 @@
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+        <title>入力できるプルダウンボックス</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    </head>
+    <body>
+        <h1>入力できるプルダウンボックス</h1>
+        全表示：<input type=text id=in01 name=in01 class="suggest"><br>
+        検　索：<input type=text id=in02 name=in02 class="suggest">
+        <script>
+            var suggestList01 = ['perl','ruby','Python','PHP','javaScript','AWK','bash','java','COBOL','C','C++',];
+            $('#in01').autocomplete({
+                minLength: 0,
+                source: function(req,res) {
+                    res(suggestList01);
+                },
+            });
+            $('#in02').autocomplete({
+                minLength: 0,
+                source: function(req,res) {
+                    res($.grep(suggestList01,function(v){
+                        return v.toLowerCase().indexOf(req.term.toLowerCase()) >= 0;
+                        })
+                    );;
+                },
+            });
+            $(document).on('focusin','.suggest',function() {
+                $(this).autocomplete('search','');
+            });
+        </script>
+    </body>
+</html>
