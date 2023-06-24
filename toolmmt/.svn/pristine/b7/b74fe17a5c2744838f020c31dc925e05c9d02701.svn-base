@@ -1,0 +1,15 @@
+% layout 'default';
+% title 'select' ;
+% my $r = $_data->[0];
+%== "<h2>$_parm->{'title'}</h2>"
+%= form_for url_for($_data->[0]->{URL}) => (method => 'POST') => begin
+%== $_parm->{condition}
+<input type="submit" value="作表">
+% end
+<!--
+%= $r->{memo}
+<hr>
+<pre>
+%== dumper $_data
+</pre>
+-->

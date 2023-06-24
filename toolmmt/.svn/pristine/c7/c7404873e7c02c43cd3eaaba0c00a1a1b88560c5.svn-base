@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang=ja>
+  <head><title><%= title %></title>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+     <script type="text/javascript">  <!-- [jQuery] Enterキーでフォーカスを移動するには http://blog.makotoishida.com/2013/02/javascript-enter.html -->
+            $(function(){
+              var elements = "input[type=text]";
+              $(elements).keypress(function(e) {
+                var c = e.which ? e.which : e.keyCode;
+                if (c == 13) { 
+                  var index = $(elements).index(this);
+                  var criteria = e.shiftKey ? ":lt(" + index + "):last" : ":gt(" + index + "):first";
+                  $(elements + criteria).select();
+                  $(elements + criteria).focus();
+                  e.preventDefault();
+                }
+              });
+              $('#' + $('#_focus').val()).select();             // 項目を選択
+              $('#' + $('#_focus').val()).focus();              // フォーカスをセット
+              });
+
+            function openModal(url){
+                if($("#modal-overlay")[0]) {
+                    $("#modal-overlay").fadeOut("slow",function(){
+                        $("#modal-overlay").remove() ;
+                    });
+                    return;
+                }
+                //オーバーレイ用のHTMLコードを、[body]内の最後に生成する
+                var text = (function() {/*
+<div id="modal-overlay" align=center>
+  <br><br><br><br>
+  <iframe width=75% height=75% top=10px src='+url+'>
+  </iframe>
+  <p align="center">
+  <input type="button" onclick="openModal();" value="CLOSE">
+</div>
+*/}).toString().replace(/(\n)/g, '').replace(/\+url\+/,url).split('*')[1];
+
+                $("body").append(text);
+
+                //[$modal-overlay]をフェードインさせる
+                $("#modal-overlay").fadeIn("slow");
+            }
+
+            $(function() {
+                $("ul.main-menu li").hover(function() {
+                    $(this).children('ul').show();
+                }, function() {
+                    $(this).children('ul').hide();
+                });
+            });
+
+     </script>
+     <%= stylesheet '/css/default.css?a=2' %>
+     <%= javascript '/js/sortable_ja.js' %>
+  </head>
+  <body>
+    <input type=hidden name=_focus id=_focus value=<%= param('_focus') %>>
+    <div class="main">
+    <%== eval{$self->make_drop_down_menu()} %>
+      <%= content %>
+    </div>
+    <div class="sidebar">
+    <%== eval{$self->make_sidebar()} %>
+    %= $@
+    </div>
+  </body>
+</html>

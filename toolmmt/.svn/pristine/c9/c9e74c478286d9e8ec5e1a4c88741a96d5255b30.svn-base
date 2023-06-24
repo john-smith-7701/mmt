@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>JavaScriptで選択したファイルを背景画像にする</title>
+</head>
+<body>
+<script>
+window.addEventListener('DOMContentLoaded', ()=>{
+  const f=document.querySelector('#f');
+  f.addEventListener('change',()=>{
+    const content = f.files[0];
+    const blob=new Blob([content],{type:f.type});
+    document.body.style.backgroundImage=`url(${URL.createObjectURL(blob)})`;
+  });
+});
+</script>
+<input type="file" id="f">
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang=ja>
+ <head>
+  <title>LOGIN</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+  <style>
+    html {
+        font-size: 36px;
+    }
+    .login {
+        text-align: center;
+        margin: 100px auto;
+    }
+    input {
+        font-size: 1em;
+    }
+  </style>
+ </head>
+ <body>
+<div class="login">
+%= form_for './login' => (method => 'post') => begin
+ <br>Name:
+ %= text_field 'user',size => 40
+ <br>password:
+ %= text_field 'passwd',size => 40,id=>"passwd"
+ <br>
+ <input type="checkbox" id="password-check" checked="checked">パスワードを表示する
+ <br>
+ %= submit_button 'Login'
+ %= hidden_field url => $url 
+% end
+</div>
+<a href="/api/useradd/menu/">会員登録</a>
+<script>
+ const pwd = document.getElementById('password');
+ const pwdCheck = document.getElementById('password-check');
+ pwdCheck.addEventListener('change', function() {
+     if(pwdCheck.checked) {
+         passwd.setAttribute('type', 'text');
+     } else {
+         passwd.setAttribute('type', 'password');
+     }
+ }, false);
+</script> 
+
+ </body>
+</html>

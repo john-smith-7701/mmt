@@ -1,0 +1,17 @@
+% layout 'defrwt';
+% title $title ;
+<%
+    while(my $ref = $self->rwt_dataget){
+        $self->print_proc($ref);
+        if($self->endsw != 0 or $self->page_count > $self->end_page){
+            last;
+        }
+        next if($self->rskip == 1);
+%>
+         <%== $self->c_get() %>
+<%
+    }
+    $self->final_proc();
+%>
+     <%== $self->c_get() %>
+

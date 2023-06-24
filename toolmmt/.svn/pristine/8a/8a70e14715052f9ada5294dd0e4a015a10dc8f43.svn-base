@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang=ja>
+  <head><title>calendar</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+    <%= stylesheet '/css/default.css' %>
+    <%= stylesheet '/css/demo.css' %>
+    <style type="text/css">
+      .day {
+          font-size: 2em;
+      }
+    </style>
+  </head>
+  <body>
+<%== eval{$self->make_drop_down_menu()} %>
+%== $_data
+<%== eval{$self->make_drop_down_js()} %>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+% layout 'defsubwin';
+% title "select";
+<h1><%= select %></h1>
+

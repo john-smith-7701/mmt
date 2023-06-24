@@ -1,0 +1,21 @@
+ package Tool::mmt::Controller::Matrix;
+ use Mojo::Base 'Tool::mmt::Controller::Menu';
+ use Encode qw/ decode decode_utf8 encode encode_utf8/;
+
+ 
+ sub menu{
+     my $s = shift;
+     my $data = $s->menu_get();
+     $s->stash(_data=> $data);
+     $s->render('matrix/menu');
+ }
+ sub menu_get{
+     my $s = shift;
+     my $menu = $s->param('menu') || 'START';
+     my $sql = "select m.SEQ_NO,m.No,m.名称 as meisyo,m.メニュー区分 as menukbn,a.URL,a.PARAM from menu_config m left join menu_item a on a.ID = m.menu_ID 
+                where m.ID = ? order by m.No";
+     my $dbh = $s->app->model->webdb->dbh;
+     my $data = $dbh->selectall_arrayref($sql,+{Slice => +{}},$menu);
+     return $data;
+ }
+ 1;

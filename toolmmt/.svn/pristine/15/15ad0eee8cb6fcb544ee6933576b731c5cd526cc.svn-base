@@ -1,0 +1,20 @@
+% layout 'default';
+% title 'パスワード変更' ;
+<h2>パスワード変更</h2>
+%= form_for url_for('') => (method => 'post') => begin
+<table border=1 width=80%>
+  <tr><td><div class="flex">
+    <div class="itemlabel">password:</div>
+    <div class="itemdata"><%= text_field 'passwd'%></div>
+  </td></tr>
+  <tr><td><div class="flex">
+    <div class="itemlabel">new password:</div>
+    <div class="itemdata"><%= text_field 'newpasswd'%></div>
+  </td></tr>
+  <tr><td><div class="flex">
+    <div class="itemlabel">re password:</div>
+    <div class="itemdata"><%= text_field 'repasswd'%></div>
+  </td></tr>
+</table>
+%= submit_button '変更'
+% end

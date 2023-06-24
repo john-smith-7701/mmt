@@ -1,0 +1,143 @@
+ % layout 'default';
+ % title 'mojplicious JSON DEMO';
+ <h1>mojolicious JSON Demo</h1>
+ <hr><h4>JSON</h4>
+ <ul>
+   <li><a href="/api/json/json_test01">json_test01</a></li>
+   <li><a href="/api/json/json_post">json_post</a></li>
+   <li><a href="/api/chabo/sample_parse">chabo/sample_parse</a></li>
+   <li><a href="/api/chabo/sample_put_together">chabo/sample_put_together</a></li>
+ </ul>
+ <h4>JSON POST</h4>
+ <script type="text/javascript">
+     $(function(){
+         $("#response").html("Response Values");
+         var post_Json = function(url,JSONdata) {
+            $.ajax({
+                 type : 'post',
+                 url : url,
+                 data : JSONdata,
+                 contentType: 'application/JSON',
+                 dataType : 'JSON',
+                 scriptCharset: 'utf-8',
+                 success : function(data) {
+                     // Success
+                     // alert("success");
+                     // alert(JSON.stringify(data));
+                     $("#response").html(JSON.stringify(data,undefined,4));
+                 },
+                 error : function(data) {
+                     // Error
+                     alert("error");
+                     alert(JSON.stringify(data));
+                     $("#response").html(JSON.stringify(data));
+                 }
+             });
+         };
+         $("#button").click( function(){
+             var url = $("#url_post").val();
+             var JSONdata = {
+                 text: $("#value1").val(),
+                 value2: $("#value2").val()      
+             };
+             // alert(JSON.stringify(JSONdata));
+             post_Json(url,JSON.stringify(JSONdata));
+         });
+         $("#button2").click( function(){
+             var url = $("#url_post").val();
+             var JSONdata = $("#jsonText").val();
+             post_Json(url,JSONdata);
+         });
+     })
+ </script>
+ 
+     <h2><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=JSON">HTMLファイルからPOSTでJSONデータを送信する</a></h2>
+     <p>URL: <input type="text" id="url_post" name="url" size="100" value="<%== url_for %>"></p>
+     <p>text  : <input type="text" id="value1" size="30" value="値1"></p>
+     <p>value2: <input type="text" id="value2" size="30" value="値2"></p>
+     <p><button id="button" type="button">submit</button></p>
+     <textarea id="jsonText" cols=120 rows=10 placeholder="送信するJSONテキストを入力"></textarea>
+     <br><button id="button2" type="button">submit</button></p>
+     <textarea id="response" cols=120 rows=10 disabled></textarea>
+
+<p><a name=modalSample></a>
+<h4><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=CSS+%A5%E1%A5%E2">モーダル画面もどき(サンプル)</a></h4>
+<div class="radioPanel">
+    <button type="button" onclick="openModal('http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi')">モーダル画面を開く</button>
+    <button type="button" onclick="openModal('/api/json/json')">モーダル画面を開く</button>
+</div>
+<p><a name=sample></a>
+<h4><a href="http://park15.wakwak.com/~k-lovely/cgi-bin/wiki/wiki.cgi?page=CSS+%A5%E1%A5%E2">パネルのラジオボタン (サンプル)</a></h4>
+<div class="radioPanel">
+    <input type="radio" name="s3" id="select1" value="1" checked="">
+    <label for="select1">perl</label>
+    <input type="radio" name="s3" id="select2" value="2">
+    <label for="select2">ruby</label>
+    <input type="radio" name="s3" id="select3" value="3">
+    <label for="select3">python</label>
+    <input type="radio" name="s3" id="select4" value="4">
+    <label for="select4">php</label>
+    <input type="radio" name="s3" id="select5" value="5">
+    <label for="select5">C</label>
+</div>
+<br><br>
+<h4>パネルのチェックボックス (サンプル)</h4>
+<div class="radioPanel">
+    <input type="checkbox" name="s4" id="select11" value="1" checked="">
+    <label for="select11">perl</label>
+    <input type="checkbox" name="s4" id="select12" value="2">
+    <label for="select12">ruby</label>
+    <input type="checkbox" name="s4" id="select13" value="3">
+    <label for="select13">python</label>
+    <input type="checkbox" name="s4" id="select14" value="4">
+    <label for="select14">php</label>
+    <input type="checkbox" name="s4" id="select15" value="5">
+    <label for="select15">C</label>
+</div><br><br><br><hr>
+<pre>
+/* ラジオボタンを非表示にする */
+.radioPanel input{
+    display: none;
+}
+/* ラベルのスタイル */
+.radioPanel label{
+    display: block;
+    float: left;
+    cursor: pointer;
+    width: 80px;
+    margin: 0;
+    padding: 12px 5px;
+    border-right: 1px solid #000000;
+    background: #bdc3c7;
+    color: #555e64;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1;
+    transition: .2s;
+}
+/* チェックされた時のスタイル*/
+.radioPanel input[type="checkbox"]:checked + label,
+.radioPanel input[type="radio"]:checked + label {
+    background-color: #a1b91d;
+    color: #fff;
+    border-right: 1px solid #000000;
+    background-image: url(reten.png);
+    background-size: 20px;
+    background-position: right top;
+    background-repeat: no-repeat;
+}
+/* マウスオーバーした時のスタイル */
+.radioPanel label:hover{
+    background-color: #a9a9a9;
+}
+/* 角を丸くする*/
+.radioPanel label:first-of-type{
+    border-radius: 3px 0 0 3px;
+}
+.radioPanel label:last-of-type{
+    border-right: 0px;
+    border-radius: 0 3px 3px 0;
+}
+
+</pre>
+ </p>

@@ -1,0 +1,7 @@
+% layout 'defsubwin';
+% title "calendar";
+<%= stylesheet '/css/default.css' %>
+<link rel="stylesheet" type="text/css" href="/css/demo.css" />
+<%== eval{$self->make_drop_down_menu()} %>
+%== $_data
+<%== eval{$self->make_drop_down_js()} %>

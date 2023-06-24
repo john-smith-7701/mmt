@@ -1,0 +1,109 @@
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+        <title>QRコード読んだり書いたり</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script src="js/jquery-qrcode-0.18.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+        <style>
+        body {
+          max-width: 800px;
+          margin: auto;
+          padding: 1rem;
+          font-size: 14px;
+          text-align: center;
+        }
+        button {
+            margin: 10px;
+        }
+        #canvas {
+            width: 100%;
+        }
+        </style>
+    </head>
+    <body>
+        <textarea id=qrinput name=qrinput rows=5 cols=40></textarea>
+        <br>
+        <button id="qrON">QRコードを読む</button>
+        <button id="goPage">WEB表示</button>
+        <button id="qrDownload">QRコードをダウンロード</button>
+        <button id="stop">中止</button>
+        <br><br>
+        <div id="qrcode"></div>
+        <div id="loading">ブラウザのカメラの使用を許可してください。</div>
+        <br>
+        <canvas id="canvas" hidden></canvas>
+        <script>
+            var arg = new Object;
+            var pair=location.search.substring(1).split('&');
+            for(var i=0;pair[i];i++) {
+                    var kv = pair[i].split('=');
+                    arg[kv[0]]=kv[1];
+            }
+            $('#qrinput').val(decodeURIComponent(arg['callback']));
+
+            const video = document.createElement('video');
+            const canvasElement = document.getElementById('canvas');
+            const canvas = canvasElement.getContext('2d');
+            const loading = document.getElementById('loading');
+            let isReadQR = false;
+
+            $('#qrcode').qrcode({width: 64, height: 64, text: "information"});
+            $('#qrinput').on('blur',function(){
+                $('#qrcode').html('');
+                $('#qrcode').qrcode({width: 64, height: 64, text: $('#qrinput').val()});
+            });
+            $('#qrON').on('click',function(){
+                qrRead();
+            });
+            $('#qrDownload').on('click',function(){
+                let canvas = $('#qrcode canvas');
+                let link = document.createElement("a");
+                link.href = canvas[0].toDataURL("image/png");
+                link.download = "qrcode.png";
+                link.click();
+            });
+            $('#goPage').on('click',function(){
+                window.location.href = $('#qrinput').val();
+            });
+            $('#stop').on('click',function(){
+                    isReadQR = true;
+            });
+            //QRコードを読む
+            function qrRead() {
+                isReadQR = false;
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', true);
+                    video.play();
+                    requestAnimationFrame(tick);
+                });
+            }
+            function tick() {
+              loading.textContent = 'ロード中...';
+              if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                loading.hidden = true;
+                canvasElement.hidden = false;
+                canvasElement.height = video.videoHeight;
+                canvasElement.width = video.videoWidth;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                  inversionAttempts: 'dontInvert',
+                });
+                if (code && !isReadQR) {
+                    isReadQR = true;
+                    $('#qrinput').val(code.data);
+                    $('#qrinput').focus();
+                    $('#qrinput').blur();
+                }
+              }
+              if(!isReadQR){
+                requestAnimationFrame(tick);
+              }
+            }
+        </script>
+    </body>
+</html>

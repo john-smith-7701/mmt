@@ -1,0 +1,200 @@
+% layout 'default';
+% title 'menu maintenance' ;
+% use Encode qw/ decode decode_utf8 encode encode_utf8/;
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <!-- jQuery UI  tableの行をマウスで入れ替える為 -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <style>
+        .menuGroup{
+            vertical-align:top;
+        }
+        /*　スクロールバーの実装 */
+        .table_sticky {
+            display: block;
+            overflow-y: scroll;
+            height: calc(100vh/1.5);
+            border:1px solid;
+            border-collapse: collapse;
+        }
+        </style>
+        <table width="100%"><tr><td>
+        <select id="menuSelect">
+            <option value="">-- select --</option>
+        </select>
+        </td><td>
+        <fieldset>
+            <legend>リンク先登録</legend>
+            MENU_ID:<input type=text id="menu_ID">
+            NAME:<input type=text id="name">
+            URL:<input type=text id="url">
+            <button id="reg">登録</button>
+        </fieldset>
+        </td></tr></table>
+        <hr>
+        <table>
+            <tr>
+                <td class="menuGroup">
+                    <h2>メニュー構成(menu_config)</h2>
+                    <div class="dataList">
+                        <table border=1 class="table_sticky">
+                            <thead>
+                                <tr class="fixed01"><th>No.</th><th>menu-ID</th><th>名称</th></tr>
+                            </thead>
+                            <tbody id="menuData" class="connectedSortable">
+                            </tbody>
+                        </table>
+                    </div>
+                    <button id="cmdUpd">更新</button>
+                </td>
+                <td class="menuGroup">
+                    &lt;=&gt;
+                </td>
+                <td class="menuGroup">
+                    <h2>リンク先(menu_item)</h2>
+                    <div class="linkList">
+                        <table border=1 class="table_sticky">
+                            <thead>
+                                <tr class="fixed01"><th>No.</th><th>menu-ID</th><th>名称</th></tr>
+                            </thead>
+                            <tbody id="linkData" class="connectedSortable">
+                                <tr><td></td><td></td><td></td></tr>
+                            </tbody>
+                        </table>
+                </td>
+            </tr>
+        </table>
+
+    <script type="text/javascript">
+        // マウスで行を移動時に小さくならないようにする
+        var fixHelperModified = function(e, tr) {
+            var $originals = tr.children();
+            var $helper = tr.clone();
+            $helper.children().each(function(index){
+                $(this).width($originals.eq(index).width())
+            });
+            return $helper;
+        };
+        // マウスで行を入れ替えられる要素を設定する
+        $('.connectedSortable').sortable({
+            connectWith: ".connectedSortable",
+            helper: fixHelperModified 
+        }).disableSelection();
+
+        $.ajax({
+            url: "/api/menumnt/getMenuId",
+            type: 'GET',
+            dataType: "jsonp",
+            data: {
+                callback:"persResponse"
+            },
+        });
+        getMenuItem();
+        function getMenuItem(){
+            $("#linkData").html("");
+            $.ajax({
+                url: "/api/menumnt/getMenuItem",
+                type: 'GET',
+                dataType: "jsonp",
+                data: {
+                    callback:"persResponseMenuItem"
+                },
+            });
+        }
+        function persResponse(data){
+            $.each(data,function(i,v){
+                $("#menuSelect").append($("<option>").val(v['ID']).text(v['ID']));
+            });
+        }
+        function persResponseMenuItem(data){
+            $.each(data,function(i,v){
+                line = "<tr SEQ_NO='0'><td name='num_data'>"+v['SEQ_NO']+"</td><td>"+v['ID']+"</td><td><input type='text' value='"+v['名称']+"' name='meisyo' class='meisyo' size='45'></td></tr>";
+                $("#linkData").append(line);
+            });
+        }
+        var menuDataList;
+        function menuList(data){
+            $.each(data,function(i,v){
+                line = "<tr SEQ_NO="+v['SEQ_NO']+"><td name='num_data'>"+v['No']+"</td><td>"+v['menu_ID']+"</td><td><input type='text' value='"+v['名称']+"' name='meisyo' class='meisyo' size='45'></td></tr>";
+                $("#menuData").append(line);
+            });
+            $("#menuData").append('<tr><td></td><td></td><td></td></tr>');
+            menuDataList = $("#menuData").sortable("toArray",{ attribute: 'SEQ_NO'});
+        }
+        $(function(){
+            $('#menuSelect').change(function() {
+                $("#menuData").html('');
+                $.ajax({
+                    url: "/api/menumnt/getMenu",
+                    type: 'GET',
+                    dataType: "jsonp",
+                    data: {
+                        menu: $("#menuSelect").val(),
+                        user: "<%== $_user %>",
+                        callback: "menuList",
+                    },
+                });
+            });
+            // tableを入れ替えた時の処理を設定
+            $('.connectedSortable').on('sortupdate',function(){
+                getMenuItem();
+                $(this).find('[name="num_data"]').each(function(i){
+                    $(this).html( ('0000' + (i+1)*10).slice(-4));
+                });
+            });
+            $('#reg').on('click',function(){
+                $.ajax({
+                    url: "/api/menumnt/insertMenuItem",
+                    type: 'POST',
+                    dataType: "json",
+                    data: {
+                        ID: $("#menu_ID").val(),
+                        NAME: $("#name").val(),
+                        URL: $("#url").val(),
+                    },
+                }).done(function(data) {
+                    getMenuItem();
+                });
+
+            });
+            $('#cmdUpd').on('click',function(){
+                // tableを読み込み各行の要素をJSONに変換しPOSTする
+                postdata = [];
+                newMenuDataList = $("#menuData").sortable("toArray",{ attribute: 'SEQ_NO'});
+                delList = [];
+                $.each(menuDataList,function(i,v){
+                    if(!newMenuDataList.find((num) => num === v)){
+                        if(/^\d+$/.test(v)){
+                            delList.push(v);
+                        }
+                    }
+                });
+                postdata.push({delelist:delList});
+                tr = $("#menuData tr");
+                for(var i=0;i<tr.length;i++){
+                    x = tr.eq(i);
+                    if(x.attr("seq_no") == undefined){
+                        continue;
+                    }
+                    var rec = {
+                        seq_no: x.attr("seq_no"),
+                        num_data: x.children("td").eq(0).text(),
+                        menu_id: x.children("td").eq(1).text(),
+                        name: x.find('.meisyo').val(),
+                        menu: $("#menuSelect").val()
+                    };
+                    postdata.push(rec);
+                }
+                // JSONをPOSTする (contentType: 'application/JSON')
+                $.ajax({
+                    url: "/api/menumnt/updateMenuConfig",
+                    type: 'POST',
+                    contentType: 'application/JSON',
+                    dataType: "json",
+                    data: JSON.stringify(postdata),
+                }).done(function(data) {
+                    alert("更新しました");
+                });
+            });
+        });
+    </script>

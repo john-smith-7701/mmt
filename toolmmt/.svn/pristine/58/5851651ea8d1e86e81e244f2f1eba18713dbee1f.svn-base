@@ -1,0 +1,36 @@
+% layout 'default';
+% title "mmt - $_title";
+<h1><%= $_title %></h1>
+
+<table border=1 class="sortable" id="foo"><thead><tr><th class="unsortable"></th>
+% for my $item (@{$self->{'m'}->{'key'}},@{$self->{'m'}->{'item'}}){
+  <th><div id="<%= $item %>"> <%= $self->Label($item) %></div></th>
+% }
+</thead>
+<tbody>
+</tr>
+% my $count = 0;
+% while (my $ref = $self->{'sth'}->fetchrow_hashref()){
+%   $count++;
+%   last if $count > 2000;
+<tr>
+%= form_for url_for('_table'=> param('_table')) => (method => 'POST') => begin
+<%= hidden_field _table => param('_table') %>
+    <td>
+    %= submit_button $self->{'_action'}[0]->{'name'} ,id => '_action',name => '_action'
+    </td>
+%   for my $name (@{$self->{'m'}->{key}}){
+        <td><%= $ref->{Encode::encode("utf8",$name)} %>
+        <%= hidden_field $self->{'n'}->{$name} => $ref->{$self->my_encode("utf8",$name)} %>
+        </td>
+%   }
+%   for my $name (@{$self->{'m'}->{item}}){
+        <td><%= $ref->{$self->my_encode("utf8",$name)} %></td>
+%   }
+% end
+</tr>
+% }
+</tbody>
+</table>
+%=   "* No Data *" if ($count == 0);
+%=   "* Max over * " if ($count > 2000); 
