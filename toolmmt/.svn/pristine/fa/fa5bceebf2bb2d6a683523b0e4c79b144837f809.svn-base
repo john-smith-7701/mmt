@@ -1,8 +1,0 @@
-<html>
-<head>
-<title>chabo</title>
-</head>
-<body>
-<answer><%= stash('answer') %></answer>
-</body>
-</html>

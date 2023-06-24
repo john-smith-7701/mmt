@@ -1,7 +1,0 @@
-% layout 'defrwt';
-% title 'B-TREE' ;
-<h1>B-TREE</h1>
-
-<%= stash('message') %>
-<hr>
-<%== stash('treetext') %>

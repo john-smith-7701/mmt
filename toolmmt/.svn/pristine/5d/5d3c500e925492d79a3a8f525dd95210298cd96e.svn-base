@@ -1,9 +1,0 @@
-<!DOCTYPE html>
-<html>
-  <head><title>mmt - desc</title>
-</html>
-<body>
-<h1><%= stash('_table') %></h1>
-<%== app->model->webdb->desc(stash('_table')) %>
-</body>
-</html>
