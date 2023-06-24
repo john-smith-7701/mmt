@@ -73,7 +73,7 @@
             //QRコードを読む
             function qrRead() {
                 isReadQR = false;
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment',width: 1280,heigh:720} } })
                 .then((stream) => {
                     video.srcObject = stream;
                     video.setAttribute('playsinline', true);
