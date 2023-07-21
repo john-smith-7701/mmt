@@ -1,7 +1,7 @@
-import __commonjs_module0 from "/-/rc_s380_driver@v1.1.2-UXLVEn5PwW3xP2xHAjEI/dist=es2019,mode=imports/optimized/rc_s380_driver.js";
+import * as  __commonjs_module0 from "./rc_s380_driver.js";
 const {RCS380} = __commonjs_module0;
 ;
-import jsSha from "/-/jssha@v2.4.2-h1SG7QdWcGWIHZVXn2xC/dist=es2019,mode=imports/optimized/jssha.js";
+import jsSha from "./jssha.js";
 class Type4BPacket {
   constructor(rawPacketData) {
     this.rawPacketData = rawPacketData;
@@ -291,7 +291,8 @@ class MyNumberCard {
   async readBinary(size) {
     const result = new Uint8Array(size);
     let position = 0;
-    while (position < size) {
+    let loopCount = 0; 
+    while (position < size && loopCount < 10) {
       let length = 0;
       if (size - position > 255) {
         length = 0;
@@ -302,6 +303,9 @@ class MyNumberCard {
       const response = await this.device.sendCommand(readBinaryCommand);
       result.set(response.data, position);
       position += response.data.byteLength;
+      if(response.data.byteLength == 0){
+          loopCount++;
+      }
     }
     return result;
   }
@@ -349,3 +353,5 @@ class MyNumberCard {
 }
 export {MyNumberCard, Type4BTag};
 export default null;
+
+

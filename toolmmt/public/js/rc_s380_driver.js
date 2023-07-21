@@ -103,7 +103,8 @@ class RCS380 {
     this.timeout = this.frameWaitingTime + this.deltaFrameWaitingTime;
   }
   static async connect() {
-    const filter = {vendorId: 1356, productId: 1731};
+    //const filter = {vendorId: 1356, productId: 3529};
+    const filter = {vendorId: 1356};
     const options = {
       filters: [filter]
     };
@@ -223,3 +224,4 @@ class RCS380 {
 }
 export {RCS380, ReceivedPacket};
 export default null;
+

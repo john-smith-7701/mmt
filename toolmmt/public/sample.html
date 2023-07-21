@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<head>
+	<title>mynumbercard Test</title>
+    <script type="module" src="my_number_card_driver.js"></script>
+<script type="module">
+    import * as MyNumberCardDriver from './my_number_card_driver.js';
+
+const MyNumberCard  = MyNumberCardDriver.MyNumberCard;
+
+var myNumberCard = '';
+async function getPersonalData(pin){
+    if(myNumberCard == ''){
+        myNumberCard = await MyNumberCard.connect();
+    }
+    const personalData = await myNumberCard.getPersonalData(pin);
+    return personalData;
+}
+
+let exe = document.querySelector('#btn1');
+exe.addEventListener('click', async() =>{
+    let elem = document.getElementById('key');
+    const data = await getPersonalData(elem.value);
+    alert(JSON.stringify(data));
+});
+</script>
+</head>
+<boby>
+Key:<input type="password" id="key"><br>
+<input type="button" id="btn1" value="読み込み" />
+</body>
+</html>
+
