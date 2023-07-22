@@ -103,28 +103,61 @@ class RCS380 {
     this.timeout = this.frameWaitingTime + this.deltaFrameWaitingTime;
   }
   static async connect() {
-    //const filter = {vendorId: 1356, productId: 3529};
-    const filter = {vendorId: 1356};
+    const deviceList = [
+        {vendorId: 1356, productId: 1729, model: 'RC-S380/S'} ,
+        {vendorId: 1356, productId: 1731, model: 'RC-S380/P'} ,
+        {vendorId: 1356, productId: 3529, model: 'RC-S300/P'}
+    ];
+//	USBデバイス Endpoint の取得
+	var getEndPoint = ( argInterface, argVal ) => {
+		let retVal = false ;
+		for( const val of argInterface.alternate.endpoints ) {
+			if ( val.direction == argVal ) { retVal = val ; }
+		}
+		return retVal ;
+	}
+
+    let filter = [];
+    deviceList.forEach(function(div) {
+        filter.push( { vendorId : div.vendorId , productId : div.productId } ) ;
+    });
     const options = {
-      filters: [filter]
+      filters: filter
     };
-    const device = await navigator.usb.requestDevice(options);
+    // ペアリング済みの対応デバイスが1つだったら、自動選択にする
+    let pearedDevices = await navigator.usb.getDevices();
+    pearedDevices = pearedDevices.filter(function (d) {
+        for(var i in this){
+            if(d.productId == filter[i].productId) return d;
+        }
+    },filter);
+    // 自動選択 or 選択画面
+    const device = pearedDevices.length == 1 ? pearedDevices[0] : await navigator.usb.requestDevice(options);
     await device.open();
-    await device.selectConfiguration(1);
-    await device.claimInterface(0);
+    await device.selectConfiguration(device.configuration.configurationValue);
+    const interfaceNumber = device.productId == 1729 ? 0 : device.configuration.interfaces[ device.configuration.configurationValue ].interfaceNumber;
+    await device.claimInterface(interfaceNumber); // インターフェイス番号
+
+	let ep = getEndPoint( device.configuration.interfaces[ interfaceNumber ] , 'in' ) ;	// 入力エンドポイントを求める
+	device.endPointInNum = ep.endpointNumber ;											// 入力エンドポイント
+	device.endPointInPacketSize = ep.packetSize ;										// 入力パケットサイズ
+	ep = getEndPoint( device.configuration.interfaces[ interfaceNumber ] , 'out' ) ;	// 出力エンドポイントを求める
+	device.endPointOutNum = ep.endpointNumber ;											// 出力エンドポイント
+	device.endPointOutPacketSize = ep.packetSize ;										// 出力パケットサイズ
+
     return new RCS380(device);
   }
   async write(packet) {
     console.info(">>>>> send >>>>>");
     console.log(packet.payload);
     try {
-      await this.device.transferOut(2, packet.payload);
+      await this.device.transferOut(this.device.endPointOutNum, packet.payload);
     } catch (e) {
       console.error(e);
     }
   }
   async read() {
-    const result = await this.device.transferIn(1, this.maxReceiveSize);
+    const result = await this.device.transferIn(this.device.endPointInNum, this.maxReceiveSize);
     const rawPacket = result.data !== void 0 ? new Uint8Array(result.data.buffer) : Uint8Array.of(0, 0, 255, 0, 255, 0, 0, 0, 0);
     console.info("<<<<< receive <<<<<");
     console.log(rawPacket);
@@ -224,4 +257,3 @@ class RCS380 {
 }
 export {RCS380, ReceivedPacket};
 export default null;
-
