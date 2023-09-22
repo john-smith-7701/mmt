@@ -184,15 +184,18 @@ MessagePacket.makePacketFunctions = {
 class PersonalData {
   constructor(rawData) {
     const decoder = new TextDecoder("UTF-8");
-    let tmpRawData = rawData.slice(3);
+    let berLength = new ASN1Partial(rawData);
+    let tmpRawData = rawData.slice(berLength.offset);
     const headerLength = tmpRawData[2];
     tmpRawData = tmpRawData.slice(3 + headerLength);
-    const nameLength = tmpRawData[2];
-    this.name = decoder.decode(tmpRawData.slice(3, 3 + nameLength));
-    tmpRawData = tmpRawData.slice(3 + nameLength);
-    const addressLength = tmpRawData[2];
-    this.address = decoder.decode(tmpRawData.slice(3, 3 + addressLength));
-    tmpRawData = tmpRawData.slice(3 + addressLength);
+    berLength = new ASN1Partial(tmpRawData);
+    const nameLength = berLength.length;
+    this.name = decoder.decode(tmpRawData.slice(berLength.offset, berLength.size));
+    tmpRawData = tmpRawData.slice(berLength.size);
+    berLength = new ASN1Partial(tmpRawData);
+    const addressLength = berLength.length;;
+    this.address = decoder.decode(tmpRawData.slice(berLength.offset, berLength.size));
+    tmpRawData = tmpRawData.slice(berLength.size);
     const birthdayLength = tmpRawData[2];
     const birthday = decoder.decode(tmpRawData.slice(3, 3 + birthdayLength));
     const year = Number(birthday.slice(0, 4));
