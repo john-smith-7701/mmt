@@ -9,6 +9,7 @@ sub init_set {
     $s->stash->{title} = '予定';
     push (@{$s->{_action}},{name=>'参照',action=>sub {$s->data_get()}});  
     push (@{$s->{_action}},{name=>'更新',action=>sub {$s->data_update()}});
+    push (@{$s->{_action}},{name=>'検索',action=>sub {$s->data_serch()}});
     if($s->param('_action') eq ''){
         $s->data_get();
     }
@@ -26,6 +27,7 @@ sub action_set{
     my $s = shift;
     push (@{$s->{_action}},{name=>'参照',action=>sub {$s->data_get()}});  
     push (@{$s->{_action}},{name=>'更新',action=>sub {$s->data_update()}});
+    push (@{$s->{_action}},{name=>'検索',action=>sub {$s->data_serch()}});
 }
 sub data_update{
     my $s = shift;
@@ -48,5 +50,16 @@ sub GET_AF_CHECK{
         $s->param('item0',$s->param('user'));
         $s->param('item1',$s->param('ymd'));
     }
+}
+sub data_serch{
+    my $s = shift;
+    $s->set_table_info();
+    my $dbh = $s->app->model->webdb->dbh;
+    my $sql = "select * from @{[$s->param('_table')]} where userid = ? order by 日付 desc";
+    my @p = ();
+    push @p,$s->param('user');
+    $s->{'sth'} = $dbh->prepare($sql);
+    $s->{'sth'}->execute(@p);
+    $s->my_render($s->mmtDataList);
 }
 1;

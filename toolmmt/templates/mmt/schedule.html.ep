@@ -24,7 +24,7 @@
 % }
 </table>
 
-% for my $item (@{$self->{'_action'}}[1]){
+% for my $item (@{$self->{'_action'}}[1..2]){
 %= submit_button $item->{'name'} ,id => '_action',name => '_action'
 %  }
 <input type="reset" value="RESET">
