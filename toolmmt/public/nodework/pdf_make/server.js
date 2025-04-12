@@ -19,12 +19,17 @@ async function generatePdfFromHtml(textItems, width, height, isLandscape, rotati
     const browser = await puppeteer.launch({
         executablePath: '/snap/bin/chromium',
          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-gpu',
-            '--font-render-hinting=none',
-            '--disable-features=LayoutNG',
-            '--font-config-file=/usr/share/fonts/truetype/ipafont/ipamjm.ttf' 
+      		"--disable-gpu",
+      		"--disable-dev-shm-usage",
+      		"--disable-setuid-sandbox",
+      		"--no-first-run",
+      		"--no-sandbox",
+      		"--no-zygote",
+      		"--single-process",
+      		"--proxy-server='direct://'",
+      		"--proxy-bypass-list=*",
+      		"--font-render-hinting=none",
+    //        '-font-config-file=/usr/share/fonts/truetype/ipafont/ipamjm.ttf' 
         ]
      });
 //    const browser = await puppeteer.launch({ headless: "new" });
