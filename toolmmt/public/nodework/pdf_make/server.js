@@ -38,17 +38,27 @@ async function generatePdfFromHtml(textItems, width, height, isLandscape, rotati
     let textDivs = textItems.map((item) => {
         let prop = ``;
         for(k in item){
-            if(k != 'text'){
+            if(k != 'text' && k != 'image'){
                 prop += `${k}: ${item[k]};
                         `;
             }
         }
-        return `<div style="
+        if (item['image']) {
+            // ★ 画像を描画
+            return `<img src="data:image/png;base64,${item['image']}" style="
+                position: absolute;
+                ${prop}
+                max-width: 100%;
+                max-height: 100%;
+            " />`;
+        } else {
+	    return `<div style="
             position: absolute;
             color: ${fontColor};
             font-family: 'IPAmjMincho', 'Arial', sans-serif;
             ${prop}
-        ">${item['text']}</div>`;
+            ">${item['text']}</div>`;
+	}
     }).join("\n");
 
     const htmlContent = `
@@ -184,7 +194,7 @@ app.get("/", (req, res) => {
         <head>
             <title>PDF 編集テスト</title>
             <script>
-                function sendForm(event) {
+                async function sendForm(event) {
                     event.preventDefault();
 
                     const formData = new FormData();
@@ -192,6 +202,7 @@ app.get("/", (req, res) => {
                     formData.append("pdf", fileInput.files[0]);
 
                     const texts = [];
+                    // テキスト項目をまとめる
                     for (let i = 1; i <= 3; i++) {
                         const text = document.getElementById("text" + i).value;
                         const x = document.getElementById("x" + i).value;
@@ -206,8 +217,28 @@ app.get("/", (req, res) => {
                         }
                     }
 
+                    // 画像項目をまとめる
+                    const imageFiles = document.getElementById("images").files;
+                    for (let i = 0; i < imageFiles.length; i++) {
+                      const file = imageFiles[i];
+                      const base64 = await toBase64(file);
+
+                      const x = document.getElementById(\`imageX\${i}\`).value;
+                      const y = document.getElementById(\`imageY\${i}\`).value;
+                      const width = document.getElementById(\`imageWidth\${i}\`).value;
+                      const height = document.getElementById(\`imageHeight\${i}\`).value;
+
+                      texts.push({
+                        image: base64.split(',')[1],
+                        left: parseInt(x),
+                        top: parseInt(y),
+                        width: width + "px",
+                        height: height + "px"
+                      });
+                    }
+
                     formData.append("json", JSON.stringify({ texts }));
-            console.log(JSON.stringify({ texts }));
+                    console.log(JSON.stringify({ texts }));
 
                     fetch("edit-pdf", {
                         method: "POST",
@@ -224,6 +255,34 @@ app.get("/", (req, res) => {
                         a.remove();
                     })
                     .catch(error => console.error("Error:", error));
+                }
+
+                function toBase64(file) {
+                  return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                  });
+                }
+
+                function updateImageInputs() {
+                  const files = document.getElementById("images").files;
+                  const container = document.getElementById("imageInputs");
+                  container.innerHTML = "";
+
+                  for (let i = 0; i < files.length; i++) {
+                    const div = document.createElement("div");
+                    div.innerHTML = \`
+                      <strong>\${files[i].name}</strong><br>
+                      X: <input type="number" id="imageX\${i}" value="0" style="width:80px;"> 
+                      Y: <input type="number" id="imageY\${i}" value="0" style="width:80px;"> 
+                      Width: <input type="number" id="imageWidth\${i}" value="100" style="width:80px;"> 
+                      Height: <input type="number" id="imageHeight\${i}" value="100" style="width:80px;">
+                      <br><br>
+                    \`;
+                    container.appendChild(div);
+                  }
                 }
             </script>
         </head>
@@ -245,7 +304,11 @@ app.get("/", (req, res) => {
 "overflow-wrap": "break-word"
 }
                 </textarea>
-                <button type="submit">送信</button>
+                <h3>画像を追加</h3>
+                <input type="file" id="images" multiple accept="image/*" onchange="updateImageInputs()"><br><br>
+                <div id="imageInputs"></div>
+
+                <button type="submit">送信してPDF作成</button>
             </form>
         </body>
         </html>
