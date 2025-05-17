@@ -14,6 +14,11 @@ const fontColor = 'red';
 app.use(cors());
 app.use(express.json());
 
+process.on('uncaughtException', (err) => {
+  console.log('Uncaught Exception:', err);
+  process.exit(1);
+});
+
 // 📝 Puppeteer でクライアントデータを指定位置に描画し PDF 化
 async function generatePdfFromHtml(textItems, width, height, isLandscape, rotationAngle) {
     const browser = await puppeteer.launch({
@@ -181,9 +186,10 @@ app.post("/edit-pdf", upload.single("pdf"), async (req, res) => {
         res.setHeader("Content-Length", editedPdfBytes.length);
         res.send(Buffer.from(editedPdfBytes));
 
+        console.log(`${new Date()} : End`);
         fs.unlinkSync(req.file.path);
     } catch (error) {
-        console.error(error);
+        console.log(error);
         res.status(500).json({ error: "Error processing PDF." });
     }
 });
@@ -298,8 +304,9 @@ app.get("/", (req, res) => {
 "left":50,
 "text":"𠀋（異体字テスト）「葛󠄂城市」「葛󠄁飾区」",
 "width":"80",
-"height":"50",
-"color":"#0FF",
+"height":"250",
+"writing-mode": "vertical-rl",
+"color":"#00F",
 "background":"#FFF",
 "overflow-wrap": "break-word"
 }
