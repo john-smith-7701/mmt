@@ -5,32 +5,12 @@ const { PDFDocument, degrees } = require('pdf-lib');
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
-const cluster = require("cluster");
-const numCpus = require('os').cpus().length;
 
 const app = express();
 const upload = multer({ dest: "uploads/" });
 const port = 8081;
 const fontColor = 'red'; 
 
-// cluster.schedulingPolicy = cluster.SCHED_NONE; // <- Windowsのデフォルト
-cluster.schedulingPolicy = cluster.SCHED_RR;      // <- Unix系のデフォルト(非Windows)
-
-if (cluster.isMaster) {                           // マスタープロセスの処理
- console.log(`Master ${process.pid} is running`);
-
-// コア数分ワーカープロセスを作る
- for (let i = 0; i < numCpus; i++) {
-   cluster.fork();
- }
-
- // ワーカープロセスが死んだ場合
- cluster.on('exit', (worker, code, signal) => {
-   console.log(`worker ${worker.process.pid} died with signal`, signal);
-   // プロセス再起動
-   cluster.fork();
- });
-} else {                                         // ワーカープロセスの処理
 app.use(cors());
 app.use(express.json());
 
@@ -43,7 +23,6 @@ process.on('uncaughtException', (err) => {
 async function generatePdfFromHtml(textItems, width, height, isLandscape, rotationAngle) {
     const browser = await puppeteer.launch({
         executablePath: '/snap/bin/chromium',
-	timeout: 30000 * 10,
          args: [
       		"--disable-gpu",
       		"--disable-dev-shm-usage",
@@ -60,7 +39,6 @@ async function generatePdfFromHtml(textItems, width, height, isLandscape, rotati
      });
 //    const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
-    await page.setDefaultNavigationTimeout(0);
 
     let textDivs = textItems.map((item) => {
         let prop = ``;
@@ -208,6 +186,7 @@ app.post("/edit-pdf", upload.single("pdf"), async (req, res) => {
         res.setHeader("Content-Length", editedPdfBytes.length);
         res.send(Buffer.from(editedPdfBytes));
 
+        console.log(`${new Date()} : End`);
         fs.unlinkSync(req.file.path);
     } catch (error) {
         console.log(error);
@@ -359,4 +338,4 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
-}
+
