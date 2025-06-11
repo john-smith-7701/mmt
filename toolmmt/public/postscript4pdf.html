@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF編集ツール（サーバー連携）</title>
+  <style>
+    body { font-family: sans-serif; padding: 10px; }
+    canvas { border: 1px solid #ccc; cursor: crosshair; }
+    #textInput {
+      position: absolute;
+      display: none;
+      z-index: 10;
+      border: 1px solid #333;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>PDF編集ツール</h2>
+<input type="file" id="pdf-upload" accept="application/pdf">
+<button id="save-json">JSON保存</button>
+<input type="file" id="load-json" accept=".json">
+<button id="sendToServer">PDFをサーバーで生成</button>
+<br><br>
+<label>色: <input type="color" id="colorPicker" value="#000000"></label>
+<label>フォント名:
+  <select id="fontNameSelect">
+    <option value="'IPAmjMincho'">IPAmj明朝</option>
+    <option value="Arial">Arial</option>
+    <option value="Times New Roman">Times New Roman</option>
+    <option value="'MS Gothic'">MS ゴシック</option>
+  </select>
+</label>
+<label>サイズ:
+  <select id="fontSizeSelect">
+    <option value="12">12px</option>
+    <option value="14">14px</option>
+    <option value="16" selected>16px</option>
+    <option value="18">18px</option>
+    <option value="20">20px</option>
+    <option value="24">24px</option>
+    <option value="32">32px</option>
+  </select>
+</label>
+<label>右詰め：<input type="checkbox" id="text-align"></label>
+<br><br>
+
+<canvas id="pdf-canvas"></canvas>
+<input type="text" id="textInput">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.worker.min.js';
+
+const canvas = document.getElementById('pdf-canvas');
+const ctx = canvas.getContext('2d');
+const fileInput = document.getElementById('pdf-upload');
+const textInput = document.getElementById('textInput');
+const colorPicker = document.getElementById('colorPicker');
+const fontSize = document.getElementById('fontSizeSelect');
+const fontName = document.getElementById('fontNameSelect');
+const textAlign = document.getElementById('text-align');
+const saveJsonBtn = document.getElementById('save-json');
+const loadJsonInput = document.getElementById('load-json');
+
+let texts = [];
+let selectedIndex = -1;
+let isDragging = false;
+let isMoving = false;
+let isResizing = false;
+let resizeDir = '';
+let startX = 0, startY = 0;
+let offsetX = 0, offsetY = 0;
+let pdfBackground = null;
+const HANDLE_SIZE = 8;
+
+function getFont() {
+  return `${fontSize.value}px ${fontName.value}`;
+}
+
+function redrawCanvas() {
+  if (pdfBackground) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(pdfBackground, 0, 0);
+  }
+
+  texts.forEach((item, index) => {
+    ctx.fillStyle = 'rgba(0,0,255,0.2)';
+    ctx.fillRect(item.x, item.y, item.w, item.h);
+    ctx.font = item.font || getFont();
+    ctx.fillStyle = item.color || '#000';
+    ctx.textAlign = item.textAlign ? 'right' : 'left';
+    wrapText(ctx, item.text, item.textAlign ? item.x + item.w : item.x, item.y + parseInt(item.fontSize) - 2, item.w, 20);
+    if (index === selectedIndex) drawHandles(item);
+  });
+}
+
+function wrapText(context, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i] + ' ';
+    const metrics = context.measureText(testLine);
+    if (metrics.width > maxWidth && i > 0) {
+      context.fillText(line, x, y);
+      line = words[i] + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  context.fillText(line, x, y);
+}
+</script>
+<script>
+// ドラッグ・選択・編集・削除・保存・読み込み処理（省略せず完全動作）
+function drawHandles(item) {
+  const handles = [
+    { x: item.x, y: item.y, dir: 'nw' },
+    { x: item.x + item.w, y: item.y, dir: 'ne' },
+    { x: item.x, y: item.y + item.h, dir: 'sw' },
+    { x: item.x + item.w, y: item.y + item.h, dir: 'se' },
+  ];
+  ctx.fillStyle = 'black';
+  handles.forEach(h => ctx.fillRect(h.x - 4, h.y - 4, 8, 8));
+}
+function getHandleUnderMouse(mx, my, item) {
+  return [
+    { x: item.x, y: item.y, dir: 'nw' },
+    { x: item.x + item.w, y: item.y, dir: 'ne' },
+    { x: item.x, y: item.y + item.h, dir: 'sw' },
+    { x: item.x + item.w, y: item.y + item.h, dir: 'se' },
+  ].find(h => mx >= h.x - 6 && mx <= h.x + 6 && my >= h.y - 6 && my <= h.y + 6);
+}
+
+fileInput.addEventListener('change', function () {
+  const file = this.files[0];
+  if (file && file.type === 'application/pdf') {
+    const reader = new FileReader();
+    reader.onload = function () {
+      const typedarray = new Uint8Array(reader.result);
+      pdfjsLib.getDocument({ data: typedarray }).promise.then(pdf => {
+        return pdf.getPage(1).then(page => {
+          const scale = 1.336;
+          const viewport = page.getViewport({ scale });
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          return page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+            pdfBackground = new Image();
+            pdfBackground.src = canvas.toDataURL("image/png");
+            pdfBackground.onload = () => redrawCanvas();
+          });
+        });
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  }
+});
+
+canvas.addEventListener('mousedown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  startX = mx; startY = my;
+  selectedIndex = -1;
+  isDragging = true; isResizing = false; isMoving = false;
+
+  texts.forEach((item, index) => {
+    const handle = getHandleUnderMouse(mx, my, item);
+    if (handle) {
+      selectedIndex = index;
+      isResizing = true;
+      resizeDir = handle.dir;
+    } else if (mx >= item.x && mx <= item.x + item.w && my >= item.y && my <= item.y + item.h) {
+      selectedIndex = index;
+      isMoving = true;
+      offsetX = mx - item.x;
+      offsetY = my - item.y;
+    }
+  });
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (selectedIndex < 0) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const item = texts[selectedIndex];
+  const dx = mx - startX, dy = my - startY;
+
+  if (isResizing) {
+    switch (resizeDir) {
+      case 'nw': item.x += dx; item.y += dy; item.w -= dx; item.h -= dy; break;
+      case 'ne': item.y += dy; item.w += dx; item.h -= dy; break;
+      case 'sw': item.x += dx; item.w -= dx; item.h += dy; break;
+      case 'se': item.w += dx; item.h += dy; break;
+    }
+    startX = mx; startY = my;
+    redrawCanvas();
+  } else if (isMoving) {
+    item.x = mx - offsetX;
+    item.y = my - offsetY;
+    redrawCanvas();
+  }
+});
+
+canvas.addEventListener('mouseup', (e) => {
+  if (isDragging && !isMoving && !isResizing) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const w = mx - startX;
+    const h = my - startY;
+    if (Math.abs(w) > 5 && Math.abs(h) > 5) {
+      texts.push({
+        x: Math.min(startX, mx),
+        y: Math.min(startY, my),
+        w: Math.abs(w),
+        h: Math.abs(h),
+        text: '',
+        color: colorPicker.value,
+        font: getFont(),
+        fontSize: fontSize.value,
+        fontName: fontName.value,
+        textAlign: textAlign.checked
+      });
+      selectedIndex = texts.length - 1;
+      showTextInput(rect.left, rect.top);
+    }
+  }
+  isDragging = isMoving = isResizing = false;
+});
+
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  selectedIndex = -1;
+  texts.forEach((item, index) => {
+    if (mx >= item.x && mx <= item.x + item.w && my >= item.y && my <= item.y + item.h) {
+      selectedIndex = index;
+    }
+  });
+  if (selectedIndex >= 0) showTextInput(rect.left, rect.top);
+});
+
+function showTextInput(offsetLeft, offsetTop) {
+  const item = texts[selectedIndex];
+  textInput.style.left = `${item.x + offsetLeft}px`;
+  textInput.style.top = `${item.y + offsetTop}px`;
+  textInput.style.width = `${item.w}px`;
+  textInput.style.font = item.font || getFont();
+  textInput.style.color = item.color || '#000';
+  textInput.style.display = 'block';
+  textInput.value = item.text;
+  fontSize.value = item.fontSize;
+  fontName.value = item.fontName;
+  textAlign.checked = item.textAlign;
+  textInput.focus();
+}
+
+textInput.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    if (selectedIndex >= 0) {
+      texts[selectedIndex].text = textInput.value;
+      texts[selectedIndex].color = colorPicker.value;
+      texts[selectedIndex].font = getFont();
+      texts[selectedIndex].fontSize = fontSize.value;
+      texts[selectedIndex].fontName = fontName.value;
+      texts[selectedIndex].textAlign = textAlign.checked;
+      redrawCanvas();
+    }
+    textInput.style.display = 'none';
+  }
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Delete' && selectedIndex >= 0) {
+    texts.splice(selectedIndex, 1);
+    selectedIndex = -1;
+    textInput.style.display = 'none';
+    redrawCanvas();
+  }
+});
+
+saveJsonBtn.addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(texts)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'textdata.json';
+  a.click();
+});
+
+loadJsonInput.addEventListener('change', function () {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      texts = JSON.parse(e.target.result);
+      redrawCanvas();
+    } catch (err) {
+      alert('JSON読み込みエラー');
+    }
+  };
+  reader.readAsText(file);
+});
+
+// ✅ サーバーに送信してPDFを作成する処理
+document.getElementById("sendToServer").addEventListener("click", async () => {
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("PDFファイルを選択してください。");
+    return;
+  }
+
+  const formattedTexts = texts.map(item => ({
+    text: item.text,
+    left: parseInt(item.x),
+    top: parseInt(item.y),
+    width: item.w + "px",
+    height: item.h + "px",
+    color: item.color,
+    "font-size": item.fontSize + "px",
+    "font-family": item.fontName,
+    "text-align": item.textAlign ? "right" : "left",
+    "white-space": "pre-wrap",
+    "overflow-wrap": "break-word"
+  }));
+
+  const formData = new FormData();
+  formData.append("pdf", file);
+  formData.append("json", JSON.stringify({ texts: formattedTexts }));
+
+  try {
+    const response = await fetch("https://app-9c073af5-8e79-4e94-aeec-15ecaad5bdd0.ingress.apprun.sakura.ne.jp/edit-pdf", {
+      method: "POST",
+      body: formData
+    });
+
+    if (!response.ok) throw new Error("サーバーエラー");
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "edited.pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("PDF生成失敗: " + err);
+  }
+});
+</script>
+</body>
+</html>
+
