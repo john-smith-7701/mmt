@@ -54,6 +54,9 @@
 </label>
 <label>右詰め：<input type="checkbox" id="text-align"></label>
 <input type="text" id="textInput">
+<button id="copy-selected">選択コピー</button>
+<button id="align-left">｜←</button>
+<button id="align-top">上揃</button>
 </div>
 <br><br><br><br><br><br><br><br>
 
@@ -98,12 +101,12 @@ function redrawCanvas() {
   }
 
   texts.forEach((item, index) => {
-    ctx.fillStyle = 'rgba(0,0,255,0.2)';
+    ctx.fillStyle = item.selected ? 'rgba(255,0,0,0.3)' : 'rgba(0,0,255,0.2)';
     ctx.fillRect(item.x, item.y, item.w, item.h);
     ctx.font = item.font || getFont();
     ctx.fillStyle = item.color || '#000';
     ctx.textAlign = item.textAlign ? 'right' : 'left';
-    wrapText(ctx, item.text, item.textAlign ? item.x + item.w : item.x, item.y + parseInt(item.fontSize) - 2, item.w, 20);
+    wrapText(ctx, item.text, item.textAlign ? item.x + item.w + 5: item.x, item.y + parseInt(item.fontSize) - 2, item.w, 20);
     if (index === selectedIndex) drawHandles(item);
   });
 }
@@ -129,9 +132,6 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
 // ドラッグ・選択・編集・削除・保存・読み込み処理（省略せず完全動作）
 function drawHandles(item) {
   const handles = [
-    { x: item.x, y: item.y, dir: 'nw' },
-    { x: item.x + item.w, y: item.y, dir: 'ne' },
-    { x: item.x, y: item.y + item.h, dir: 'sw' },
     { x: item.x + item.w, y: item.y + item.h, dir: 'se' },
   ];
   ctx.fillStyle = 'black';
@@ -139,9 +139,6 @@ function drawHandles(item) {
 }
 function getHandleUnderMouse(mx, my, item) {
   return [
-    { x: item.x, y: item.y, dir: 'nw' },
-    { x: item.x + item.w, y: item.y, dir: 'ne' },
-    { x: item.x, y: item.y + item.h, dir: 'sw' },
     { x: item.x + item.w, y: item.y + item.h, dir: 'se' },
   ].find(h => mx >= h.x - 6 && mx <= h.x + 6 && my >= h.y - 6 && my <= h.y + 6);
 }
@@ -211,8 +208,16 @@ canvas.addEventListener('mousemove', (e) => {
     startX = mx; startY = my;
     redrawCanvas();
   } else if (isMoving) {
+    nx = item.x - (mx - offsetX);
+    ny = item.y - (my - offsetY);
     item.x = mx - offsetX;
     item.y = my - offsetY;
+    texts.forEach(t => {
+      if(item != t && t.selected){
+        t.x -= nx;
+        t.y -= ny;
+      }
+    });
     redrawCanvas();
   }
 });
@@ -251,7 +256,15 @@ canvas.addEventListener('click', (e) => {
   selectedIndex = -1;
   texts.forEach((item, index) => {
     if (mx >= item.x && mx <= item.x + item.w && my >= item.y && my <= item.y + item.h) {
-      selectedIndex = index;
+      if (e.shiftKey) {
+        item.selected = !item.selected;
+        redrawCanvas();
+      } else {
+        texts.forEach(t => t.selected = false);
+        item.selected = true;
+        selectedIndex = index;
+        redrawCanvas();
+      }
     }
   });
   if (selectedIndex >= 0) showTextInput(rect.left, rect.top);
@@ -318,6 +331,27 @@ loadJsonInput.addEventListener('change', function () {
     }
   };
   reader.readAsText(file);
+});
+// 選択項目コピー処理
+document.getElementById("copy-selected").addEventListener("click", () => {
+  const clones = texts.filter(t => t.selected).map(t => {
+    t.selected = false;
+    return { ...t, x: t.x + 30, y: t.y + 10, selected: true };
+  });
+  texts.push(...clones);
+  redrawCanvas();
+});
+// 左側を揃える
+document.getElementById("align-left").addEventListener("click", () => {
+    min = Math.min.apply(null,texts.filter(o => o.selected).map(o => o.x));
+    texts.forEach(t => { if(t.selected) {t.x = min; }});
+    redrawCanvas();
+});
+// 上側を揃える
+document.getElementById("align-top").addEventListener("click", () => {
+    min = Math.min.apply(null,texts.filter(o => o.selected).map(o => o.y));
+    texts.forEach(t => { if(t.selected) {t.y = min; }});
+    redrawCanvas();
 });
 
 // ✅ サーバーに送信してPDFを作成する処理
