@@ -52,7 +52,12 @@
     <option value="32">32px</option>
   </select>
 </label>
-<label>右詰め：<input type="checkbox" id="text-align"></label>
+<select id="text-align">
+  <option value="left">左寄せ</option>
+  <option value="right">右寄せ</option>
+  <option value="vertical">縦書き</option>
+  <option value="none">白抜き</option>
+</select>
 <input type="text" id="textInput">
 <button id="copy-selected">選択コピー</button>
 <button id="align-left">｜←</button>
@@ -102,14 +107,28 @@ function redrawCanvas() {
 
   texts.forEach((item, index) => {
     ctx.fillStyle = item.selected ? 'rgba(255,0,0,0.3)' : 'rgba(0,0,255,0.2)';
+    if(item.textAlign == 'none'){
+        ctx.fillStyle = 'rgba(255,255,255)';
+    }
     ctx.fillRect(item.x, item.y, item.w, item.h);
     ctx.font = item.font || getFont();
     ctx.fillStyle = item.color || '#000';
-    ctx.textAlign = item.textAlign ? 'right' : 'left';
-    wrapText(ctx, item.text, item.textAlign ? item.x + item.w + 5: item.x, item.y + parseInt(item.fontSize) - 2, item.w, 20);
+    if (item.textAlign === 'vertical') {
+        ctx.textAlign = 'right';
+        drawVerticalText(ctx, item.text, item.x, item.y, item.w, item.h, item.fontSize);
+    } else {
+        ctx.textAlign = item.textAlign;
+        wrapText(ctx, item.text, item.textAlign == 'right' ? item.x + item.w + 5: item.x, item.y + parseInt(item.fontSize) - 2, item.w, 20);
+    }
     if (index === selectedIndex) drawHandles(item);
   });
 }
+//疑似縦書き
+function drawVerticalText(ctx, text, x, y, w, h, fontSize) {
+  const chars = text.split('');
+  chars.forEach((char, i) => {
+    ctx.fillText(char, x + w , y + (i+1) * fontSize);
+  });}
 
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
   const words = text.split(' ');
@@ -199,13 +218,17 @@ canvas.addEventListener('mousemove', (e) => {
   const dx = mx - startX, dy = my - startY;
 
   if (isResizing) {
-    switch (resizeDir) {
-      case 'nw': item.x += dx; item.y += dy; item.w -= dx; item.h -= dy; break;
-      case 'ne': item.y += dy; item.w += dx; item.h -= dy; break;
-      case 'sw': item.x += dx; item.w -= dx; item.h += dy; break;
-      case 'se': item.w += dx; item.h += dy; break;
-    }
     startX = mx; startY = my;
+    texts.forEach(t => {
+      if(t.selected){
+        switch (resizeDir) {
+          case 'nw': t.x += dx; t.y += dy; t.w -= dx; t.h -= dy; break;
+          case 'ne': t.y += dy; t.w += dx; t.h -= dy; break;
+          case 'sw': t.x += dx; t.w -= dx; t.h += dy; break;
+          case 'se': t.w += dx; t.h += dy; break;
+        }
+      }
+    });
     redrawCanvas();
   } else if (isMoving) {
     nx = item.x - (mx - offsetX);
@@ -240,7 +263,7 @@ canvas.addEventListener('mouseup', (e) => {
         font: getFont(),
         fontSize: fontSize.value,
         fontName: fontName.value,
-        textAlign: textAlign.checked
+        textAlign: textAlign.value
       });
       selectedIndex = texts.length - 1;
       showTextInput(rect.left, rect.top);
@@ -281,7 +304,7 @@ function showTextInput(offsetLeft, offsetTop) {
   textInput.value = item.text;
   fontSize.value = item.fontSize;
   fontName.value = item.fontName;
-  textAlign.checked = item.textAlign;
+  textAlign.value = item.textAlign;
   textInput.focus();
 }
 
@@ -293,7 +316,7 @@ textInput.addEventListener('keydown', function (e) {
       texts[selectedIndex].font = getFont();
       texts[selectedIndex].fontSize = fontSize.value;
       texts[selectedIndex].fontName = fontName.value;
-      texts[selectedIndex].textAlign = textAlign.checked;
+      texts[selectedIndex].textAlign = textAlign.value;
       redrawCanvas();
     }
     textInput.style.display = 'none';
@@ -371,9 +394,11 @@ document.getElementById("sendToServer").addEventListener("click", async () => {
     color: item.color,
     "font-size": item.fontSize + "px",
     "font-family": item.fontName,
-    "text-align": item.textAlign ? "right" : "left",
+    "text-align": item.textAlign,
     "white-space": "pre-wrap",
-    "overflow-wrap": "break-word"
+    "overflow-wrap": "break-word",
+    "background": item.textAlign == 'none' ? '#FFF' : 'none',
+    "writing-mode": item.textAlign == 'vertical' ? 'vertical-rl' : 'horizontal-tb',
   }));
 
   const formData = new FormData();
