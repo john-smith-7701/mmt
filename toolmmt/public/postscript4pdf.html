@@ -62,6 +62,9 @@
 <button id="copy-selected">選択コピー</button>
 <button id="align-left">｜←</button>
 <button id="align-top">上揃</button>
+<label>画像:
+    <input type="file" id="image-upload" accept="image/*">
+</label>
 </div>
 <br><br><br><br><br><br><br><br>
 
@@ -376,6 +379,24 @@ document.getElementById("align-top").addEventListener("click", () => {
     texts.forEach(t => { if(t.selected) {t.y = min; }});
     redrawCanvas();
 });
+//画像を描画
+document.getElementById('image-upload').addEventListener('change', function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    img.onload = function () {
+        texts.forEach(t => { if(t.selected) {
+            ctx.drawImage(img, t.x, t.y, t.w, t.h); // x, y, width, heigh
+            t.image = img.src.split(',')[1];
+        }});
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
 
 // ✅ サーバーに送信してPDFを作成する処理
 document.getElementById("sendToServer").addEventListener("click", async () => {
@@ -386,6 +407,7 @@ document.getElementById("sendToServer").addEventListener("click", async () => {
   }
 
   const formattedTexts = texts.map(item => ({
+    image: item.image,
     text: item.text,
     left: parseInt(item.x),
     top: parseInt(item.y) + parseInt(cvTop.value),
