@@ -116,6 +116,11 @@ function redrawCanvas() {
     ctx.fillRect(item.x, item.y, item.w, item.h);
     ctx.font = item.font || getFont();
     ctx.fillStyle = item.color || '#000';
+    if ((item.image) && item.image != ''){
+        const img = new Image();
+       img.src = "data:image/png;base64,"+item.image;
+        ctx.drawImage(img, item.x, item.y, item.w, item.h); // x, y, width, heigh
+    }
     if (item.textAlign === 'vertical') {
         ctx.textAlign = 'right';
         drawVerticalText(ctx, item.text, item.x, item.y, item.w, item.h, item.fontSize);
@@ -389,9 +394,9 @@ document.getElementById('image-upload').addEventListener('change', function (e) 
   reader.onload = function (event) {
     img.onload = function () {
         texts.forEach(t => { if(t.selected) {
-            ctx.drawImage(img, t.x, t.y, t.w, t.h); // x, y, width, heigh
             t.image = img.src.split(',')[1];
         }});
+        redrawCanvas();
     };
     img.src = event.target.result;
   };
