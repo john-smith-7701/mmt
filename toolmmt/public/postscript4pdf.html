@@ -97,6 +97,35 @@ let offsetX = 0, offsetY = 0;
 let pdfBackground = null;
 const HANDLE_SIZE = 8;
 let currentPdfFilename = "textdata.json"; // デフォルト
+let history = [];
+let undohis = [];
+function KeyPress(e){
+    var evtobj = window.event? event : e;
+    if(evtobj.keyCode == 26 && evtobj.ctrlKey){     // CTRL+z
+        if(event.shiftKey){
+            redo();
+        }else{
+            undo();
+        }
+    }
+    if(evtobj.keyCode == 25 && evtobj.ctrlKey){      // CTRL+y
+        redo();
+    }
+}
+function undo(){
+    if(history.length){
+        texts = history.pop();
+        redrawCanvas();
+        undohis.push(history.pop());
+    }
+}
+function redo(){
+    if(undohis.length){
+        texts = undohis.pop();
+        redrawCanvas();
+    }
+}
+document.onkeypress = KeyPress;                     // Key Press イベントハンドラセット
 
 function getFont() {
   return `${fontSize.value}px ${fontName.value}`;
@@ -130,6 +159,10 @@ function redrawCanvas() {
     }
     if (index === selectedIndex) drawHandles(item);
   });
+  history.push(JSON.parse(JSON.stringify(texts)));
+  if(history.length > 200){
+      history = history.splice(0,100);
+  }
 }
 //疑似縦書き
 function drawVerticalText(ctx, text, x, y, w, h, fontSize) {
@@ -361,6 +394,7 @@ loadJsonInput.addEventListener('change', function () {
       alert('JSON読み込みエラー');
     }
   };
+  history = [];
   reader.readAsText(file);
 });
 // 選択項目コピー処理
