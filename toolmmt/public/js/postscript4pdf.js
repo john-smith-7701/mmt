@@ -198,10 +198,8 @@ var postscript4pdf = (function (){
     } else if (isMoving) {
       nx = item.x - (mx - offsetX);
       ny = item.y - (my - offsetY);
-      item.x = mx - offsetX;
-      item.y = my - offsetY;
       texts.forEach(t => {
-        if(item != t && t.selected){
+        if(t.selected){
           t.x -= nx;
           t.y -= ny;
         }
@@ -368,27 +366,30 @@ var postscript4pdf = (function (){
       alert("PDFファイルを選択してください。");
       return;
     }
-  
-    const formattedTexts = texts.map(item => ({
-      image: item.image,
-      text: item.text,
-      left: parseInt(item.x),
-      top: parseInt(item.y) + parseInt(cvTop.value),
-      width: item.w + "px",
-      height: item.h + "px",
-      color: item.color,
-      "font-size": item.fontSize + "px",
-      "font-family": item.fontName,
-      "text-align": item.textAlign,
-      "white-space": "pre-wrap",
-      "overflow-wrap": "break-word",
-      "background": item.textAlign == 'none' ? '#FFF' : 'none',
-      "writing-mode": item.textAlign == 'vertical' ? 'vertical-rl' : 'horizontal-tb',
-    }));
-  
+    const lineEdit = (item) =>{
+        return ({
+          image: item.image,
+          text: item.text,
+          left: parseInt(item.x),
+          top: parseInt(item.y) + parseInt(cvTop.value),
+          width: item.w + "px",
+          height: item.h + "px",
+          color: item.color,
+          "font-size": item.fontSize + "px",
+          "font-family": item.fontName,
+          "text-align": item.textAlign,
+          "white-space": "pre-wrap",
+          "overflow-wrap": "break-word",
+          "background": item.textAlign == 'none' ? '#FFF' : 'none',
+          "writing-mode": item.textAlign == 'vertical' ? 'vertical-rl' : 'horizontal-tb',
+        });
+    };
+    //白抜きを先にセットする
+    const formattedTexts = texts.filter(o => o.textAlign == 'none').map(item => { return lineEdit(item); });
+    const formattedTexts2 = texts.filter(o => o.textAlign != 'none').map(item => { return lineEdit(item); });
     const formData = new FormData();
     formData.append("pdf", file);
-    formData.append("json", JSON.stringify({ texts: formattedTexts }));
+    formData.append("json", JSON.stringify({ texts: formattedTexts.concat(formattedTexts2) }));
   
     try {
       //const response = await fetch("https://app-9c073af5-8e79-4e94-aeec-15ecaad5bdd0.ingress.apprun.sakura.ne.jp/edit-pdf", {
