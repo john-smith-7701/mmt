@@ -302,7 +302,24 @@ var postscript4pdf = (function (){
     a.download = currentPdfFilename;
     a.click();
   });
-  
+
+  colorPicker.addEventListener('change', () => {
+    texts.forEach(t => { if(t.selected) {t.colorPicker = colorPicker.value; }});
+    redrawCanvas();
+  });
+  fontSize.addEventListener('change', () => {
+    texts.forEach(t => { if(t.selected) {t.fontSize = fontSize.value; }});
+    redrawCanvas();
+  });
+  fontName.addEventListener('change', () => {
+    texts.forEach(t => { if(t.selected) {t.fontName = fontName.value; }});
+    redrawCanvas();
+  });
+  textAlign.addEventListener('change', () => {
+    texts.forEach(t => { if(t.selected) {t.textAlign = textAlign.value; }});
+    redrawCanvas();
+  });
+
   loadJsonInput.addEventListener('change', function () {
     const file = this.files[0];
     if (!file) return;
