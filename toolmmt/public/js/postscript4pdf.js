@@ -126,7 +126,7 @@ var postscript4pdf = (function (){
       { x: item.x + item.w, y: item.y + item.h, dir: 'se' },
     ].find(h => mx >= h.x - 6 && mx <= h.x + 6 && my >= h.y - 6 && my <= h.y + 6);
   }
-  
+
   fileInput.addEventListener('change', function () {
     const file = this.files[0];
     if (file && file.type === 'application/pdf') {
@@ -216,20 +216,22 @@ var postscript4pdf = (function (){
       const w = mx - startX;
       const h = my - startY;
       if (Math.abs(w) > 5 && Math.abs(h) > 5) {
-        texts.push({
-          x: Math.min(startX, mx),
-          y: Math.min(startY, my),
-          w: Math.abs(w),
-          h: Math.abs(h),
-          text: '',
-          color: colorPicker.value,
-          font: getFont(),
-          fontSize: fontSize.value,
-          fontName: fontName.value,
-          textAlign: textAlign.value
-        });
-        selectedIndex = texts.length - 1;
-        showTextInput(rect.left, rect.top);
+        if(document.querySelector("input[name='mode']:checked").value == "create"){
+          texts.push({
+            x: Math.min(startX, mx),
+            y: Math.min(startY, my),
+            w: Math.abs(w),
+            h: Math.abs(h),
+            text: '',
+            color: colorPicker.value,
+            font: getFont(),
+            fontSize: fontSize.value,
+            fontName: fontName.value,
+            textAlign: textAlign.value
+          });
+          selectedIndex = texts.length - 1;
+          showTextInput(rect.left, rect.top);
+        }
       }
     }
     isDragging = isMoving = isResizing = false;
@@ -254,6 +256,14 @@ var postscript4pdf = (function (){
       }
     });
     if (selectedIndex >= 0) showTextInput(rect.left, rect.top);
+    if(document.querySelector("input[name='mode']:checked").value == "create"){
+    }else{
+      texts.forEach(t => {
+        const hit = startX <= t.x && mx >= t.x + t.w && startY <= t.y && my >= t.y + t.h;
+        if (hit) t.selected = !t.selected;
+      });
+      redrawCanvas();
+    }
   });
   
   function showTextInput(offsetLeft, offsetTop) {
