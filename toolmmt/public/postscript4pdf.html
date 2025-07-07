@@ -3,72 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <title>PDF編集ツール（サーバー連携）</title>
+  <link rel="stylesheet" href="css/postscript4pdf.css">
   <style>
-    body { font-family: sans-serif; padding: 10px; }
-    canvas { border: 1px solid #ccc; cursor: crosshair; }
-    #textInput {
-      position: absolute;
-      display: none;
-      z-index: 10;
-      border: 1px solid #333;
-      font-size: 16px;
-    }
-    #panel {
-      position: fixed;
-      margin-left: 30px;
-      top:0;
-      left:0;
-      width:100%;
-      background-color: white;
-    }
   </style>
 </head>
 <body>
-<div id="panel">
 <h2>PDF編集ツール</h2>
-<input type="file" id="pdf-upload" accept="application/pdf">
-<button id="save-json">JSON保存</button>
-<input type="file" id="load-json" accept=".json">
-<button id="sendToServer">PDFをサーバーで生成</button>
-<label>補正値：<input type="number" id="cvTop" value="0"></label>
-<br><br>
-<label>色: <input type="color" id="colorPicker" value="#000000"></label>
-<label>フォント名:
-  <select id="fontNameSelect">
-    <option value="'IPAmjMincho'">IPAmj明朝</option>
-    <option value="Arial">Arial</option>
-    <option value="Times New Roman">Times New Roman</option>
-    <option value="'MS Gothic'">MS ゴシック</option>
-  </select>
-</label>
-<label>サイズ:
-  <select id="fontSizeSelect">
-    <option value="12">12px</option>
-    <option value="14">14px</option>
-    <option value="16" selected>16px</option>
-    <option value="18">18px</option>
-    <option value="20">20px</option>
-    <option value="24">24px</option>
-    <option value="32">32px</option>
-  </select>
-</label>
-<select id="text-align">
-  <option value="left">左寄せ</option>
-  <option value="right">右寄せ</option>
-  <option value="vertical">縦書き</option>
-  <option value="none">白抜き</option>
-</select>
-<input type="text" id="textInput">
-<button id="copy-selected">選択コピー</button>
-<button id="align-left">｜←</button>
-<button id="align-top">上揃</button>
-<label>画像:
-    <input type="file" id="image-upload" accept="image/*">
-</label>
-<label><input type="radio" name="mode" value="create" checked>新規作成</label>
-<label><input type="radio" name="mode" value="select">選択</label>
+<div id="panel">
+<div class="flex">
+  <div class="menuCel">
+    PDF :<input type="file" id="pdf-upload" accept="application/pdf">
+    <button id="save-json">JSON保存</button><br>
+    Data:<input type="file" id="load-json" accept=".json"><br>
+    <button id="sendToServer">PDFをサーバーで生成</button>
+    <label>補正値：<input type="number" id="cvTop" value="0"></label>
+  </div>
+  <div class="menuCel">
+    <label>色: <input type="color" id="colorPicker" value="#000000"></label>
+    <label>フォント名:
+      <select id="fontNameSelect">
+        <option value="'IPAmjMincho'">IPAmj明朝</option>
+        <option value="Arial">Arial</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="'MS Gothic'">MS ゴシック</option>
+      </select>
+    </label>
+    <label>サイズ:
+      <select id="fontSizeSelect">
+        <option value="12">12px</option>
+        <option value="14">14px</option>
+        <option value="16" selected>16px</option>
+        <option value="18">18px</option>
+        <option value="20">20px</option>
+        <option value="24">24px</option>
+        <option value="32">32px</option>
+      </select>
+    </label>
+    <select id="text-align">
+      <option value="left">左寄せ</option>
+      <option value="right">右寄せ</option>
+      <option value="vertical">縦書き</option>
+      <option value="none">白抜き</option>
+    </select>
+    <br>
+    <button id="copy-selected">選択コピー</button>
+    <button id="align-left">｜←</button>
+    <button id="align-top">上揃</button>
+    <label>画像:
+        <input type="file" id="image-upload" accept="image/*">
+    </label>
+    <label><input type="radio" name="mode" value="create" checked>新規作成</label>
+    <label><input type="radio" name="mode" value="select">選択</label>
+    <br>
+    <input type="text" id="textInput">
+  </div>
 </div>
-<br><br><br><br><br><br><br><br>
+</div>
+<br><br><br><br><br>
 
 <canvas id="pdf-canvas"></canvas>
 

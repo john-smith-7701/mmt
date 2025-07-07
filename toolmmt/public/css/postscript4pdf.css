@@ -1,0 +1,26 @@
+    body { font-family: sans-serif; padding: 10px; }
+    canvas { border: 1px solid #ccc; cursor: crosshair; }
+    #textInput {
+      position: absolute;
+      display: none;
+      z-index: 10;
+      border: 1px solid #333;
+      font-size: 16px;
+    }
+    #panel {
+      position: fixed;
+      margin-left: 30px;
+      top:5em;
+      left:2em;
+      width:80%;
+      padding:1em;
+      background-color: silver;
+    }
+    .flex{
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .menuCel{
+        width: 30em;
+    }
+
