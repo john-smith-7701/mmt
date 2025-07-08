@@ -24,6 +24,7 @@ var postscript4pdf = (function (){
   let currentPdfFilename = "textdata.json"; // デフォルト
   let history = [];
   let undohis = [];
+  let currentMode = 'create';
   function KeyPress(e){
       var evtobj = window.event? event : e;
       if(evtobj.keyCode == 26 && evtobj.ctrlKey){     // CTRL+z
@@ -126,7 +127,7 @@ var postscript4pdf = (function (){
       { x: item.x + item.w, y: item.y + item.h, dir: 'se' },
     ].find(h => mx >= h.x - 6 && mx <= h.x + 6 && my >= h.y - 6 && my <= h.y + 6);
   }
-
+ 
   fileInput.addEventListener('change', function () {
     const file = this.files[0];
     if (file && file.type === 'application/pdf') {
