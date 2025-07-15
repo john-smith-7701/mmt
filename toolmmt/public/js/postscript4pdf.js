@@ -1,4 +1,4 @@
-var postscript4pdf = (function (){
+var ps4pdf = (function (){
   const canvas = document.getElementById('pdf-canvas');
   const ctx = canvas.getContext('2d');
   const fileInput = document.getElementById('pdf-upload');
@@ -61,6 +61,7 @@ var postscript4pdf = (function (){
   }
   
   function redrawCanvas() {
+    window.ps4pdf.texts = texts;
     if (pdfBackground) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(pdfBackground, 0, 0);
@@ -91,6 +92,12 @@ var postscript4pdf = (function (){
       const row = document.getElementById(`tr${index}`);
       if (item.selected){
           row.style.backgroundColor = 'lightblue';
+          const input = document.getElementById(`input${index}`);
+          if(input){
+            input.focus();
+            input.select();
+            input.scrollIntoView({block: 'center'});
+          }
       }else{
           row.style.backgroundColor = '';
       }
@@ -397,6 +404,7 @@ var postscript4pdf = (function (){
         orderTblSet();
         redrawCanvas();
         currentPdfFilename = file.name || "textdata.json";
+        sessionStorage.setItem("texts",JSON.stringify(texts));
       } catch (err) {
         alert(err);
       }
@@ -540,5 +548,16 @@ var postscript4pdf = (function (){
         draggedRow = null;
       });
     });
+    return {
+        getTexts() {
+            return texts;
+        },
+        setTexts(newTexts) {
+            texts = newTexts;
+        },
+        redrawCanvas() {
+          redrawCanvas();
+        }
 
+    };
 })();
