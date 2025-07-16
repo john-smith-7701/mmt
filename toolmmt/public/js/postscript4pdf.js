@@ -32,7 +32,7 @@ var ps4pdf = (function (){
       var evtobj = window.event? event : e;
       if(evtobj.keyCode == 26 && evtobj.ctrlKey){     // CTRL+z
           if(event.shiftKey){
-              redo();
+           redo();
           }else{
               undo();
           }

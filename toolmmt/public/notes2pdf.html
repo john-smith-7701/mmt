@@ -15,6 +15,9 @@
         top:0em;
         left:0em;
     }
+    .disabled {
+        display: none;
+    }
   </style>
 </head>
 <body>
@@ -72,11 +75,13 @@
     </div>
     <br><br>
     <input type="text" id="textInput">
+    <table id="tblApplication" width="100%">
+    </table>
   </div>
  </div>
 </div>
 <div id="orderPnl" class="orderPnl">
-  <table id="tblApplication">
+  <table id="tblApplication2" width="100%">
     <thead>
      <tr class="fixed00"><th class="alignHCenter" width="100%">__編集__</th>
     </thead>
@@ -97,6 +102,8 @@
   var textes = [];
   var starti = '';
   var enterFlg = false;
+  var hiduke = {};
+  var hidukeID = '';
   document.getElementById('select3').click();
   const loadJsonInput = document.getElementById('load-json');
   loadJsonInput.addEventListener('change', function () {
@@ -104,11 +111,35 @@
         texts = ps4pdf.getTexts();
         orderTbl2.innerHTML = '';
         mae = '';
+
         texts.forEach((t,i) => {
+            t.selected = false;  //全セレクトをクリア
             if(t.textAlign != 'none'){
                 const template = document.createElement('template');
-                template.innerHTML = `<tr id="tr${i}" data-id="${i}" draggable="true" class="fixed10">
-                 <td>${t.name}<br><input type="text" id="input${i}" value="${t.text}"></td></tr>`;
+                let inputType = "text";
+                let element = "";
+                let disabled = '';
+                const match = t.name.match(/（(元号|年|月|日|年月日)）/);
+                if(match){
+                    inputType = "date";
+                    element = match[1];
+                    if(hidukeID === ''){
+                        hidukeID = i;
+                        hiduke[hidukeID] = [];
+                        hiduke[hidukeID].push(hidukeID);
+                    }else{
+                        hiduke[hidukeID].push(i);
+                        inputType = "text";
+                        disabled = 'disabled';
+                    }
+                }else{
+                    if(hidukeID !== ''){
+                        mae = hidukeID;
+                    }
+                    hidukeID = '';
+                }
+                template.innerHTML = `<tr id="tr${i}" data-id="${i}" draggable="true" class="fixed10 ${disabled}">
+                 <td>${t.name}<br><input type="${inputType}" data-type="${inputType}" data-element="${element}" data-id="${i}" id="input${i}" value="${t.text}"></td></tr>`;
                 orderTbl2.appendChild(template.content.firstElementChild);
                 if(mae !== ''){
                     focusable[mae] = i;
@@ -124,6 +155,10 @@
       },1000);
       setTimeout(function(){
         const input = document.getElementById(`input${starti}`);
+        texts[starti].selected = true;
+        enterFlg = true;
+        ps4pdf.setTexts(texts);
+        ps4pdf.redrawCanvas();
         input.focus();
         input.select();
         
@@ -132,15 +167,26 @@
             const match = el.id.match(/input(\d+)$/);
             let i = match[1];
             el.style.backgroundColor = 'lightyellow';
-            texts[i].selected = true;
-            ps4pdf.setTexts(texts);
-            ps4pdf.redrawCanvas();
+            if(enterFlg){
+                enterFlg = false;
+            }else{
+                texts[i].selected = true;
+                ps4pdf.setTexts(texts);
+                ps4pdf.redrawCanvas();
+            }
           });
           el.addEventListener('blur', () => {
             const match = el.id.match(/input(\d+)$/);
+            let inputType = el.dataset.type;
+            let element = el.dataset.element;
+              console.log(`${inputType} : ${element}`);
             let i = match[1];
+            if(inputType == 'date'){
+                editymd(el,i,element);
+                enterFlg = false;
+            }
             el.style.backgroundColor = '';
-            nextTab(i,el)
+            blueTab(i,el)
           });
         });
       },1500);
@@ -149,21 +195,47 @@
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       const el = e.target;
-      console.log(`Enter pressed on <${el.tagName.toLowerCase()}> #${el.id}`);
       const match = el.id.match(/input(\d+)$/);
       if(match){
-        console.log(`Current value: ${el.value} No:${match[1]}`);
         texts[focusable[match[1]]].selected = true;
-        nextTab(match[1],el);
+        blueTab(match[1],el);
         enterFlg = true;
         ps4pdf.redrawCanvas();
       }
     }
   });
-  function nextTab(i,el){
-    texts[i].text = el.value;
+  //離れる時にデータをセーブ
+  function blueTab(i,el){
+    if(el.dataset.type != 'date'){
+      texts[i].text = el.value;
+    }
     texts[i].selected = false;
     ps4pdf.setTexts(texts);
+  }
+  function editymd(el,i,element){
+      const value = el.value;
+      const ymd = new Date(value);
+      let gymd;
+      if(hiduke[el.dataset.id].length === 4){
+        gymd = ymd.toLocaleDateString("ja-JP-u-ca-Japanese", { era: "long" });
+        const match = gymd.match(/^(\D+)(\d+)\D+(\d+)\D+(\d+)$/);
+        if(match){
+          texts[hiduke[el.dataset.id][0]].text = match[1];
+          texts[hiduke[el.dataset.id][1]].text = match[2];
+          texts[hiduke[el.dataset.id][2]].text = match[3];
+          texts[hiduke[el.dataset.id][3]].text = match[4];
+          let inputId = document.getElementById(`input${hiduke[el.dataset.id][0]}`);
+          //inputId.value = match[1];
+          inputId = document.getElementById(`input${hiduke[el.dataset.id][1]}`);
+          inputId.value = match[2];
+          inputId = document.getElementById(`input${hiduke[el.dataset.id][2]}`);
+          inputId.value = match[3];
+          inputId = document.getElementById(`input${hiduke[el.dataset.id][3]}`);
+          inputId.value = match[4];
+        }
+      }
+      console.log(`${value} -> ${gymd}`);
+      console.log(hiduke[el.dataset.id]);
   }
 </script>
 </body>
