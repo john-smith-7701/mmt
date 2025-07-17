@@ -28,6 +28,7 @@ var ps4pdf = (function (){
   let undohis = [];
   let currentMode = 'create';
   let lastID = 0;
+  let pdfurl = null;
   function KeyPress(e){
       var evtobj = window.event? event : e;
       if(evtobj.keyCode == 26 && evtobj.ctrlKey){     // CTRL+z
@@ -96,7 +97,7 @@ var ps4pdf = (function (){
           if(input){
             input.focus();
             input.select();
-            input.scrollIntoView({block: 'center'});
+            input.scrollIntoView({block: 'end'});
           }
       }else{
           row.style.backgroundColor = '';
@@ -179,6 +180,68 @@ var ps4pdf = (function (){
       reader.readAsArrayBuffer(file);
     }
   });
+
+
+  const loadServerPdf = document.getElementById('loadServerPdf');
+  if(loadServerPdf){
+    loadServerPdf.addEventListener('click', function () {
+    pdfurl = '/pdf/nouzeisyoumeiseikyuu.pdf'; // サーバー上のPDFパス（適宜変更）
+    fileInput.files[0] = null;
+    fileInput.value = '';
+    loadJsonInput.files[0] = null;
+    loadJsonInput.value = '';
+
+    pdfjsLib.getDocument(pdfurl).promise.then(pdf => {
+      return pdf.getPage(1).then(page => {
+        const scale = 1.336;
+        const viewport = page.getViewport({ scale });
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        return page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+          pdfBackground = new Image();
+          pdfBackground.src = canvas.toDataURL("image/png");
+          pdfBackground.onload = () => redrawCanvas();
+        });
+      });
+    }).catch(err => {
+      console.error('PDFの読み込みに失敗しました:', err);
+    });
+
+    lastID = 0;
+    fetch('/json/nouzeisyoumeiseikyuu.json') // ← サーバー上のJSONファイルのパスに変更
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('サーバーエラー: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(json => {
+        texts = json;
+        texts.forEach((t) => {
+          if ('id' in t) {
+            if (t.id > lastID) {
+              lastID = t.id;
+            }
+          } else {
+            t['id'] = ++lastID;
+          }
+          if (!('name' in t)) {
+            t['name'] = t['id'];
+          }
+        });
+        orderTblSet();
+        redrawCanvas();
+        currentPdfFilename = "textdata.json"; // サーバーからなので固定名でOK
+        sessionStorage.setItem("texts", JSON.stringify(texts));
+      })
+      .catch(err => {
+        alert('JSONの読み込みに失敗しました: ' + err);
+      });
+
+    history = [];
+    });
+  }
+
 
   document.getElementsByName('mode').forEach(radio => {
     radio.addEventListener('change', () => {
@@ -292,6 +355,11 @@ var ps4pdf = (function (){
           texts.forEach(t => t.selected = false);
           item.selected = true;
           selectedIndex = index;
+          if(typeof oya !== 'undefined'){
+            if(index in oya){
+              hiduke[oya[index]].forEach(i => {texts[i].selected = true;});
+            }
+          }
         }
         redrawCanvas();
       }
@@ -404,7 +472,6 @@ var ps4pdf = (function (){
         orderTblSet();
         redrawCanvas();
         currentPdfFilename = file.name || "textdata.json";
-        sessionStorage.setItem("texts",JSON.stringify(texts));
       } catch (err) {
         alert(err);
       }
@@ -457,10 +524,16 @@ var ps4pdf = (function (){
   
   // ✅ サーバーに送信してPDFを作成する処理
   document.getElementById("sendToServer").addEventListener("click", async () => {
-    const file = fileInput.files[0];
+    let file = fileInput.files[0];
     if (!file) {
-      alert("PDFファイルを選択してください。");
-      return;
+      if(pdfurl){
+        const response = await fetch(pdfurl);
+        const blob = await response.blob();
+        file = new File([blob], "sample.pdf", { type: "application/pdf" });
+      }else{
+        alert("PDFファイルを選択してください。");
+        return;
+      }
     }
     const lineEdit = (item) =>{
         return ({

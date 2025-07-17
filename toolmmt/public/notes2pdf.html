@@ -27,6 +27,7 @@
     PDF :<input type="file" id="pdf-upload" accept="application/pdf">
     Data:<input type="file" id="load-json" accept=".json">
     <button id="sendToServer" class="metal-box">PDFを生成</button>
+    <button id="loadServerPdf">サーバーPDFを読み込む</button>
   </div>
   <div class="menuCel3">
     <label>色: <input type="color" id="colorPicker" value="#000000"></label>
@@ -103,10 +104,18 @@
   var starti = '';
   var enterFlg = false;
   var hiduke = {};
+  var oya = {};
   var hidukeID = '';
   document.getElementById('select3').click();
   const loadJsonInput = document.getElementById('load-json');
   loadJsonInput.addEventListener('change', function () {
+      makeInputArea();
+  });
+  document.getElementById('loadServerPdf').addEventListener('click', function () {
+      makeInputArea();
+  });
+
+  function makeInputArea() {
       setTimeout(function(){
         texts = ps4pdf.getTexts();
         orderTbl2.innerHTML = '';
@@ -119,6 +128,7 @@
                 let inputType = "text";
                 let element = "";
                 let disabled = '';
+                let labelName = t.name;
                 const match = t.name.match(/（(元号|年|月|日|年月日)）/);
                 if(match){
                     inputType = "date";
@@ -132,6 +142,8 @@
                         inputType = "text";
                         disabled = 'disabled';
                     }
+                    oya[i] = hidukeID;
+                    labelName = labelName.replace(/（.*）/,'');
                 }else{
                     if(hidukeID !== ''){
                         mae = hidukeID;
@@ -139,7 +151,7 @@
                     hidukeID = '';
                 }
                 template.innerHTML = `<tr id="tr${i}" data-id="${i}" draggable="true" class="fixed10 ${disabled}">
-                 <td>${t.name}<br><input type="${inputType}" data-type="${inputType}" data-element="${element}" data-id="${i}" id="input${i}" value="${t.text}"></td></tr>`;
+                 <td>${labelName}<br><input type="${inputType}" data-type="${inputType}" data-element="${element}" data-id="${i}" id="input${i}" value="${t.text}"></td></tr>`;
                 orderTbl2.appendChild(template.content.firstElementChild);
                 if(mae !== ''){
                     focusable[mae] = i;
@@ -165,6 +177,7 @@
         document.querySelectorAll('input').forEach(el => {
           el.addEventListener('focus', () => {
             const match = el.id.match(/input(\d+)$/);
+            if(!match){return;}
             let i = match[1];
             el.style.backgroundColor = 'lightyellow';
             if(enterFlg){
@@ -177,6 +190,7 @@
           });
           el.addEventListener('blur', () => {
             const match = el.id.match(/input(\d+)$/);
+            if(!match){return;}
             let inputType = el.dataset.type;
             let element = el.dataset.element;
               console.log(`${inputType} : ${element}`);
@@ -190,7 +204,7 @@
           });
         });
       },1500);
-  });
+  }
 
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
@@ -210,6 +224,9 @@
       texts[i].text = el.value;
     }
     texts[i].selected = false;
+    if(i in hiduke){
+        hiduke[i].forEach(ii => {texts[ii].selected = false;});
+    }
     ps4pdf.setTexts(texts);
   }
   function editymd(el,i,element){
@@ -220,18 +237,12 @@
         gymd = ymd.toLocaleDateString("ja-JP-u-ca-Japanese", { era: "long" });
         const match = gymd.match(/^(\D+)(\d+)\D+(\d+)\D+(\d+)$/);
         if(match){
-          texts[hiduke[el.dataset.id][0]].text = match[1];
-          texts[hiduke[el.dataset.id][1]].text = match[2];
-          texts[hiduke[el.dataset.id][2]].text = match[3];
-          texts[hiduke[el.dataset.id][3]].text = match[4];
-          let inputId = document.getElementById(`input${hiduke[el.dataset.id][0]}`);
-          //inputId.value = match[1];
-          inputId = document.getElementById(`input${hiduke[el.dataset.id][1]}`);
-          inputId.value = match[2];
-          inputId = document.getElementById(`input${hiduke[el.dataset.id][2]}`);
-          inputId.value = match[3];
-          inputId = document.getElementById(`input${hiduke[el.dataset.id][3]}`);
-          inputId.value = match[4];
+            hiduke[el.dataset.id].forEach((id,i) => {
+                texts[id].text = match[i+1];
+                if(i != 0){
+                    document.getElementById(`input${id}`).value = match[i+1];
+                }
+            });
         }
       }
       console.log(`${value} -> ${gymd}`);
