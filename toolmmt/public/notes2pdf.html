@@ -25,9 +25,9 @@
  <div class="flex">
   <div class="menuCel2">
     PDF :<input type="file" id="pdf-upload" accept="application/pdf">
-    Data:<input type="file" id="load-json" accept=".json">
-    <button id="sendToServer" class="metal-box">PDFを生成</button>
+    Data:<input type="file" id="load-json" accept=".json"><br>
     <button id="loadServerPdf">サーバーPDFを読み込む</button>
+    <button id="sendToServer" class="metal-box">PDFを生成</button>
   </div>
   <div class="menuCel3">
     <label>色: <input type="color" id="colorPicker" value="#000000"></label>
@@ -100,9 +100,8 @@
 <script>
   const orderTbl2 = document.getElementById("bodyApplication2");
   var focusable = [];
-  var textes = [];
+  var texts = [];
   var starti = '';
-  var enterFlg = false;
   var hiduke = {};
   var oya = {};
   var hidukeID = '';
@@ -111,17 +110,14 @@
   loadJsonInput.addEventListener('change', function () {
       makeInputArea();
   });
-  document.getElementById('loadServerPdf').addEventListener('click', function () {
-      makeInputArea();
-  });
 
-  function makeInputArea() {
-      setTimeout(function(){
+  async function makeInputArea() {
+        await ps4pdf.sleep(1000);
         texts = ps4pdf.getTexts();
         orderTbl2.innerHTML = '';
         mae = '';
 
-        texts.forEach((t,i) => {
+        await texts.forEach((t,i) => {
             t.selected = false;  //全セレクトをクリア
             if(t.textAlign != 'none'){
                 const template = document.createElement('template');
@@ -164,29 +160,26 @@
             }
         });
         focusable[mae] = starti;
-      },1000);
-      setTimeout(function(){
+
         const input = document.getElementById(`input${starti}`);
         texts[starti].selected = true;
-        enterFlg = true;
         ps4pdf.setTexts(texts);
         ps4pdf.redrawCanvas();
         input.focus();
         input.select();
         
-        document.querySelectorAll('input').forEach(el => {
+        await document.querySelectorAll('input').forEach(el => {
           el.addEventListener('focus', () => {
             const match = el.id.match(/input(\d+)$/);
             if(!match){return;}
             let i = match[1];
             el.style.backgroundColor = 'lightyellow';
-            if(enterFlg){
-                enterFlg = false;
-            }else{
-                texts[i].selected = true;
-                ps4pdf.setTexts(texts);
-                ps4pdf.redrawCanvas();
+            texts[i].selected = true;
+            if(i in oya){
+                hiduke[oya[i]].forEach(ii => {texts[ii].selected = true;});
             }
+            ps4pdf.setTexts(texts);
+            ps4pdf.redrawCanvas();
           });
           el.addEventListener('blur', () => {
             const match = el.id.match(/input(\d+)$/);
@@ -197,13 +190,11 @@
             let i = match[1];
             if(inputType == 'date'){
                 editymd(el,i,element);
-                enterFlg = false;
             }
             el.style.backgroundColor = '';
             blueTab(i,el)
           });
         });
-      },1500);
   }
 
   document.addEventListener('keydown', function(e) {
@@ -213,7 +204,6 @@
       if(match){
         texts[focusable[match[1]]].selected = true;
         blueTab(match[1],el);
-        enterFlg = true;
         ps4pdf.redrawCanvas();
       }
     }
@@ -228,7 +218,10 @@
         hiduke[i].forEach(ii => {texts[ii].selected = false;});
     }
     ps4pdf.setTexts(texts);
-  }
+    ps4pdf.redrawCanvas();
+  } 
+
+               
   function editymd(el,i,element){
       const value = el.value;
       const ymd = new Date(value);

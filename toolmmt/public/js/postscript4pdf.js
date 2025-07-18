@@ -12,7 +12,8 @@ var ps4pdf = (function (){
   const cvTop = document.getElementById('cvTop');
   const orderTbl = document.getElementById("bodyApplication");
   const orderPnl = document.getElementById("orderPnl");
-  
+  const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+
   let texts = [];
   let selectedIndex = -1;
   let isDragging = false;
@@ -62,7 +63,6 @@ var ps4pdf = (function (){
   }
   
   function redrawCanvas() {
-    window.ps4pdf.texts = texts;
     if (pdfBackground) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(pdfBackground, 0, 0);
@@ -164,24 +164,42 @@ var ps4pdf = (function (){
       reader.onload = function () {
         const typedarray = new Uint8Array(reader.result);
         pdfjsLib.getDocument({ data: typedarray }).promise.then(pdf => {
-          return pdf.getPage(1).then(page => {
-            const scale = 1.336;
-            const viewport = page.getViewport({ scale });
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            return page.render({ canvasContext: ctx, viewport }).promise.then(() => {
-              pdfBackground = new Image();
-              pdfBackground.src = canvas.toDataURL("image/png");
-              pdfBackground.onload = () => redrawCanvas();
-            });
-          });
+          return drawPDFonCanvas(pdf);
         });
       };
       reader.readAsArrayBuffer(file);
     }
   });
 
-
+  //PDFをキャンバスに描画
+  function drawPDFonCanvas(pdf){
+    return pdf.getPage(1).then(page => {
+      const scale = 1.336;
+      const viewport = page.getViewport({ scale });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      return page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+        pdfBackground = new Image();
+        pdfBackground.src = canvas.toDataURL("image/png");
+        pdfBackground.onload = () => redrawCanvas();
+      });
+    });
+  }
+  //編集内容をキャンバスに描画
+  function drawJSONonCanvas(){
+    texts.forEach((t) => {
+      if ('id' in t) {
+        if (t.id > lastID) { lastID = t.id; }
+      } else {
+        t['id'] = ++lastID;
+      }
+      if (!('name' in t)) {
+        t['name'] = t['id'];
+      }
+    });
+    orderTblSet();
+    redrawCanvas();
+  }
   const loadServerPdf = document.getElementById('loadServerPdf');
   if(loadServerPdf){
     loadServerPdf.addEventListener('click', function () {
@@ -192,17 +210,7 @@ var ps4pdf = (function (){
     loadJsonInput.value = '';
 
     pdfjsLib.getDocument(pdfurl).promise.then(pdf => {
-      return pdf.getPage(1).then(page => {
-        const scale = 1.336;
-        const viewport = page.getViewport({ scale });
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        return page.render({ canvasContext: ctx, viewport }).promise.then(() => {
-          pdfBackground = new Image();
-          pdfBackground.src = canvas.toDataURL("image/png");
-          pdfBackground.onload = () => redrawCanvas();
-        });
-      });
+      return drawPDFonCanvas(pdf);
     }).catch(err => {
       console.error('PDFの読み込みに失敗しました:', err);
     });
@@ -215,24 +223,14 @@ var ps4pdf = (function (){
         }
         return response.json();
       })
-      .then(json => {
-        texts = json;
-        texts.forEach((t) => {
-          if ('id' in t) {
-            if (t.id > lastID) {
-              lastID = t.id;
-            }
-          } else {
-            t['id'] = ++lastID;
-          }
-          if (!('name' in t)) {
-            t['name'] = t['id'];
-          }
-        });
-        orderTblSet();
-        redrawCanvas();
+      .then(async (json) => {
+        const orderTbl2 = document.getElementById("bodyApplication2");
+        if(orderTbl2){ orderTbl2.innerHTML = '';}
+        const reader = new FileReader();
+        texts = JSON.parse(JSON.stringify(json));
+        drawJSONonCanvas();
         currentPdfFilename = "textdata.json"; // サーバーからなので固定名でOK
-        sessionStorage.setItem("texts", JSON.stringify(texts));
+        makeInputArea();
       })
       .catch(err => {
         alert('JSONの読み込みに失敗しました: ' + err);
@@ -405,7 +403,7 @@ var ps4pdf = (function (){
   // 項目削除 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Delete' && selectedIndex >= 0) {
-      texts = updateItems();
+      texts = JSON.parse(JSON.stringify(updateItems()));
       texts.splice(selectedIndex, 1);
       selectedIndex = -1;
       textInput.style.display = 'none';
@@ -449,28 +447,19 @@ var ps4pdf = (function (){
     texts.forEach(t => { if(t.selected) {t.textAlign = textAlign.value; }});
     redrawCanvas();
   });
-
+  // ローカルJSON読込
   loadJsonInput.addEventListener('change', function () {
     lastID = 0;
     const file = this.files[0];
     if (!file) return;
+    const orderTbl2 = document.getElementById("bodyApplication2");
+    if(orderTbl2){ orderTbl2.innerHTML = '';}
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = async (e) => {
       try {
+        await sleep(500);
         texts = JSON.parse(e.target.result);
-        texts.forEach((t) => {
-            if('id' in t){
-                if(t.id>lastID){lastID = t.id;}
-            }else{
-                t['id'] = ++lastID;
-            }
-            if('name' in t){
-            }else{
-                t['name'] = t['id'];
-            }
-        });
-        orderTblSet();
-        redrawCanvas();
+        drawJSONonCanvas();
         currentPdfFilename = file.name || "textdata.json";
       } catch (err) {
         alert(err);
@@ -621,15 +610,19 @@ var ps4pdf = (function (){
         draggedRow = null;
       });
     });
+    
     return {
         getTexts() {
             return texts;
         },
         setTexts(newTexts) {
-            texts = newTexts;
+            texts = JSON.parse(JSON.stringify(newTexts));
         },
         redrawCanvas() {
           redrawCanvas();
+        },
+        async sleep(millisecond) {
+            await sleep(millisecond);
         }
 
     };
