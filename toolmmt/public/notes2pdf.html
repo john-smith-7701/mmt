@@ -112,89 +112,93 @@
   });
 
   async function makeInputArea() {
-        await ps4pdf.sleep(1000);
-        texts = ps4pdf.getTexts();
-        orderTbl2.innerHTML = '';
-        mae = '';
 
-        await texts.forEach((t,i) => {
-            t.selected = false;  //全セレクトをクリア
-            if(t.textAlign != 'none'){
-                const template = document.createElement('template');
-                let inputType = "text";
-                let element = "";
-                let disabled = '';
-                let labelName = t.name;
-                const match = t.name.match(/（(元号|年|月|日|年月日)）/);
-                if(match){
-                    inputType = "date";
-                    element = match[1];
-                    if(hidukeID === ''){
-                        hidukeID = i;
-                        hiduke[hidukeID] = [];
-                        hiduke[hidukeID].push(hidukeID);
-                    }else{
-                        hiduke[hidukeID].push(i);
-                        inputType = "text";
-                        disabled = 'disabled';
-                    }
-                    oya[i] = hidukeID;
-                    labelName = labelName.replace(/（.*）/,'');
-                }else{
-                    if(hidukeID !== ''){
-                        mae = hidukeID;
-                    }
-                    hidukeID = '';
-                }
-                template.innerHTML = `<tr id="tr${i}" data-id="${i}" draggable="true" class="fixed10 ${disabled}">
-                 <td>${labelName}<br><input type="${inputType}" data-type="${inputType}" data-element="${element}" data-id="${i}" id="input${i}" value="${t.text}"></td></tr>`;
-                orderTbl2.appendChild(template.content.firstElementChild);
-                if(mae !== ''){
-                    focusable[mae] = i;
-                }
-                if(starti === ''){
-                    starti = i;
-                }
-                mae = i;
+      await ps4pdf.sleep(1000);
+      texts = ps4pdf.getTexts();
+      orderTbl2.innerHTML = '';
+      mae = '';
+      starti = '';
+      hiduke = {};
+      hidukeID = '';
+      oya = {};
 
-            }
-        });
-        focusable[mae] = starti;
+      await texts.forEach((t,i) => {
+          t.selected = false;  //全セレクトをクリア
+          if(t.textAlign != 'none'){
+              const template = document.createElement('template');
+              let inputType = "text";
+              let element = "";
+              let disabled = '';
+              let labelName = t.name;
+              const match = t.name.match(/（(元号|年|月|日|年月日)）/);
+              if(match){
+                  inputType = "date";
+                  element = match[1];
+                  if(hidukeID === ''){
+                      hidukeID = i;
+                      hiduke[hidukeID] = [];
+                      hiduke[hidukeID].push(hidukeID);
+                  }else{
+                      hiduke[hidukeID].push(i);
+                      inputType = "text";
+                      disabled = 'disabled';
+                  }
+                  oya[i] = hidukeID;
+                  labelName = labelName.replace(/（.*）/,'');
+              }else{
+                  if(hidukeID !== ''){
+                      mae = hidukeID;
+                  }
+                  hidukeID = '';
+              }
+              template.innerHTML = `<tr id="tr${i}" data-id="${i}" draggable="true" class="fixed10 ${disabled}">
+               <td>${labelName}<br><input type="${inputType}" data-type="${inputType}" data-element="${element}" data-id="${i}" id="input${i}" value="${t.text}" onfocus="focus_rtn(this);" onblur="blur_rtn(this);"></td></tr>`;
+              orderTbl2.appendChild(template.content.firstElementChild);
+              if(mae !== ''){
+                  focusable[mae] = i;
+              }
+              if(starti === ''){
+                  starti = i;
+              }
+              mae = i;
 
-        const input = document.getElementById(`input${starti}`);
-        texts[starti].selected = true;
-        ps4pdf.setTexts(texts);
-        ps4pdf.redrawCanvas();
-        input.focus();
-        input.select();
-        
-        await document.querySelectorAll('input').forEach(el => {
-          el.addEventListener('focus', () => {
-            const match = el.id.match(/input(\d+)$/);
-            if(!match){return;}
-            let i = match[1];
-            el.style.backgroundColor = 'lightyellow';
-            texts[i].selected = true;
-            if(i in oya){
-                hiduke[oya[i]].forEach(ii => {texts[ii].selected = true;});
-            }
-            ps4pdf.setTexts(texts);
-            ps4pdf.redrawCanvas();
-          });
-          el.addEventListener('blur', () => {
-            const match = el.id.match(/input(\d+)$/);
-            if(!match){return;}
-            let inputType = el.dataset.type;
-            let element = el.dataset.element;
-              console.log(`${inputType} : ${element}`);
-            let i = match[1];
-            if(inputType == 'date'){
-                editymd(el,i,element);
-            }
-            el.style.backgroundColor = '';
-            blueTab(i,el)
-          });
-        });
+          }
+      });
+      focusable[mae] = starti;
+
+      const input = document.getElementById(`input${starti}`);
+      texts[starti].selected = true;
+      ps4pdf.setTexts(texts);
+      ps4pdf.redrawCanvas();
+      input.focus();
+      input.select();
+  }
+
+  //フォーカスが入った時
+  function focus_rtn(el){
+      const match = el.id.match(/input(\d+)$/);
+      if(!match){return;}
+      let i = match[1];
+      el.style.backgroundColor = 'lightyellow';
+      texts[i].selected = true;
+      if(i in oya){
+          hiduke[oya[i]].forEach(ii => {texts[ii].selected = true;});
+      }
+      ps4pdf.setTexts(texts);
+      ps4pdf.redrawCanvas();
+  }
+  //フォーカスが離れた時
+  function blur_rtn(el){
+      const match = el.id.match(/input(\d+)$/);
+      if(!match){return;}
+      let inputType = el.dataset.type;
+      let element = el.dataset.element;
+      let i = match[1];
+      if(inputType == 'date' ){
+          editymd(el,i,element);
+      }
+      el.style.backgroundColor = '';
+      blueTab(i,el);
   }
 
   document.addEventListener('keydown', function(e) {
@@ -204,7 +208,6 @@
       if(match){
         texts[focusable[match[1]]].selected = true;
         blueTab(match[1],el);
-        ps4pdf.redrawCanvas();
       }
     }
   });
@@ -214,6 +217,7 @@
       texts[i].text = el.value;
     }
     texts[i].selected = false;
+    el.style.backgroundColor = '';
     if(i in hiduke){
         hiduke[i].forEach(ii => {texts[ii].selected = false;});
     }
@@ -238,8 +242,6 @@
             });
         }
       }
-      console.log(`${value} -> ${gymd}`);
-      console.log(hiduke[el.dataset.id]);
   }
 </script>
 </body>
