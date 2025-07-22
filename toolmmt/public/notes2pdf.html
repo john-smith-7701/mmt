@@ -165,6 +165,7 @@
           }
       });
       focusable[mae] = starti;
+      text2InputHiduke();
 
       const input = document.getElementById(`input${starti}`);
       texts[starti].selected = true;
@@ -173,7 +174,32 @@
       input.focus();
       input.select();
   }
+  //日付項目を入力エリアにセット
+  function text2InputHiduke(){
+      const eras = {
+          '令和': 2019,
+          '平成': 1989,
+          '昭和': 1926,
+          '大正': 1912,
+          '明治': 1868,
+          '': 0
+      };
 
+      Object.keys(hiduke).forEach(key => {
+          const t = hiduke[key];
+          if(t.length == 4){
+            const inputDate = document.getElementById(`input${t[0]}`);
+            inputDate.value = (eras[texts[t[0]].text] + z2n(texts[t[1]].text) - 1) + '-' + ('00'+z2n(texts[t[2]].text)).slice(-2) + '-' + ('00'+z2n(texts[t[3]].text)).slice(-2);
+          }
+      });
+  }
+  function z2n(text){
+      let x = text.replace(/[^０-９0-9]/g,'');
+      x = x.replace(/[０-９]/g,function(s){
+          return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+      });
+      return Number(x);
+  }
   //フォーカスが入った時
   function focus_rtn(el){
       const match = el.id.match(/input(\d+)$/);
