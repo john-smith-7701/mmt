@@ -62,9 +62,6 @@
     <button id="copy-selected">選択コピー</button>
     <button id="align-left">｜←</button>
     <button id="align-top">上揃</button>
-    <label>画像:
-        <input type="file" id="image-upload" accept="image/*">
-    </label>
     <hr>
     <div class="radioPanel">
       <input type="radio" id="select1" name="mode" value="create" checked>
@@ -84,13 +81,18 @@
 <div id="orderPnl" class="orderPnl">
   <table id="tblApplication2" width="100%">
     <thead>
-     <tr class="fixed00"><th class="alignHCenter" width="100%">__編集__</th>
+     <tr class="fixed00">
+         <th class="alignHCenter" width="100%">__編集__
+             <br><label>画像:
+                    <input type="file" id="image-upload" accept="image/*">
+                 </label>
+         </th>
     </thead>
     <tbody id="bodyApplication2">
     </tbody>
   </table>
 </div>
-<br><br><br>
+<br><br><br><br>
 
 <canvas id="pdf-canvas"></canvas>
 <div id="bodyApplication"></div>
@@ -105,6 +107,7 @@
   var hiduke = {};
   var oya = {};
   var hidukeID = '';
+  var inFocus = '';
   document.getElementById('select3').click();
   const loadJsonInput = document.getElementById('load-json');
   loadJsonInput.addEventListener('change', function () {
@@ -130,7 +133,7 @@
               let element = "";
               let disabled = '';
               let labelName = t.name;
-              const match = t.name.match(/（(元号|年|月|日|年月日)）/);
+              let match = t.name.match(/（(元号|年|月|日|年月日)）/);
               if(match){
                   inputType = "date";
                   element = match[1];
@@ -150,6 +153,10 @@
                       mae = hidukeID;
                   }
                   hidukeID = '';
+              }
+              match = t.name.match(/(画像|署名)/);
+              if(match){
+                  element = 'img';
               }
               template.innerHTML = `<tr id="tr${i}" data-id="${i}" draggable="true" class="fixed10 ${disabled}">
                <td>${labelName}<br><input type="${inputType}" data-type="${inputType}" data-element="${element}" data-id="${i}" id="input${i}" value="${t.text}" onfocus="focus_rtn(this);" onblur="blur_rtn(this);"></td></tr>`;
@@ -201,16 +208,23 @@
       return Number(x);
   }
   //フォーカスが入った時
-  function focus_rtn(el){
+  async function focus_rtn(el){
       const match = el.id.match(/input(\d+)$/);
       if(!match){return;}
+      let element = el.dataset.element;
+      if(element === 'img' ){texts = ps4pdf.getTexts();}
       let i = match[1];
+      if(inFocus !== ''){
+        texts[inFocus].selected = false;
+      }
+      inFocus = i;
       el.style.backgroundColor = 'lightyellow';
       texts[i].selected = true;
       if(i in oya){
           hiduke[oya[i]].forEach(ii => {texts[ii].selected = true;});
       }
       ps4pdf.setTexts(texts);
+      await ps4pdf.sleep(200);
       ps4pdf.redrawCanvas();
   }
   //フォーカスが離れた時
@@ -220,6 +234,7 @@
       let inputType = el.dataset.type;
       let element = el.dataset.element;
       let i = match[1];
+      if(element === 'img' && inFocus === i){return;}
       if(inputType == 'date' ){
           editymd(el,i,element);
       }
@@ -228,6 +243,10 @@
   }
 
   document.addEventListener('keydown', function(e) {
+    console.log(e.key);
+    if(e.key === 'Tab'){
+        inFocus = '';
+    }
     if (e.key === 'Enter') {
       const el = e.target;
       const match = el.id.match(/input(\d+)$/);
@@ -238,7 +257,7 @@
     }
   });
   //離れる時にデータをセーブ
-  function blueTab(i,el){
+  async function blueTab(i,el){
     if(el.dataset.type != 'date'){
       texts[i].text = el.value;
     }
@@ -248,6 +267,7 @@
         hiduke[i].forEach(ii => {texts[ii].selected = false;});
     }
     ps4pdf.setTexts(texts);
+    await ps4pdf.sleep(200);
     ps4pdf.redrawCanvas();
   } 
 
