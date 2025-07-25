@@ -230,7 +230,7 @@ var ps4pdf = (function (){
         texts = JSON.parse(JSON.stringify(json));
         drawJSONonCanvas();
         currentPdfFilename = "textdata.json"; // サーバーからなので固定名でOK
-        makeInputArea();
+        note2pdf.makeInputArea();
       })
       .catch(err => {
         alert('JSONの読み込みに失敗しました: ' + err);
@@ -627,3 +627,4 @@ var ps4pdf = (function (){
 
     };
 })();
+
