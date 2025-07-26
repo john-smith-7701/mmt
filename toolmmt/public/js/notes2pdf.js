@@ -242,6 +242,9 @@ var note2pdf = (function (){
       },
       openDialog(){
           openDialog();
+      },
+      clearCanvas(){
+          clearCanvas();
       }
   };
 })();
