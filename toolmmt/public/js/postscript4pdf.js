@@ -29,6 +29,7 @@ var ps4pdf = (function (){
   let undohis = [];
   let currentMode = 'create';
   let lastID = 0;
+  let pdfurl = '';
   function KeyPress(e){
       var evtobj = window.event? event : e;
       if(evtobj.keyCode == 26 && evtobj.ctrlKey){     // CTRL+z
@@ -200,7 +201,8 @@ var ps4pdf = (function (){
     redrawCanvas();
   }
 
-  function loadServerPdf(pdfurl,parurl){
+  function loadServerPdf(pdf,parurl){
+    pdfurl = pdf;
     fileInput.files[0] = null;
     fileInput.value = '';
     loadJsonInput.files[0] = null;
