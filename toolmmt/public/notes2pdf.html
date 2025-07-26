@@ -100,16 +100,28 @@
 <canvas id="pdf-canvas"></canvas>
 <div id="bodyApplication"></div>
 
-
 <dialog id="myDialog">
     <form id="signForm">
-        <label>label>キャンバスにサインを描いてください：</label><br>
+        <label>キャンバスにサインを描いてください：</label><br>
         <canvas id="signature" width="800" height="300"></canvas><br>
         <button type="button" onclick="note2pdf.clearCanvas()">クリア</button><br><br>
         <button onclick="myDialog.close()">閉じる</button>
         <button type="submit">サイン追加</button>
     </form>
+</dialog>
 
+<dialog id="selectBox">
+    <form id="selectForm">
+        <table id="selectTbl" width="100%">
+            <thead>
+                <tr class="fixed00" id="slectHeader">
+                    <th>帳票選択</th>
+                </tr>
+            </thead>
+            <tbody id="selectBody">
+            </tbody>
+        </table>
+    </form>
 </dialog>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>

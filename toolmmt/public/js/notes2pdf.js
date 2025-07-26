@@ -187,9 +187,9 @@ var note2pdf = (function (){
       }
   }
   //手書きサイン処理
-	function openDialog() {
-		document.getElementById("myDialog").showModal();
-	}
+  function openDialog() {
+    document.getElementById("myDialog").showModal();
+  }
   const canvas = document.getElementById('signature');
   const ctx = canvas.getContext('2d');
   let drawing = false;
@@ -228,6 +228,33 @@ var note2pdf = (function (){
 
     clearCanvas();
     myDialog.close();
+  });
+
+  loadServerPdf.addEventListener('click', function () {
+    document.getElementById("selectBox").showModal();
+    fetch(`/list.json`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('サーバーエラー: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(async (json) => {
+        const selectBody = document.getElementById("selectBody");
+        selectBody.innerHTML = '';
+        const template = document.createElement('template');
+        json.forEach(t => {
+            template.innerHTML = `<tr>
+                <td><a href="javascript:ps4pdf.loadServerPdf('${t.pdf}','${t.par}');selectBox.close();">${t.name}</a></td>
+                </tr>`;
+            selectBody.appendChild(template.content.firstElementChild);
+        });
+
+        list = JSON.parse(JSON.stringify(json));
+      })
+      .catch(err => {
+        alert('JSONの読み込みに失敗しました: ' + err);
+      });
   });
 
   return {

@@ -29,7 +29,6 @@ var ps4pdf = (function (){
   let undohis = [];
   let currentMode = 'create';
   let lastID = 0;
-  let pdfurl = null;
   function KeyPress(e){
       var evtobj = window.event? event : e;
       if(evtobj.keyCode == 26 && evtobj.ctrlKey){     // CTRL+z
@@ -200,10 +199,8 @@ var ps4pdf = (function (){
     orderTblSet();
     redrawCanvas();
   }
-  const loadServerPdf = document.getElementById('loadServerPdf');
-  if(loadServerPdf){
-    loadServerPdf.addEventListener('click', function () {
-    pdfurl = '/pdf/nouzeisyoumeiseikyuu.pdf'; // サーバー上のPDFパス（適宜変更）
+
+  function loadServerPdf(pdfurl,parurl){
     fileInput.files[0] = null;
     fileInput.value = '';
     loadJsonInput.files[0] = null;
@@ -216,7 +213,7 @@ var ps4pdf = (function (){
     });
 
     lastID = 0;
-    fetch('/json/nouzeisyoumeiseikyuu.json') // ← サーバー上のJSONファイルのパスに変更
+    fetch(parurl) // ← サーバー上のJSONファイルのパスに変更
       .then(response => {
         if (!response.ok) {
           throw new Error('サーバーエラー: ' + response.status);
@@ -237,7 +234,6 @@ var ps4pdf = (function (){
       });
 
     history = [];
-    });
   }
 
 
@@ -249,7 +245,7 @@ var ps4pdf = (function (){
             orderPnl.style.display = 'none';
         }
     });
-    });
+  });
   
   canvas.addEventListener('mousedown', (e) => {
     const rect = canvas.getBoundingClientRect();
@@ -623,8 +619,10 @@ var ps4pdf = (function (){
         },
         async sleep(millisecond) {
             await sleep(millisecond);
+        },
+        loadServerPdf(pdfurl,parurl){
+            loadServerPdf(pdfurl,parurl);
         }
-
     };
 })();
 

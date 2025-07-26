@@ -68,6 +68,10 @@
     .menuCel{
         width: 35em;
     }
+    #selectBox {
+        width:50%;
+        height70%;
+    }
 .metal-box {
   padding: 0.5rem;
   color: #222;
