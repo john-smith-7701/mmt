@@ -169,7 +169,6 @@ var note2pdf = (function (){
     ps4pdf.redrawCanvas();
   } 
 
-               
   function editymd(el,i,element){
       const value = el.value;
       const ymd = new Date(value);
@@ -187,6 +186,49 @@ var note2pdf = (function (){
         }
       }
   }
+  //手書きサイン処理
+	function openDialog() {
+		document.getElementById("myDialog").showModal();
+	}
+  const canvas = document.getElementById('signature');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+
+  canvas.addEventListener('pointerdown', (e) => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (drawing) {
+      ctx.lineWidth = 5;
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+    }
+  });
+  canvas.addEventListener('pointerup', () => {
+    drawing = false;
+  });
+
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  document.getElementById('signForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // サインをPNG画像として取得
+    const dataUrl = canvas.toDataURL('image/png');
+    //const blob = await (await fetch(dataUrl)).blob();
+    texts.forEach(t => { if(t.selected) {
+        t.image = dataUrl.split(',')[1];
+    }});
+    ps4pdf.setTexts(texts);
+    ps4pdf.redrawCanvas();
+
+    clearCanvas();
+    myDialog.close();
+  });
 
   return {
       focus_rtn(el) {
@@ -196,7 +238,10 @@ var note2pdf = (function (){
           blur_rtn(el);
       },
       makeInputArea(){
-            makeInputArea();
+          makeInputArea();
+      },
+      openDialog(){
+          openDialog();
       }
   };
 })();

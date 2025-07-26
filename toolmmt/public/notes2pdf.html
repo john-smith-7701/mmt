@@ -81,12 +81,15 @@
 <div id="orderPnl" class="orderPnl">
   <table id="tblApplication2" width="100%">
     <thead>
-     <tr class="fixed00">
-         <th class="alignHCenter" width="100%">__編集__
-             <br><label>画像:
-                    <input type="file" id="image-upload" accept="image/*">
-                 </label>
-         </th>
+      <tr class="fixed00">
+        <th class="alignHCenter" width="100%">__編集__
+            <button onclick="note2pdf.openDialog()">署名</button>
+            <br>
+            <label>画像:
+                <input type="file" id="image-upload" accept="image/*">
+            </label>
+        </th>
+      </tr>
     </thead>
     <tbody id="bodyApplication2">
     </tbody>
@@ -96,6 +99,18 @@
 
 <canvas id="pdf-canvas"></canvas>
 <div id="bodyApplication"></div>
+
+
+<dialog id="myDialog">
+    <form id="signForm">
+        <label>label>キャンバスにサインを描いてください：</label><br>
+        <canvas id="signature" width="800" height="300"></canvas><br>
+        <button type="button" onclick="clearCanvas()">クリア</button><br><br>
+        <button onclick="myDialog.close()">閉じる</button>
+        <button type="submit">サイン追加</button>
+    </form>
+
+</dialog>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
 <script src="js/postscript4pdf.js"></script>
