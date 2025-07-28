@@ -104,9 +104,10 @@
     <form id="signForm">
         <label>キャンバスにサインを描いてください：</label><br>
         <canvas id="signature" width="800" height="300"></canvas><br>
-        <button type="button" onclick="note2pdf.clearCanvas()">クリア</button><br><br>
-        <button onclick="myDialog.close()">閉じる</button>
-        <button type="submit">サイン追加</button>
+        <button type="button" onclick="note2pdf.clearCanvas()">クリア</button>
+        <button type="button" onclick="note2pdf.undo()" id="undo">1つ戻す</button><br><br>
+        <button onclick="myDialog.close()" id="close">閉じる</button>
+        <button type="submit" onclick="myDialog.close()" id="signAdd">サイン追加</button>
     </form>
 </dialog>
 

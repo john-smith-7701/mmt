@@ -193,29 +193,63 @@ var note2pdf = (function (){
   const canvas = document.getElementById('signature');
   const ctx = canvas.getContext('2d');
   let drawing = false;
+  let currentPath = [];
+  const paths = [];
 
   canvas.addEventListener('pointerdown', (e) => {
     drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
+    currentPath = [{ x: e.offsetX, y: e.offsetY }];
   });
   canvas.addEventListener('pointermove', (e) => {
     if (drawing) {
-      ctx.lineWidth = 5;
-      ctx.lineTo(e.offsetX, e.offsetY);
-      ctx.stroke();
+      const point = { x: e.offsetX, y: e.offsetY };
+      currentPath.push(point);
+      drawAll(); // 再描画
     }
   });
   canvas.addEventListener('pointerup', () => {
     drawing = false;
+    if (currentPath.length > 0) {
+        paths.push(currentPath);
+        currentPath = [];
+    }
   });
+  //全てを描画
+  function drawAll() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'black';
+
+    for (const path of paths.concat([currentPath])) {
+      if (path.length === 0) continue;
+      ctx.beginPath();
+      ctx.moveTo(path[0].x, path[0].y);
+      for (let i = 1; i < path.length; i++) {
+        ctx.lineTo(path[i].x, path[i].y);
+      }
+      ctx.stroke();
+    }
+  }
+  //１つ戻る
+  function undo() {
+    if (paths.length > 0) {
+      paths.pop();
+      drawAll();
+    }
+  }
 
   function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    paths.length = 0;
+    currentPath = [];
+    drawAll();
   }
 
   document.getElementById('signForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if(e.submitter.id === 'close'){
+        clearCanvas();
+        return;
+    }
 
     // サインをPNG画像として取得
     const dataUrl = canvas.toDataURL('image/png');
@@ -272,6 +306,9 @@ var note2pdf = (function (){
       },
       clearCanvas(){
           clearCanvas();
+      },
+      undo(){
+          undo();
       }
   };
 })();
