@@ -885,5 +885,11 @@ jQuery('#l_$n').click( function (){                 // SUB WINDOWを開く
 });
 End_Script
 }
+sub session2user{
+    my $s = shift;
+    my $data = $s->app->model->webdb->dbh->selectall_arrayref(
+                "select user from session where session = ?",+{Slice => +{}},$s->session('session'));
+    return $data->[0]->{user};
+}
 
 1;

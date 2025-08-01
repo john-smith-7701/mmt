@@ -1,6 +1,6 @@
 package Tool::mmt::Controller::Auth;
 use Mojo::Base 'Tool::mmt::Controller::Mmt';
-
+use UUID::Tiny;
 sub login {
     my $s = shift;
     $s->redirect_to($s->param('url')) if $s->param('url');
@@ -59,8 +59,20 @@ sub logout{
     $s->stash( 'url' => './login' );
     $s->render( template => 'auth/login');
 }
+sub token{
+    my $s = shift;
+    my $ret = $s->userAuth();
+    my $json = qq/{"token":"@{[$s->session('session')]}"}/;
+    if($ret){
+        $s->render(data => $json,format=>'json');
+    }else{
+        $s->render(text => 'Authentication required!', status => 401);
+    }
+}
 sub randomStr{
     my $s = shift;
+    return UUID_to_string(create_UUID(UUID_V4));
+=pod
     my %arg = (-length =>16,
                         -str => (join '',('A'..'Z','a'..'z','0'..'9')),
                          @_);
@@ -68,6 +80,7 @@ sub randomStr{
     my $str = "";
     for(1 .. $arg{'-length'}){$str .= $str[int rand($#str+1)];}
     return $str;
+=cut
 }
  
 1;

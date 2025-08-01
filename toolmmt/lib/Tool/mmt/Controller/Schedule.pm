@@ -31,6 +31,7 @@ sub action_set{
 }
 sub data_update{
     my $s = shift;
+    $s->param('item0',$s->session2user());
     if($s->param('key0') == 0){
         $s->data_insert();
     }else{
@@ -41,15 +42,15 @@ sub data_update{
 sub UPDATE_SUB{
     my $s = shift;
     my $log = Mojo::Log->new();
-    $log->debug( $s->{sql});
+    #$log->debug( $s->{sql});
 }
 sub GET_AF_CHECK{
     my $s = shift;
     if ($s->{errorflag} == 1){
         $s->param('key0',0);
-        $s->param('item0',$s->param('user'));
         $s->param('item1',$s->param('ymd'));
     }
+    $s->param('item0',$s->session('session'));
 }
 sub data_serch{
     my $s = shift;
