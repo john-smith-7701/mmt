@@ -61,10 +61,16 @@ sub insertMenuItem {
     insert into menu_item 
         (SEQ_NO,ID,名称,URL,略称,PARAM,権限) values (0,?,?,?,'',?,'')
 END_Script
+    my $group = 'users';
+    my $sql2 = <<END_Script;
+    insert into user_group 
+        (id,groupid,allow) values (?,?,1)
+END_Script
     my $dbh = $s->app->model->webdb->dbh;
     my $param = '';
     if($s->param('URL') eq '/menu/menu'){
         $param = "menu=@{[$s->param('ID')]}";
+        my $r = $dbh->do($sql2,undef,$s->param('ID'),$group);
     }
     my $ret = $dbh->do($sql,undef,$s->param('ID'),$s->param('NAME'),$s->param('URL'),$param);
     $s->json_or_jsonp( $s->db_render_to_string(json => [{return=>$ret}]));
