@@ -57,7 +57,7 @@ var note2pdf = (function (){
               if(match){
                   element = 'img';
               }
-              template.innerHTML = `<tr id="tr${i}" data-id="${i}" draggable="true" class="fixed10 ${disabled}">
+              template.innerHTML = `<tr id="tr${i}" data-id="${i}" class="fixed10 ${disabled}">
                <td>${labelName}<br><input type="${inputType}" data-type="${inputType}" data-element="${element}" data-id="${i}" id="input${i}" value="${t.text}" onfocus="note2pdf.focus_rtn(this);" onblur="note2pdf.blur_rtn(this);"></td></tr>`;
               orderTbl2.appendChild(template.content.firstElementChild);
               if(mae !== ''){
