@@ -30,6 +30,14 @@ var ps4pdf = (function (){
   let currentMode = 'create';
   let lastID = 0;
   let pdfurl = '';
+
+  let isDragging2 = false;
+  let mode = 'create';
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let dragCurrentX = 0;
+  let dragCurrentY = 0;
+
   function KeyPress(e){
       var evtobj = window.event? event : e;
       if(evtobj.keyCode == 26 && evtobj.ctrlKey){     // CTRL+z
@@ -61,7 +69,28 @@ var ps4pdf = (function (){
   function getFont() {
     return `${fontSize.value}px ${fontName.value}`;
   }
-  
+ 
+  // ドラッグ中に半透明の矩形をリアルタイム表示する
+  function drawDragRectangle() {
+    if (!isDragging2) return;
+    const x = Math.min(dragStartX, dragCurrentX);
+    const y = Math.min(dragStartY, dragCurrentY);
+    const w = Math.abs(dragCurrentX - dragStartX);
+    const h = Math.abs(dragCurrentY - dragStartY);
+
+    ctx.save();
+    if (mode === "create") {
+        ctx.fillStyle = "rgba(0, 0, 255, 0.3)"; // 青半透明
+        ctx.strokeStyle = "rgba(0, 0, 255, 0.8)";
+    } else {
+        ctx.fillStyle = "rgba(255, 165, 0, 0.3)"; // オレンジ半透明
+        ctx.strokeStyle = "rgba(255, 165, 0, 0.8)";
+    }
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.restore();
+  }
+
   function redrawCanvas() {
     if (pdfBackground) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -85,7 +114,7 @@ var ps4pdf = (function (){
           ctx.textAlign = 'right';
           drawVerticalText(ctx, item.text, item.x, item.y, item.w, item.h, item.fontSize);
       } else {
-          ctx.textAlign = item.textAlign;
+          ctx.textAlign = item.textAlign == 'right' ? 'right' : 'left';
           wrapText(ctx, item.text, item.textAlign == 'right' ? item.x + item.w + 5: item.x, item.y + parseInt(item.fontSize) - 2, item.w, 20);
       }
       if (index === selectedIndex) drawHandles(item);
@@ -254,6 +283,11 @@ var ps4pdf = (function (){
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
     startX = mx; startY = my;
+    dragStartX = mx; dragStartY = my;
+    dragCurrentX = dragStartX;
+    dragCurrentY = dragStartY;
+    isDragging2 = true; 
+
     selectedIndex = -1;
     isDragging = true; isResizing = false; isMoving = false;
   
@@ -273,12 +307,18 @@ var ps4pdf = (function (){
   });
   
   canvas.addEventListener('mousemove', (e) => {
-    if (selectedIndex < 0) return;
+    //if (selectedIndex < 0) return;
     const rect = canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
     const item = texts[selectedIndex];
     const dx = mx - startX, dy = my - startY;
+    dragCurrentX = mx;
+    dragCurrentY = my;
+    redrawCanvas();
+    history.pop();
+    drawDragRectangle();  // 半透明の矩形を描画
+    if (selectedIndex < 0) return;
   
     if (isResizing) {
       startX = mx; startY = my;
@@ -336,6 +376,7 @@ var ps4pdf = (function (){
       }
     }
     isDragging = isMoving = isResizing = false;
+    isDragging2 = false;
   });
   
   canvas.addEventListener('click', (e) => {
