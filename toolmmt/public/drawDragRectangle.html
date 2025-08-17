@@ -1,0 +1,57 @@
+<!Doctype html>
+<html lang="jp">
+    <head>
+        <title>ドラッグ中に半透明の矩形をリアルタイム表示する</title>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <h1>ドラッグ中に半透明の矩形をリアルタイム表示する</h1>
+        <canvas id="canvas" width="800" height="300"></canvas>
+    </body>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let isDragging2 = false;// 描画中判断用
+        let dragStartX = 0;     // 矩形START　X
+        let dragStartY = 0;     // 　　　　　 Y
+        let dragCurrentX = 0;   // 現在 X
+        let dragCurrentY = 0;   //      Y
+        redrawCanvas();
+        // キャンバスを再表示
+        function redrawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        // 矩形描画
+        function drawDragRectangle() {
+            if (!isDragging2) return;
+            const x = Math.min(dragStartX, dragCurrentX);
+            const y = Math.min(dragStartY, dragCurrentY);
+            const w = Math.abs(dragCurrentX - dragStartX);
+            const h = Math.abs(dragCurrentY - dragStartY);
+            ctx.fillStyle = "rgba(255, 165, 0, 0.3)";
+            ctx.strokeStyle = "rgba(255, 165, 0, 0.8)";
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeRect(x, y, w, h);
+            ctx.restore();
+        }
+        // ボタンが最初に押された時のイベント（矩形の開始）
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            dragStartX = e.clientX - rect.left;
+            dragStartY = e.clientY - rect.top;
+            isDragging2 = true;
+        });
+        // ポインティングディバイスが移動した時（リアルタイムに描画）
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            dragCurrentX = e.clientX - rect.left;
+            dragCurrentY = e.clientY - rect.top;
+            redrawCanvas();         // キャンバスを再描画
+            drawDragRectangle();    // 矩形を描画
+        });
+        // ボタンが離れた時（矩形の終了）
+        canvas.addEventListener('mouseup', (e) => {
+            isDragging2 = false;
+        });
+    </script>
+</html>
