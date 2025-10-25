@@ -32,7 +32,7 @@ var ps4pdf = (function (){
   let pdfurl = '';
 
   let isDragging2 = false;
-  let mode = 'create';
+  let mode = 'select';
   let dragStartX = 0;
   let dragStartY = 0;
   let dragCurrentX = 0;
