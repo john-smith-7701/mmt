@@ -4,18 +4,17 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-my $vars = {};
-my $op = +{ '-' => [sub {$_[0] - $_[1]},1,'L'],         # オペレータ定義
-           '+' => [sub {$_[0] + $_[1]},1,'L'],
-           '*' => [sub {$_[0] * $_[1]},2,'L'],
-           '/' => [sub {$_[0] / $_[1]},2,'L'],
-           '%' => [sub {$_[0] % $_[1]},2,'L'],
-           'NGE' => [sub { -$_[0]},4,'R'],
-           '**' => [sub {$_[0] ** $_[1]},4,'R'],
+my $op = +{ '-' => [sub {$_[1] - $_[2]},1,'L'],         # オペレータ定義
+           '+' => [sub {$_[1] + $_[2]},1,'L'],
+           '*' => [sub {$_[1] * $_[2]},2,'L'],
+           '/' => [sub {$_[1] / $_[2]},2,'L'],
+           '%' => [sub {$_[1] % $_[2]},2,'L'],
+           'NGE' => [sub { -$_[1]},4,'R'],
+           '**' => [sub {$_[1] ** $_[2]},4,'R'],
            '(' => [sub { },9,'L'],
            ')' => [sub { },10,'L'],
-           ';' => [sub { $_[1]},0.2,'L'],
-           '=' => [sub {$vars->{$_[0]} = $_[1]},0.5,'R'],
+           ';' => [sub { $_[2]},0.2,'L'],
+           '=' => [sub {$_[0]->{vars}{$_[1]} = $_[2]},0.5,'R'],
         };
 sub ast{
     my $s = shift;
@@ -26,9 +25,10 @@ sub _ast{
     my $s = shift;
     $s->{vars} = {};
     $s->{root} = $s->makeTree(@{$s->item_split($s->adjust(shift))->{item}});
-    $s->{root}->{vars} = $vars;
-    $s->stash(tree => Dumper $s->{root});
     $s->{anser} = $s->readTree($s->{root});
+    $s->{root}->{vars} = $s->{vars};
+    $s->stash(tree => Dumper $s->{root});
+    return $s->{anser}
 }
 sub Astnew {                                           # 
     my $s = shift;
@@ -51,17 +51,18 @@ sub readTree{                                       # AST計算
     my ($s,$node) = @_;
     return $s->getValue('c',$node) if(ref($node) ne 'HASH');
     if($node->{data} eq 'NGE'){
-        return $op->{$node->{data}}->[0]($s->readTree($node->{'right'}));
+        return $op->{$node->{data}}->[0]($s,$s->readTree($node->{'right'}));
     }
-    do{$node->{$_} = $s->readTree($node->{$_}) if(ref($node->{$_}) eq 'HASH')} for ('left','right');
-    exists $op->{$node->{data}} ? $op->{$node->{data}}->[0]($s->getValue($node->{data},$node->{left}),
-                                                            $s->getValue($node->{data},$node->{right}))
+    my $newnode = {};
+    do{$newnode->{$_} = ref($node->{$_}) eq 'HASH' ? $s->readTree($node->{$_}) : $node->{$_};} for ('left','right');
+    exists $op->{$node->{data}} ? $op->{$node->{data}}->[0]($s,$s->getValue($node->{data},$newnode->{left}),
+                                                            $s->getValue($node->{data},$newnode->{right}))
                                 : $s->getValue('c',$node->{data});
 }
 sub getValue{
     my $s = shift;
     return $_[1] if($_[0] eq '=');
-    exists $vars->{$_[1]} ? $vars->{$_[1]} : $_[1];
+    exists $s->{vars}{$_[1]} ? $s->{vars}{$_[1]} : $_[1];
 }
 sub makeTree{                                       # AST組み立て
     my $s = shift;
