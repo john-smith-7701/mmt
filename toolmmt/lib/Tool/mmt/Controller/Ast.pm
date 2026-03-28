@@ -24,9 +24,13 @@ sub ast{
 sub _ast{
     my $s = shift;
     $s->{vars} = {};
+    $s->{func} = {};
+    $s->{count} = 0;
+    $s->{ret} = 'stack over!';
     $s->{root} = $s->makeTree(@{$s->item_split($s->adjust(shift))->{item}});
     $s->{anser} = $s->readTree($s->{root});
     $s->{root}->{vars} = $s->{vars};
+    $s->{root}->{func} = $s->{func};
     $s->stash(tree => Dumper $s->{root});
     return $s->{anser}
 }
@@ -45,7 +49,17 @@ sub setReOps{                                       # 演算子の正規表現�
 }
 sub newNode{
     my $s = shift;
+    if($_[0] eq '='){
+        $s->makeFunc($_[1],$_[2]);
+    }
     return {data => shift(),left =>shift(),right=>shift()};
+}
+sub makeFunc{
+    my $s = shift;
+    return if(ref($_[0]) ne 'HASH');
+    my $name = $_[0]->{data};
+    my $data = $_[1];
+    $s->{func}{$name} = {args=>$_[0]->{right},body=>$data};
 }
 sub readTree{                                       # AST計算
     my ($s,$node) = @_;
@@ -53,11 +67,31 @@ sub readTree{                                       # AST計算
     if($node->{data} eq 'NGE'){
         return $op->{$node->{data}}->[0]($s,$s->readTree($node->{'right'}));
     }
+    if(exists $s->{func}->{$node->{data}}){
+        return $s->callFunc($node);
+    }
     my $newnode = {};
     do{$newnode->{$_} = ref($node->{$_}) eq 'HASH' ? $s->readTree($node->{$_}) : $node->{$_};} for ('left','right');
     exists $op->{$node->{data}} ? $op->{$node->{data}}->[0]($s,$s->getValue($node->{data},$newnode->{left}),
                                                             $s->getValue($node->{data},$newnode->{right}))
                                 : $s->getValue('c',$node->{data});
+}
+sub callFunc{
+    my $s = shift;
+    my $node = shift;
+    return $s->{ret} if($s->{count} > 1000);
+    $s->{count}++;
+    local $s->{vars} = {%{$s->{vars}}};
+    my @names = split(',',$s->{func}->{$node->{data}}->{args});
+    my @args = split(',',$node->{right});
+    for(@names){
+        my $x = shift(@args);
+        $x = exists $s->{vars}->{$x} ? $s->{vars}->{$x} : $x;
+        $s->{vars}{$_} = $x;
+    }
+    $s->{ret} = $s->readTree($s->{func}->{$node->{data}}->{body});
+    $s->{count}--;
+    return $s->{ret};
 }
 sub getValue{
     my $s = shift;
@@ -117,7 +151,9 @@ sub item_split{                                     # 計算式を要素に分�
 sub adjust{                                         # 計算式の要素をスペースで分割
     my ($s,$text) = @_;
     $text =~ s/$s->{ops}/ $1 /g;
-    $s->{_text} = $text =~ s{([\d\)])\s*\(}{$1 \* \(}g;           #   開き括弧の前が演算子じゃない時に*を補完 ex). (1+2)(2-1) -> (1+2)*(2-1)
-    return $text;
+    $text =~ s{([\d\)])\s*\(}{$1 \* \(}g;           #   開き括弧の前が演算子じゃない時に*を補完 ex). (1+2)(2-1) -> (1+2)*(2-1)
+    $text =~ s/(\s*;\s*)*$//g;
+    $text =~ s/\s*,\s*/,/g;
+    return $s->{_text} = $text;
 }
 1;
