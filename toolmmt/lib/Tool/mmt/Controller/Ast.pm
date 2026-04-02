@@ -28,6 +28,7 @@ my $op = +{     # オペレータ定義
                             $_[1] % $_[2]
                             :0},            2,'L'],
            'NGE' => [sub { -$_[1]},         4,'R'],
+           '!'   => [sub { $_[1] ? 0 : 1},  4,'R'],
            '**'  => [sub {$_[1] ** $_[2]},  4,'R'],
            '^'   => [sub {$_[1] ** $_[2]},  4,'R'],
            '('   => [sub { },               9,'L'],
@@ -83,7 +84,7 @@ sub makeFunc{
 sub readTree{                                       # AST計算
     my ($s,$node) = @_;
     return $s->getValue('c',$node) if(ref($node) ne 'HASH');
-    if($node->{data} eq 'NGE'){
+    if($node->{data} =~ /(NGE|!)/){
         return $op->{$node->{data}}->[0]($s,$s->readTree($node->{'right'}));
     }
     if(exists $s->{func}->{$node->{data}}){
