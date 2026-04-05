@@ -170,7 +170,7 @@ sub makeTree{                                       # AST組み立て
         }
     }
     return shift() if(@_ <= 1);                     # 要素が一つの時は要素を返す
-    my ($prio,$i,$m,$r) = (99,-1,0,0);
+    my ($prio,$i,$m,$r,$tw,$l) = (99,-1,0,0,-1,0);
     for(@_){                                        # 一番右側の一番プライオリティの低いオペレータを検索
         ++$i;
         my $cur = $_;
@@ -186,10 +186,15 @@ sub makeTree{                                       # AST組み立て
                 $m = $i;
             }
         }
+        ++$l if($_ eq '?');
+        --$l if($_ eq ':');
+        $tw = $i if($_[$m] eq '?' and $_ eq ':' and $tw == -1 and $l == 0);
     }
+    my @right =  $tw != -1 ? 
+                ('(',@_[$m+1 .. $tw-1],')',@_[$tw .. $#_]) : (@_[$m+1 .. $#_]);
     return $s->newNode($_[$m],                      # オペレータとオペランド（右と左）を返す
                             $s->makeTree(@_[0 .. $m-1]),
-                            $s->makeTree(@_[$m+1 .. $#_])
+                            $s->makeTree(@right)
                 );
 }
 sub juge_priority {
