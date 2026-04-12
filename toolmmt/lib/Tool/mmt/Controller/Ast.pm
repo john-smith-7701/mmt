@@ -33,6 +33,7 @@ my $op = +{     # オペレータ定義
            '^'   => [sub {$_[1] ** $_[2]},  90,'R'],
            '('   => [sub { },               -1,'L'],
            ')'   => [sub { },               -1,'L'],
+           "x"   => [sub {$_[1] x $_[2]},   80,'L'],
         };
 sub ast{
     my $s = shift;
@@ -46,7 +47,7 @@ sub _ast{
     $s->{count} = 0;
     $s->{ret} = 'stack over!';
     $s->{root} = $s->makeTree(@{$s->item_split($s->adjust(shift))->{item}});
-    $s->{root}->{text} = $s->{_text};
+    $s->{root}->{text} = join("|",@{$s->{item}});
     $s->{anser} = $s->readTree($s->{root});
     $s->{root}->{vars} = $s->{vars};
     $s->{root}->{func} = $s->{func};
@@ -151,8 +152,11 @@ sub split_eval{
 }
 sub getValue{
     my $s = shift;
-    return $_[1] if($_[0] eq '=');
-    exists $s->{vars}{$_[1]} ? $s->{vars}{$_[1]} : $_[1];
+    my $t = ($_[0] eq '=') ? $_[1]
+                           : exists $s->{vars}{$_[1]} ? $s->{vars}{$_[1]} 
+                                                      : $_[1];
+    $t =~ s/^(["'])(.*)\1$/$2/;
+    return $t;
 }
 sub makeTree{                                       # AST組み立て
     my $s = shift;
@@ -206,16 +210,50 @@ sub judge_priority {
 sub item_split{                                     # 計算式を要素に分解
     my $s = shift;
     my $text = shift || $s->{_text};
-    $s->{item} = [split ' ',$text];
+    my @token = ();
+    my @tmp = split ' ',$text;
+    my $str = '';
+    for(@tmp){
+        if($str eq ''){
+            push(@token,$_);
+            if(/^(["'])/){$str = $1;}
+            if(/$str\s*$/){$str= '';}
+        }else{
+            my $sp = '';
+            if($text =~ /\s*\Q$token[-1]\E(\s+)\Q$_\E\s*/){$sp = $1;}
+            $token[-1] .= $sp . $_;
+            if(/$str\s*$/){
+                $str = '';
+            }
+        }
+    }
+    $s->{item} = [@token];
     return $s;
 }
 sub adjust{                                         # 計算式の要素をスペースで分割
+    my ($s,$text) = @_;
+    my @token = ();
+    my @const = ();
+    while($text =~ /\A(.*?)((["'])[^\3]*\3)(.*)\z/sm){
+        push(@token,$1);
+        push(@const,$2);
+        $text = $4;
+    }
+    push(@token,$text);
+    my $text = '';
+    for(@token){
+        $text .= $s->adust2($_);
+        $text .= shift(@const);
+    }
+    return $s->{_text} = $text;
+}
+sub adust2{
     my ($s,$text) = @_;
     $text =~ s/$s->{ops}/ $1 /g;
     $text =~ s{(\b\d+|\))\s*\(}{$1 \* \(}g;           #   開き括弧の前が演算子じゃない時に*を補完 ex). (1+2)(2-1) -> (1+2)*(2-1)
     $text =~ s/(\s*;\s*)*$//g;
     $text = $s->_normalize_args_space($text);
-    return $s->{_text} = $text;
+    return $text;
 }
 sub _normalize_args_space {
     my ($s, $text) = @_;
