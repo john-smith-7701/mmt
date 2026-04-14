@@ -195,7 +195,7 @@ sub makeTree{                                       # AST組み立て
             ++$r if($_ eq '(');
             --$r if($_ eq ')');
             next if($r or $_ eq ')');              #  括弧の間は読み飛ばす
-            if($_ eq '-' && ($i == 0 || ($_[$i - 1] =~ /^$s->{ops}$/ && $_[$i - 1] ne ')'))){
+            if($_ eq '-' && ($i == 0 || ($_[$i - 1] =~ /^$s->{ops}$/ && ($_[$i - 1] ne ')'&&$_[$i - 1] ne 'x')))){
                 $_[$i] = $cur = 'NGE';
             }
             if($s->judge_priority($cur,$prio)){
