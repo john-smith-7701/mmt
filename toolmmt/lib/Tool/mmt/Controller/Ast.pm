@@ -93,12 +93,14 @@ sub _ast{
     $s->{vars} = {};
     $s->{func} = {};
     $s->{count} = 0;
+    $s->{const} = [];
     $s->{ret} = 'stack over!';
     $s->{root} = $s->makeTree(@{$s->item_split($s->adjust(shift))->{item}});
     $s->{root}->{text} = join("|",@{$s->{item}});
     $s->{anser} = $s->readTree($s->{root});
     $s->{root}->{vars} = $s->{vars};
     $s->{root}->{func} = $s->{func};
+    $s->{root}->{const} = $s->{const};
     $s->{root}->{LOG} = $s->{global}{LOG};
     $s->stash(tree => Dumper $s->{root});
     return $s->{anser}
@@ -213,6 +215,7 @@ sub getValue{
     my $var = exists $s->{'global'}{$_[1]} ? 'global' : 'vars';
     my $t =  exists $s->{$var}{$_[1]} ? $s->{$var}{$_[1]} 
                                                       : $_[1];
+    $t =~ s/__STR__\((\d+)\)__/ $s->{const}->[$1] /ge;
     $t =~ s/^(["'])(.*)\1$/$2/;
     return $t;
 }
@@ -309,17 +312,17 @@ sub item_split{                                     # 計算式を要素に分�
 sub adjust{                                         # 計算式の要素をスペースで分割
     my ($s,$text) = @_;
     my @token = ();
-    my @const = ();
-    while($text =~ /\A(.*?)((["']).*?\3)(.*)\z/sm){
+    my $i = @{$s->{const}};
+    while($text =~ /\A(.*?)((["']).*?[^\\]\3)(.*)\z/sm){
         push(@token,$1);
-        push(@const,$2);
+        push(@{$s->{const}},$2);
         $text = $4;
     }
     push(@token,$text);
     my $text = '';
     for(@token){
         $text .= $s->adjust2($_);
-        $text .= shift(@const);
+        $text .= "__STR__(@{[$i++]})__" if($i < @{$s->{const}});
     }
     return $s->{_text} = $text;
 }
