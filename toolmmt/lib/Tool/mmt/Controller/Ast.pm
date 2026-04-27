@@ -166,7 +166,6 @@ sub getContainer{
     if(ref($container) eq 'HASH'){
         if($container->{data} eq 'array'){
             my @x = $s->split_eval($container->{right},',');
-            $s->setLog(" x[$container->{right} :  $x[0],$x[1] ]x ");
             return [$x[0],$x[1]];
         }else{
             return $container;
@@ -372,6 +371,9 @@ sub adjust2{
     $text =~ s/\+\+([a-zA-Z][a-zA-Z0-9_]*)/ ++_pre($1) /g;
     $text =~ s/([a-zA-Z][a-zA-Z0-9_]*)--/ --_post($1) /g;
     $text =~ s/([a-zA-Z][a-zA-Z0-9_]*)\+\+/ ++_post($1) /g;
+
+    #並列表現を内部表現に変換
+    $text =~ s/([a-zA-Z][a-zA-Z0-9_]*)\[(.+?)\]/array(\1,\2)/g;
 
     $text =~ s/$s->{ops}/ $1 /g;
     $text =~ s{(\b\d+|\))\s*\(}{$1 \* \(}g;           #   開き括弧の前が演算子じゃない時に*を補完 ex). (1+2)(2-1) -> (1+2)*(2-1)
