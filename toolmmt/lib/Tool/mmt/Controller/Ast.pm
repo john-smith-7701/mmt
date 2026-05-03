@@ -85,6 +85,7 @@ use Mojo::Base 'Tool::mmt::Controller::Mmt';
 use strict;
 use warnings;
 use Data::Dumper;
+use Carp;
 use constant {
     LEFT    => 'L',         # 左結合
     RIGHT   => 'R',         # 右結合
@@ -118,11 +119,12 @@ my $op = +{     # オペレータ定義
            '*'   => [sub {$_[1] * $_[2]},   80,'L',0],
            '/'   => [sub {$_[2]?
                             $_[1] / $_[2]
-                            :undef},
+                            :$_[0]->_error("Zero divied!!")},
                                             80,'L',0],
            '%'   => [sub {$_[2]?
                             $_[1] % $_[2]
-                            :undef},            80,'L',0],
+                            :$_[0]->_error("Zero divied!!")},
+                                            80,'L',0],
            'NGE' => [sub { -$_[1]},         90,'R',1],
            '!'   => [sub { $_[1] ? 0 : 1},  90,'R',1],
            #perl関数定義 START
@@ -198,7 +200,7 @@ sub _ast{
     $s->{anser} = $s->readTree($s->{root});
 
     # デバック情報出力
-    #$s->{root}->{text} = join("|",@{$s->{item}});
+    $s->{root}->{text} = join("|",@{$s->{item}});
     $s->{root}->{vars} = $s->{vars};
     #$s->{root}->{global} = $s->{global};
     #$s->{root}->{func} = $s->{func};
@@ -472,6 +474,7 @@ sub makeTree{                                       # AST組み立て
         --$l if($_ eq ':');
         $tw = $i if($tok[$m] eq '?' and $_ eq ':' and $tw == -1 and $l == 0);
     }
+    $s->_error("Unbalance '()' $r") if($r != 0);
     my @right =  $tw != -1 ? 
                 ('(',@tok[$m+1 .. $tw-1],')',@tok[$tw .. $#tok]) : (@tok[$m+1 .. $#tok]);
     return $s->newNode($tok[$m],                    # オペレータとオペランド（右と左）を返す
@@ -497,6 +500,7 @@ sub strip_outer{
             --$r if($_ eq ')');
             ++$sw if($r == 1 and $_ eq '(');
         }
+        $s->_error("Unbalance '()' $r") if($r != 0);
         if($sw == 1){                               #  一番外側の括弧を外す
             shift @tok; pop @tok;
         }else{
@@ -587,5 +591,10 @@ sub _normalize_args_space {
 sub setLog{
     my ($s,$log) = @_;
     $_[0]->{global}->{LOG} .= $log ;
+}
+sub _error{
+    my ($s,$text) = @_;
+    $s->{ret} = $text;
+    croak $text;
 }
 1;
