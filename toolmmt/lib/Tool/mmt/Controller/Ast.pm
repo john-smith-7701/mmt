@@ -5,8 +5,8 @@
 =head1 SYNOPSIS
 
   my $ast = Tool::mmt::Controller::Ast->new;
-  my $node = $ast->parse('1 + 2 * 3');
-  my $val  = $ast->run($node);
+  my $node = $ast->Astnew('formula'=>'1 + 2 * 3');
+  my $val  = $node->{anser};
 
 =head1 DESCRIPTION
 
@@ -92,7 +92,7 @@ use constant {
     OPERATOR => 0,          # 演算子
     FUNCTION => 0,          # 計算処理定義
     PRIORITY => 1,          # 優先順位
-    ASSOCIATIVE => 2,       # 結合
+    ASSOCIATIVE => 2,       # 結合性
     OPTION  => 3,           #
     UNARY   => 1,           # 単項演算子
     ASSIN   => 2,           # 代入演算子
