@@ -367,12 +367,13 @@ sub topSplit{
     my $s = shift;
     my $sep = shift;
     my $text = shift;
-    $text =~ s/^\[(.*)\]\s*$/$1/;
+    $text =~ s/^\s*\[(.*)\]\s*$/$1/;
     $text = $s->adjust($text);  # 引数形式のカッコ内は１つのトークンととし別で処理するのでカッコ内のスペースを削除する
     my @arr = ();
-    my @tmp = split(',',$text);
+    my @tmp = split($sep,$text);
     my $depth = 0;
     for(@tmp){
+        s/^\s*(.*\S)\s*$/$1/;
         if($depth == 0){
             push(@arr,$_);
             $depth += () = $_ =~ /\[/g;
@@ -380,6 +381,11 @@ sub topSplit{
             $arr[-1] .= ",$_";
             $depth += () = $_ =~ /\[/g;
             $depth -= () = $_ =~ /\]/g;
+        }
+    }
+    for(@arr){
+        if(/^\s*\[.*\]\s*$/){
+            $_ = [$s->topSplit($sep,$_)];
         }
     }
     @arr;
