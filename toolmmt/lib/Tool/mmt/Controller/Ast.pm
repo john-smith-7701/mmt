@@ -176,6 +176,11 @@ my $op = +{     # オペレータ定義
                     [sub { my @x = $_[0]->split_eval($_[1],',');
                            \@{[keys($x[0])]}},
                                             90,'R',1],
+           'match'  => 
+                    [sub { my @x = $_[0]->split_eval($_[1],',');
+                            my $re = qr/$x[0]/;
+                            \@{[$x[1] =~ $re]}},
+                                            90,'R',1],
            #perl関数定義 END
            'array'  => 
                     [sub { my @x = $_[0]->split_eval($_[1],',');
