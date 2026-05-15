@@ -188,6 +188,12 @@ my $op = +{     # オペレータ定義
                             $x[2]},
                                             90,'R',1],
            #perl関数定義 END
+           'continue'  => 
+                    [sub { die bless {}, 'AST::Continue'; },
+                                            90,'R',1],
+           'return'  => 
+                    [sub { die bless {}, 'AST::Return'; },
+                                            90,'R',1],
            'array'  => 
                     [sub { my @x = $_[0]->split_eval($_[1],',');
                            $x[0][$x[1]]},
@@ -378,7 +384,15 @@ sub callFunc{
         $x = $s->getValue('',$x);
         $s->{vars}{$_} = $x;
     }
-    $s->{ret} = $s->readTree($s->{func}->{$node->{data}}->{body});
+    while(1){
+        eval {
+            $s->{ret} = $s->readTree($s->{func}->{$node->{data}}->{body});
+        };
+        next if(ref($@) eq 'AST::Continue');
+        last if(ref($@) eq 'AST::Return');
+        die $@ if($@);
+        last;
+    }
     $s->{count}--;
     return $s->{ret};
 }
