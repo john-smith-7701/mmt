@@ -96,7 +96,7 @@ use constant {
     OPTION  => 3,           #
     UNARY   => 1,           # 単項演算子
     ASSIN   => 2,           # 代入演算子
-    VAR_NAME  => qr/[A-Za-z][a-zA-Z0-9_]*/,  # 変数名 
+    VAR_NAME  => qr/[\p{L}_][\p{L}\p{N}_]*/u,  # 変数名 
 };
 
 my $op = +{     # オペレータ定義
@@ -270,7 +270,7 @@ sub _ast{
     $s->{root}->{vars} = $s->{vars};
     $s->{root}->{text} = $s->{logText};
     #$s->{root}->{global} = $s->{global};
-    #$s->{root}->{func} = $s->{func};
+    $s->{root}->{func} = $s->{func};
     $s->{root}->{const} = $s->{const};
     $s->{root}->{LOG} = $s->{global}{LOG};
     $s->stash(tree => Dumper $s->{root});
@@ -563,7 +563,7 @@ sub makeTree{                                       # AST組み立て
                 $tok[$i] = $cur = 'NGE';
             }
             if($s->judge_priority($cur,$prio)){
-                $prio = $op->{$cur}->[1];
+                $prio = $op->{$cur}->[PRIORITY];
                 $m = $i;
             }
         }
