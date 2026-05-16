@@ -250,8 +250,21 @@ sub _ast{
     # 構文木作成
     $s->{root} = $s->makeTree(@{$s->item_split($s->adjust(shift))->{item}});
 
-    # 構文木計算
-    $s->{anser} = $s->readTree($s->{root});
+    eval {
+        local $SIG{ALRM} = sub {
+            die bless {}, 'AST::Timeout';
+        };
+        alarm(5);
+
+        # 構文木計算
+        $s->{anser} = $s->readTree($s->{root});
+
+        alarm(0);
+    };
+    alarm(0);
+    if($@){
+        die $@;
+    }
 
     # デバック情報出力
     $s->{root}->{vars} = $s->{vars};
