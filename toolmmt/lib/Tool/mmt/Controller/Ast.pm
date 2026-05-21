@@ -85,7 +85,7 @@ use Mojo::Base 'Tool::mmt::Controller::Mmt';
 use Tool::mmt::Controller::Sugar;
 use strict;
 use warnings;
-use Data::Dumper;
+use DDP;
 use Carp;
 use constant {
     LEFT    => 'L',         # 左結合
@@ -274,7 +274,7 @@ sub _ast{
     $s->{root}->{func} = $s->{func};
     $s->{root}->{const} = $s->{const};
     $s->{root}->{LOG} = $s->{global}{LOG};
-    $s->stash(tree => Dumper $s->{root});
+    $s->stash(tree => np( $s->{root}, colored => 0  ));
 
     return $s->{anser}
 }
