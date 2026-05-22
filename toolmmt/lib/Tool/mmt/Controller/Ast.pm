@@ -149,7 +149,8 @@ my $op = +{     # オペレータ定義
            'lc'  => [sub { lc(($_[0]->split_eval($_[1]))[0])},
                                             90,'R',1],
            'length'  => 
-                    [sub { length(($_[0]->split_eval($_[1]))[0])},
+                    [sub { my $type = ($_[0]->split_eval($_[1]))[0];
+                       ref($type) eq 'ARRAY' ? @{$type} : length($type)},
                                             90,'R',1],
            'substr'  => 
                     [sub { my @x = $_[0]->split_eval($_[1],',');
