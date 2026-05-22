@@ -24,11 +24,16 @@ my $jp_logical_re = join '|', map { quotemeta } sort { length($b) <=> length($a)
 sub convert {
     my ($class,$text) = @_;
 
+    $text =~ s/【.*?】//g;
+
     # 全角ASCII → 半角ASCII
     $text =~ s/([！-～])/chr(ord($1)-0xFEE0)/ge;
 
     # 全角space
     $text =~ tr/　/ /;
+    $text =~ tr/、/ /;
+    $text =~ tr/。/;/;
+
 
     # もし〜なら〜以外は〜
     $text =~ s/
