@@ -202,7 +202,7 @@ my $op = +{     # オペレータ定義
                     [sub { die bless {}, 'AST::Continue'; },
                                             90,'R',1],
            'return'  => 
-                    [sub { die bless {}, 'AST::Return'; },
+                    [sub {  my @x = $_[0]->split_eval($_[1],',');$_[0]->{ret} = $x[0];die bless {}, 'AST::Return'; },
                                             90,'R',1],
            'array'  => 
                     [sub { my @x = $_[0]->split_eval($_[1],',');
