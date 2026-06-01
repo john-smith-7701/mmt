@@ -112,7 +112,7 @@ my $op = +{     # オペレータ定義
                                             50,'R',2],
            ':='   => [sub {$_[0]->setValue('global',$_[1],$_[2])},
                                             50,'R',2],
-           '<='  => [sub {cmp_auto($_[1], $_[2],sub {$_[0] <= $_[1]},sub{$_[0] le $_[1]})},
+           '<='  => [sub {cmp_auto($_[1], $_[2],sub {$_[0] <= $_[1]},sub{$_[0] le $_[1]})}, 
                                             60,'L',0],
            '>='  => [sub {cmp_auto($_[1], $_[2],sub {$_[0] >= $_[1]},sub{$_[0] ge $_[1]})},
                                             60,'L',0],
@@ -122,7 +122,7 @@ my $op = +{     # オペレータ定義
                                             60,'L',0],
            '=='  => [sub {cmp_auto($_[1], $_[2],sub {$_[0] == $_[1]},sub{$_[0] eq $_[1]})},
                                             60,'L',0],
-           '!='  => [sub {cmp_auto($_[1], $_[2],sub {$_[0] != $_[1]},sub{$_[0] ne $_[1]})},
+           '!='  => [sub {cmp_auto($_[1], $_[2],sub {$_[0] != $_[1]},sub{$_[0] ne $_[1]})},  
                                             60,'L',0],
             '-'  => [sub {$_[1] - $_[2]},   70,'L',0],
            '+'   => [sub {$_[1] + $_[2]},   70,'L',0],
@@ -364,13 +364,14 @@ sub makeFunc{
 sub readTree{                                       # AST計算
     my ($s,$node) = @_;
     return $s->getValue('c',$node) if(ref($node) ne 'HASH');
+    return undef unless defined $node->{data};
     if( exists $op->{$node->{data}} && $op->{$node->{data}}->[OPTION] == UNARY ){
         return $op->{$node->{data}}->[FUNCTION]($s,$s->readTree($node->{'right'}));
     }
-    if(exists $s->{func}->{$node->{data}}){
+    if( exists $s->{func}->{$node->{data}}){
         return $s->callFunc($node);
     }
-    if($node->{data} eq '?'){
+    if( $node->{data} eq '?'){
         return $s->readTree($node->{left})
             ? $s->readTree($node->{right}->{left})
             : $s->readTree($node->{right}->{right});
@@ -467,9 +468,10 @@ sub split_eval{
     $text =~ s/^\((.*)\)$/$1/;
     $text = $s->adjust($text);  # 引数形式のカッコ内は１つのトークンととし別で処理するのでカッコ内のスペースを削除する
     my @t = split('',$text);
+    if($text eq ''){ return ();}
     shift(@t) if($t[0] eq '(');
     pop(@t) if($t[$#t] eq ')');
-    my $sep = shift;
+    my $sep = shift ||',';
     my $st = 0;
     my @array = ();
     my $depth = 0;
@@ -493,9 +495,10 @@ sub split_eval{
 }
 sub getValue{
     my $s = shift;
+    return undef unless defined $_[1];
     my $var = exists $s->{'global'}{$_[1]} ? 'global' : 'vars';
     my $t =  exists $s->{$var}{$_[1]} ? $s->{$var}{$_[1]} 
-                                                      : $_[1];
+                                      : $_[1] ;
     $t =~ s/__STR__\|(\d+)\|__/$s->{const}->[$1]/ge;
     $t =~ s/^(["'])(.*)\1$/$2/;
     return $t;
@@ -608,7 +611,7 @@ sub makeTree{                                       # AST組み立て
 
 sub strip_outer{
     my ($s,@tok) = @_;
-    while($tok[0] eq '(' and $tok[-1] eq ')'){
+    while(@tok && defined $tok[0] && $tok[0] eq '(' and $tok[-1] eq ')'){
         my ($depth ,$top_open_count) = (0,0);
         for(@tok){                                  # '('の深さを計算
             ++$depth if($_ eq '(');                     
