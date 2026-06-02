@@ -81,7 +81,7 @@ John Smith
 =cut
 
 package Tool::mmt::Controller::Ast;
-use Mojo::Base 'Tool::mmt::Controller::Mmt';
+use Mojo::Base 'Mojolicious::Controller';
 use Tool::mmt::Controller::Sugar;
 use strict;
 use warnings;
@@ -364,7 +364,7 @@ sub makeFunc{
 sub readTree{                                       # AST計算
     my ($s,$node) = @_;
     return $s->getValue('c',$node) if(ref($node) ne 'HASH');
-    return undef unless defined $node->{data};
+    return undef unless defined $node->{data};      # 空ノードは処理スキップ
     if( exists $op->{$node->{data}} && $op->{$node->{data}}->[OPTION] == UNARY ){
         return $op->{$node->{data}}->[FUNCTION]($s,$s->readTree($node->{'right'}));
     }
@@ -471,7 +471,8 @@ sub split_eval{
     if($text eq ''){ return ();}
     shift(@t) if($t[0] eq '(');
     pop(@t) if($t[$#t] eq ')');
-    my $sep = shift ||',';
+    my $sep = shift;
+    $sep = ',' unless defined $sep;
     my $st = 0;
     my @array = ();
     my $depth = 0;
