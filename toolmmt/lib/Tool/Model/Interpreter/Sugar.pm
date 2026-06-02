@@ -1,6 +1,11 @@
-package Tool::mmt::Controller::Sugar;
-use Mojo::Base 'Tool::mmt::Controller::Mmt';
+package Interpreter::Sugar;
+use utf8;
 
+sub new {
+    my ($class, %args) = @_;
+    my $self = {};
+    return bless $self, $class;
+}
 my %jp_op = (
     '未満' => '<',
     '以下' => '<=',

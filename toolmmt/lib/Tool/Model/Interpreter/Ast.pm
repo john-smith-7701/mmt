@@ -1,6 +1,6 @@
 =head1
 
- NAMETool::mmt::Controller::Ast - 式解析および AST 評価エンジン
+ NAME Interpreter::Ast - 式解析および AST 評価エンジン
 
 =head1 SYNOPSIS
 
@@ -80,12 +80,10 @@ John Smith
 
 =cut
 
-package Tool::mmt::Controller::Ast;
-use Mojo::Base 'Mojolicious::Controller';
-use Tool::mmt::Controller::Sugar;
+package Interpreter::Ast;
+use Tool::Model::Interpreter::Sugar;
 use strict;
 use warnings;
-use DDP;
 use Carp;
 use Scalar::Util qw(looks_like_number);
 
@@ -252,11 +250,17 @@ sub inc_dec{
     if($pre eq 'pre'){ $ret = $s->{$var}{$val}};                # プレフィックスの場合は計算後の値を返却
     return $ret;
 }
-sub ast{
-    my $s = shift;
-    my $x = $s->Astnew('formula'=>$s->param('calc'));
-    $s->stash(anser => $x->{anser});
+sub new {
+    my ($class, %args) = @_;
+    my $self = {
+        vars   => {},
+        func   => {},
+        global => {},
+        %args,
+    };
+    return bless $self, $class;    
 }
+
 sub _ast{
     my $s = shift;
     $s->{vars} = {};
@@ -283,15 +287,6 @@ sub _ast{
     if($@){
         die $@;
     }
-
-    # デバック情報出力
-    $s->{root}->{vars} = $s->{vars};
-    $s->{root}->{text} = $s->{logText};
-    #$s->{root}->{global} = $s->{global};
-    $s->{root}->{func} = $s->{func};
-    $s->{root}->{const} = $s->{const};
-    $s->{root}->{LOG} = $s->{global}{LOG};
-    $s->stash(tree => np( $s->{root}, colored => 0  ));
 
     return $s->{anser}
 }
@@ -656,7 +651,7 @@ sub item_split{                                     # 計算式を要素に分�
 }
 sub adjust{                                         # 入力式の調整（整理）を行う
     my ($s,$text) = @_;
-    $text = Tool::mmt::Controller::Sugar->convert($text);
+    $text = Interpreter::Sugar->convert($text);
     $s->setLog($text);
     my @token = ();
     my $i = @{$s->{const}};                         # コーテーションで囲われた文字列を抽出し
