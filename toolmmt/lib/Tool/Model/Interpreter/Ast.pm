@@ -87,6 +87,8 @@ Perl 本体と同一のライセンス条件に従い、再配布および改変
 This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
+=head1 METHOD
+
 =cut
 
 package Interpreter::Ast;
