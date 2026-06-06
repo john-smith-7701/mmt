@@ -33,7 +33,8 @@ Interpreter::Ast - 式解析および AST 評価エンジン
 
 =head2 代入演算子
 
-  =
+  = :=
+  
 =head2 三項演算子
 
   ? :
@@ -76,11 +77,15 @@ Interpreter::Ast - 式解析および AST 評価エンジン
 
 John Smith
 
-=head1 LICENSE
+=head1 COPYRIGHT AND LICENSE
 
-Private
+Copyright (C) 2026 John Smith
 
- Use / Internal Tool
+このモジュールはフリーソフトウェアです。
+Perl 本体と同一のライセンス条件に従い、再配布および改変することができます。
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
 
