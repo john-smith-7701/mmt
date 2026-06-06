@@ -20,9 +20,9 @@ sub ast{
     $x->{root}->{LOG} = $x->{global}{LOG};
     $s->stash(tree => np( $x->{root}, colored => 0  ));
 
-    $s->stash(anser => $x->{anser});
+    $s->stash(anser => $x->{answer});
     if(($s->req->method eq 'GET' && $s->param('calc') ne '') || $s->param('out') eq 'json'){
-        my $res = {'anser'=>$x->{anser}};
+        my $res = {'answer'=>$x->{answer}};
         if($s->param('debg') eq 'on'){
             $res->{'root'} = $x->{'root'};
         }
