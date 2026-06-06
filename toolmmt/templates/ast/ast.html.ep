@@ -17,6 +17,8 @@
  %= submit_button '計算'
  %= check_box 'debg', id=>'debg'
  %= label_for 'debg' =>'Tree Disp'
+ %= check_box 'out' =>'json'
+ %= label_for 'out' =>'JSON Output'
 % end
  <%= stash('anser') %>
  <hr><pre>

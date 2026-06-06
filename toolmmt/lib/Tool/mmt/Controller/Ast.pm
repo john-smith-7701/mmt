@@ -21,7 +21,7 @@ sub ast{
     $s->stash(tree => np( $x->{root}, colored => 0  ));
 
     $s->stash(anser => $x->{anser});
-    if($s->req->method eq 'GET' && $s->param('calc') ne ''){
+    if(($s->req->method eq 'GET' && $s->param('calc') ne '') || $s->param('out') eq 'json'){
         my $res = {'anser'=>$x->{anser}};
         if($s->param('debg') eq 'on'){
             $res->{'root'} = $x->{'root'};
