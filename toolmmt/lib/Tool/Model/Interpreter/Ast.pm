@@ -609,7 +609,8 @@ sub makeTree{                                       # AST組み立て
         $twin = $i if($tok[$m] eq '?' and $_ eq ':' and $twin == -1 and $level == 0);
     }
     $s->_error("Unbalance '()' $depth") if($depth != 0);
-    my @right =  $twin != -1 ?                      # 三項演算子の真を括弧で括る
+    $s->_error("Missing ':' in ternary operator") if($tok[$m] eq '?' && $twin == -1);
+    my @right =  $tok[$m] eq '?' ?                  # 三項演算子の真を括弧で括る
                 ('(',@tok[$m+1 .. $twin-1],')',@tok[$twin .. $#tok]) : (@tok[$m+1 .. $#tok]);
     return $s->newNode($tok[$m],                    # オペレータとオペランド（右と左）を返す
                             $s->makeTree(@tok[0 .. $m-1]),
