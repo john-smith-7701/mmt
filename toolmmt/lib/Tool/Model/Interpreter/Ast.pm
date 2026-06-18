@@ -183,10 +183,10 @@ my $op = +{     # オペレータ定義
                                             90,'R',1],
            'join'  => 
                     [sub { my @x = $_[0]->split_eval($_[1],',');
-                            if(@x != 2){                                        # split_evalを再考せねば
-                                join(join(',',@x[0..$#x - 1]),@{$x[-1]})        # なさけない！！
+                            if(@x >= 2){
+                                join($x[0],map {@{$_}} @x[1..$#x])
                             }else{
-                                join($x[0],@{$x[1]})
+                                $_[0]->_error("join : Missing arguments") ;
                             }
                                             },
                                             90,'R',1],
@@ -492,8 +492,8 @@ sub split_eval{
     my $i = -1;
     for(@t){
         $i++;
-        $depth++ if $_ eq '(';
-        $depth-- if $_ eq ')';
+        $depth++ if $_ =~ /[\(\[]/;
+        $depth-- if $_ =~ /[\)\]]/;
         if($_ eq $sep && $depth == 0){
             push(@array,join('',@t[$st .. $i-1]));
             $st = $i+1;
@@ -504,8 +504,7 @@ sub split_eval{
     for(@array){
         push(@ans,$s->readTree($s->makeTree(@{$s->item_split($s->adjust($_))->{item}})));
     }
-    $s->{ret} .= join('|',@ans) . 'x';
-    return @ans;
+    return map {$s->normalize_value($_)} @ans;
 }
 sub getValue{
     my $s = shift;
