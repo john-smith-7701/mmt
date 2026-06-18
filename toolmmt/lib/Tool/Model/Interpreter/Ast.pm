@@ -492,8 +492,8 @@ sub split_eval{
     my $i = -1;
     for(@t){
         $i++;
-        $depth++ if $_ =~ /[\(\[]/;
-        $depth-- if $_ =~ /[\)\]]/;
+        $depth++ if $_ =~ /[\(\[{]/;
+        $depth-- if $_ =~ /[\)\]\}]/;
         if($_ eq $sep && $depth == 0){
             push(@array,join('',@t[$st .. $i-1]));
             $st = $i+1;
