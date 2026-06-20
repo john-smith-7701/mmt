@@ -184,7 +184,7 @@ my $op = +{     # オペレータ定義
            'join'  => 
                     [sub { my @x = $_[0]->split_eval($_[1],',');
                             if(@x >= 2){
-                                join($x[0],map {@{$_}} @x[1..$#x])
+                                join($x[0],map {@{$_||[]}} @x[1..$#x])
                             }else{
                                 $_[0]->_error("join : Missing arguments") ;
                             }
@@ -208,6 +208,15 @@ my $op = +{     # オペレータ定義
                             my $re = qr/$x[0]/;
                             $x[2] =~ s/$re/$x[1]/g;
                             $x[2]},
+                                            90,'R',1],
+           '..'  => [sub {\@{[$_[1] .. $_[2]]}},   80,'L',0],
+           'map'  => 
+                    [sub { my @x = $_[0]->split_eval($_[1],',');
+                           my @a = map {$_[0]->setValue('','$_',$_);
+                                        my @x = $_[0]->split_eval($_[1],',');
+                                        $x[0]
+                                       } @{$x[1]};
+                          \@a},
                                             90,'R',1],
            #perl関数定義 END
            'continue'  => 
@@ -470,6 +479,7 @@ sub topSplit{
         }elsif(/^\s*[\{].*[\}]\s*$/){
             $_ = {$s->topSplit($sep,$_)};
         }
+        #$_ = $s->readTree($s->makeTree(@{$s->item_split($s->adjust($_))->{item}}));
         $_ =~ s/__STR__\|(\d+)\|__/$s->{const}->[$1]/ge;
         $_ =~ s/^(["'])(.*)\1/$2/;
     }
