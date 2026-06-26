@@ -2,7 +2,7 @@ package Tool::mmt::Controller::Ast;
 use Mojo::Base 'Tool::mmt::Controller::Json';
 use strict;
 use warnings;
-use Tool::Model::Interpreter::Ast;
+use Interpreter::Ast;
 use DDP;
 use Carp;
 

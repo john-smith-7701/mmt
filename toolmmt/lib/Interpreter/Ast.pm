@@ -92,7 +92,7 @@ it under the same terms as Perl itself.
 =cut
 
 package Interpreter::Ast;
-use Tool::Model::Interpreter::Sugar;
+use Interpreter::Sugar;
 use strict;
 use warnings;
 use Carp;
@@ -210,16 +210,15 @@ my $op = +{     # オペレータ定義
                             $x[2]},
                                             90,'R',1],
            '..'  => [sub {\@{[$_[1] .. $_[2]]}},   80,'L',0],
+           #perl関数定義 END
            'map'  => 
                     [sub { my @x = $_[0]->split_eval($_[1],',');
                            my @a = map {$_[0]->setValue('','$_',$_);
                                         my @x = $_[0]->split_eval($_[1],',');
-                                        print " $_[1] |";
                                         $x[0]
                                        } @{$x[1]};
                           \@a},
                                             90,'R',1],
-           #perl関数定義 END
            'continue'  => 
                     [sub { die bless {}, 'AST::Continue'; },
                                             90,'R',1],
