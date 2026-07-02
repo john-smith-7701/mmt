@@ -488,6 +488,7 @@ sub topSplit{
 sub split_eval{
     my $s = shift;
     my $text = shift;
+    return $s->normalize_value($s->readTree($text)) if(ref($text) eq 'HASH');
     $text =~ s/^\((.*)\)$/$1/;
     $text = $s->adjust($text);  # 引数形式のカッコ内は１つのトークンととし別で処理するのでカッコ内のスペースを削除する
     my @t = split('',$text);
