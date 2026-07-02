@@ -1,10 +1,23 @@
 % layout 'default';
 % title 'AST DEMO';
 <style>
+  body {
+   background-color: #f6f8fa;
+   color: black;
+  }
+  h1 {
+   background-color: #2da44e;
+  }
+  button {
+   background-color: #24292f;
+  }
   #file_name {
     margin-left: 0.5rem;
     font-size: 0.9rem;
     color: #666;
+  }
+  #anser {
+    color: #606060;
   }
 </style>
  <h1>AST</h1>
@@ -12,20 +25,22 @@
  計算式ファイル： 
 %= file_field 'source_file', id => 'source_file'
  <span id="file_name"></span>
- <br>計算式:
+ <br>スクリプト:
  %= text_area 'calc', rows => 20, cols => 80, id => 'calc'
- %= submit_button '計算'
+ %= submit_button '実行'
  %= check_box 'debg', id=>'debg'
- %= label_for 'debg' =>'Tree Disp'
+ %= label_for 'debg' =>'ASTを表示'
  %= check_box 'out' =>'json'
- %= label_for 'out' =>'JSON Output'
+ %= label_for 'out' =>'JSON出力'
 % end
+<div id=anser>
  <%= stash('anser') %>
  <hr><pre>
  <div id="tree">
  <%== stash('tree') %>
  </div>
 </pre>
+</div>
 <script>
 let debg = document.getElementById('debg');
 let tree = document.getElementById('tree');
