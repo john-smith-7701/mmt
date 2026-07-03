@@ -59,6 +59,10 @@ sub convert {
         "$func($args) = $proc;"
     /gex;
 
+    $text =~ s/\s(\S+)を返す/return($1)/g;
+    $text =~ s/から/../g;
+    $text =~ s/(最初に)*戻る/continue()/g;
+
     return $text;
 }
 sub convert_condition{
