@@ -19,19 +19,32 @@
   #anser {
     color: #606060;
   }
+  .flex{
+      display: flex;
+      flex-wrap: wrap;
+  }
+  .menucel{
+      width: 40em;
+  }
 </style>
  <h1>AST</h1>
 %= form_for ast => (method => 'post', enctype => 'multipart/form-data') => begin
  計算式ファイル： 
 %= file_field 'source_file', id => 'source_file'
  <span id="file_name"></span>
- <br>スクリプト:
- %= text_area 'calc', rows => 20, cols => 80, id => 'calc'
- %= submit_button '実行'
- %= check_box 'debg', id=>'debg'
- %= label_for 'debg' =>'ASTを表示'
- %= check_box 'out' =>'json'
- %= label_for 'out' =>'JSON出力'
+ <div class="flex">
+  <div class="menucel">
+  <br>スクリプト:
+  %= text_area 'calc', rows => 20, cols => 80, id => 'calc'
+  </div>
+  <div class="menucel">
+  %= submit_button '実行'
+  %= check_box 'debg', id=>'debg'
+  %= label_for 'debg' =>'ASTを表示'
+  %= check_box 'out' =>'json'
+  %= label_for 'out' =>'JSON出力'
+  </div>
+ </div>
 % end
 <div id=anser>
  <%= stash('anser') %>
