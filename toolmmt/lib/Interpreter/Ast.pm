@@ -317,7 +317,7 @@ sub callFunc{
     my @args = $s->split_eval($node->{right},',');
     for(@names){
         my $x = shift(@args);
-        $x = $s->getValue('',$x);
+        $x = $s->getValue('',$x) if(ref($args[0]) ne 'ARRAY');
         $s->{vars}{$_} = $x;
     }
     while(1){
@@ -475,7 +475,7 @@ sub normalize_value{
 
 sub makeTree{                                       # AST組み立て
     my ($s,@tok) = @_;
-    @tok = $s->strip_outer(@tok);
+	@tok = $s->strip_outer(@tok);
     return shift(@tok) if(@tok <= 1);               # 要素が一つの時は要素を返す
     my ($prio,$i,$m,$depth,$twin,$level) = (99,-1,0,0,-1,0);
     for(@tok){                                      # 一番右側の一番プライオリティの低いオペレータを検索
@@ -497,7 +497,7 @@ sub makeTree{                                       # AST組み立て
         --$level if($_ eq ':');
         $twin = $i if($tok[$m] eq '?' and $_ eq ':' and $twin == -1 and $level == 0);
     }
-    $s->_error("Unbalance '()' $depth") if($depth != 0);
+	$s->_error("makeTree:|@{[join('|',@tok[0 .. $#tok])]}|:Unbalance '()' $depth") if($depth != 0);
     $s->_error("Missing ':' in ternary operator") if($tok[$m] eq '?' && $twin == -1);
     my @right =  $tok[$m] eq '?' ?                  # 三項演算子の真を括弧で括る
                 ('(',@tok[$m+1 .. $twin-1],')',@tok[$twin .. $#tok]) : (@tok[$m+1 .. $#tok]);
@@ -524,7 +524,7 @@ sub strip_outer{
             --$depth if($_ eq ')');
             ++$top_open_count if($depth == 1 and $_ eq '(');
         }
-        $s->_error("Unbalance '()' $depth") if($depth != 0);
+        $s->_error("split_outer:Unbalance '()' $depth") if($depth != 0);
         if($top_open_count == 1){                   #  一番外側の括弧が１つの時に括弧を外す
             shift @tok; pop @tok;
         }else{
