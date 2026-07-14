@@ -497,6 +497,13 @@ sub makeTree{                                       # AST組み立て
         --$level if($_ eq ':');
         $twin = $i if($tok[$m] eq '?' and $_ eq ':' and $twin == -1 and $level == 0);
     }
+    # TODO:
+    # 関数呼び出しの判定条件をリファクタリングする
+    # (現状は m==0 && '(' ... ')' の簡易判定)
+    if($m == 0 && $tok[1] eq '(' && $tok[-1] eq ')'){   # ユーザー関数の引数
+            @tok = ($tok[0],join('',@tok[1..$#tok]));   #  後で再確認（仮）
+    }
+
 	$s->_error("makeTree:|@{[join('|',@tok[0 .. $#tok])]}|:Unbalance '()' $depth") if($depth != 0);
     $s->_error("Missing ':' in ternary operator") if($tok[$m] eq '?' && $twin == -1);
     my @right =  $tok[$m] eq '?' ?                  # 三項演算子の真を括弧で括る
