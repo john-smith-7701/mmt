@@ -12,12 +12,14 @@ sub ast{
     my $x = $ast->Astnew('formula'=>$s->param('calc'));
 
     # デバック情報出力
-    $x->{root}->{vars} = $x->{vars};
-    $x->{root}->{text} = $x->{logText};
+    if(ref($x->{root}) eq 'HASH'){
+        $x->{root}->{vars} = $x->{vars};
+        $x->{root}->{text} = $x->{logText};
+        $x->{root}->{func} = $x->{func};
+        $x->{root}->{const} = $x->{const};
+        $x->{root}->{LOG} = $x->{global}{LOG};
+    }
     $s->{root}->{global} = $s->{global};
-    $x->{root}->{func} = $x->{func};
-    $x->{root}->{const} = $x->{const};
-    $x->{root}->{LOG} = $x->{global}{LOG};
     $s->stash(tree => np( $x->{root}, colored => 0  ));
 
     $s->stash(anser => $x->{answer});
