@@ -165,15 +165,23 @@ sub new {
 
 sub _ast{
     my $s = shift;
+    $s->ast(@_);
+    $s->run();
+}
+sub ast{
+    my $s = shift;
+    $s->setReOps();
     $s->{vars} = {};
     $s->{func} = {};
-    $s->{count} = 0;
     $s->{const} = [];
     $s->{ret} = 'stack over!';
     $s->{logText} = '';
     # 構文木作成
     $s->{root} = $s->makeTree(@{$s->item_split($s->adjust(shift))->{item}});
-
+}
+sub run{
+    my $s = shift;
+    $s->{count} = 0;
     eval {
         local $SIG{ALRM} = sub {
             die bless {}, 'AST::Timeout';
@@ -195,7 +203,6 @@ sub _ast{
 sub Astnew {                                           # 
     my $s = shift;
     my $x = {@_};
-    $s->setReOps();
     $s->_ast($x->{formula}) if (exists $x->{formula});
     return $s;
 }
