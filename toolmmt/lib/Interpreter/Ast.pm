@@ -170,14 +170,21 @@ sub _ast{
 }
 sub ast{
     my $s = shift;
-    $s->setReOps();
+    my $src = shift;
+    # オペレータが入るファンクション名を使える様に最初にファンクション名を取得
+    #  ex) lcm 
+    #  ・変数名にも同様の問題があるが今は対応しない
+    #  　-> def 変数名　の様な対応が必要か？
+    @{$s->{funcs}} = ($src =~ /(${\VAR_NAME})(?:\s*\(.*?=.*?;)/g);
+
+    $s->setReOps(@{$s->{funcs}});
     $s->{vars} = {};
     $s->{func} = {};
     $s->{const} = [];
     $s->{ret} = 'stack over!';
     $s->{logText} = '';
     # 構文木作成
-    $s->{root} = $s->makeTree(@{$s->item_split($s->adjust(shift))->{item}});
+    $s->{root} = $s->makeTree(@{$s->item_split($s->adjust($src))->{item}});
 }
 sub run{
     my $s = shift;
@@ -208,7 +215,7 @@ sub Astnew {                                           #
 }
 sub setReOps{                                       # 演算子の正規表現作成
     my $s = shift;
-    $s->{ops} = join ('|',map {s/(\W)/\\$1/g;$_;} sort {length $b <=> length $a} keys %$op);
+    $s->{ops} = join ('|',map {s/(\W)/\\$1/g;$_;} sort {length $b <=> length $a} (keys %$op,@_));
     $s->{ops} = "(".$s->{ops}.")";
     return $s;
 }
@@ -273,11 +280,11 @@ sub readTree{                                       # AST計算
     my ($s,$node) = @_;
     return $s->getValue('c',$node) if(ref($node) ne 'HASH');
     return undef unless defined $node->{data};      # 空ノードは処理スキップ
-    if( exists $op->{$node->{data}} && $op->{$node->{data}}->[OPTION] == UNARY ){
-        return $op->{$node->{data}}->[FUNCTION]($s,$s->readTree($node->{'right'}));
-    }
     if( exists $s->{func}->{$node->{data}}){
         return $s->callFunc($node);
+    }
+    if( exists $op->{$node->{data}} && $op->{$node->{data}}->[OPTION] == UNARY ){
+        return $op->{$node->{data}}->[FUNCTION]($s,$s->readTree($node->{'right'}));
     }
     if( $node->{data} eq '?'){
         return $s->readTree($node->{left})
@@ -488,7 +495,7 @@ sub makeTree{                                       # AST組み立て
     for(@tok){                                      # 一番右側の一番プライオリティの低いオペレータを検索
         ++$i;
         my $cur = $_;
-        if(/^$s->{ops}$/){
+        if(/^$s->{ops}$/ && ! $s->isFunc($_)){
             ++$depth if($_ eq '(');
             --$depth if($_ eq ')');
             next if($depth or $_ eq ')');           #  括弧の間は読み飛ばす
@@ -520,7 +527,11 @@ sub makeTree{                                       # AST組み立て
                             $s->makeTree(@right)
                 );
 }
-
+# ユーザー定義ファンクションか？
+sub isFunc(){
+    my ($s,$func) = @_;
+    grep {$_ eq $func} @{$s->{funcs}};
+}
 =head2 strip_outer
 
  strip_outer(item1,item2, ... ,itemN)
