@@ -28,17 +28,18 @@
   }
 </style>
  <h1>AST</h1>
+これはDSLのASTを学ぶためのデモページです。
 %= form_for ast => (method => 'post', enctype => 'multipart/form-data') => begin
- 計算式ファイル： 
+ 計算式ファイルのアップロード： 
 %= file_field 'source_file', id => 'source_file'
  <span id="file_name"></span>
  <div class="flex">
   <div class="menucel">
   <br>スクリプト:
-  %= text_area 'calc', rows => 20, cols => 80, id => 'calc'
+  %= text_area 'calc', rows => 20, cols => 80, id => 'calc', placeholder => "1 + 2 * 3; \n\ngcd(a,b) = b?gcd(b,a % b):a;\ngcd(72,30);"
   </div>
   <div class="menucel">
-  %= submit_button '実行'
+  %= submit_button '実行' ,id=>'run'
   %= check_box 'debg', id=>'debg'
   %= label_for 'debg' =>'ASTを表示'
   %= check_box 'out' =>'json'
@@ -48,11 +49,20 @@
 % end
 <div id=anser>
  <%= stash('anser') %>
- <hr><pre>
+ <hr>[AST Tree Area]<pre>
  <div id="tree">
  <%== stash('tree') %>
  </div>
 </pre>
+</div>
+<div id=sample>
+<hr>
+<h4>example DSL</h4>
+  <ul>
+    <li><a onclick="calc.value='1+2*3';run.click();">四則演算</a></li>
+    <li><a onclick="calc.value='gcd(a,b) = b?gcd(b,a % b):a;\ngcd(72,30);';run.click();">最大公約数</a></li>
+    <li><a onclick="calc.value='gcd(a,b) = b?gcd(b,a % b):a;\nlcm(a,b)=a*b/gcd(a,b);\nlcm(72,30)';run.click();">最小公倍数</a></li>
+  </ul>
 </div>
 <script>
 let debg = document.getElementById('debg');
@@ -77,5 +87,19 @@ fileInput.addEventListener('change', async function () {
 
     const text = await file.text();
     calc.value = text;
+});
+$(function() {
+    var guide = `
+<ul>
+  <li><a href="https://github.com/john-smith-7701/chabo-dsl/blob/main/docs/dslReference_ja.md" target="reference">DSLリファレンス</a></li>
+  <li><a href="https://github.com/john-smith-7701/chabo-dsl/blob/main/README_ja.md" target="reference">chabo-dsl ReadMe</a></li>
+</ul>
+<b>使い方</b><br>
+スクリプト欄に計算式を入力し[実行]ボタンをクリックすると計算結果を表示します。<br>
+AST表示をONに鶴と計算式の計算ツリーを表示します。<br>
+[ファイル選択]ボタンにてローカルに保存したDSLをロードできます。
+
+`;
+    $("#sidebar").html(guide);
 });
 </script>
