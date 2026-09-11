@@ -14,7 +14,6 @@ mmtを継承してアプリケーションを作成する事が出来る。
 
 ## Demo
 * [商品](http://www21051ue.sakura.ne.jp:3003/mmt/%E5%95%86%E5%93%81)
-* [user_tbl](http://www21051ue.sakura.ne.jp:3003/mmt/user_tbl)
 * [chatdata](http://www21051ue.sakura.ne.jp:3003/mmt/chatdata)
 * [commodity(商品)](http://www21051ue.sakura.ne.jp:3003/mmtx/commodity) Mmtを継承し商品テーブルメンテを作成
 * [分類マスタリスト](http://www21051ue.sakura.ne.jp:3003/rwt/list001) 帳票サンプル
