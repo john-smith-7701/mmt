@@ -109,7 +109,14 @@ sub collect {
     }
 
     # DB へ保存
-    my $dbh = $s->app->model->webdb->dbh;
+    my $webdb = $s->app->model->webdb;
+    my $dbh = $webdb->dbh;
+    # 長時間アイドルで MySQL に切断されていると begin_work が失敗する
+    # (mysql_auto_reconnect は AutoCommit 切替時には効かない) ので接続し直す
+    unless ($dbh->ping) {
+        delete $webdb->{dbh};
+        $dbh = $webdb->dbh;
+    }
     local $dbh->{RaiseError} = 1;
     my ($total, $increase) = (0, 0);
     eval {
