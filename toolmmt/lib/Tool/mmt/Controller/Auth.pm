@@ -1,6 +1,8 @@
 package Tool::mmt::Controller::Auth;
 use Mojo::Base 'Tool::mmt::Controller::Mmt';
 use UUID::Tiny;
+use Digest::SHA qw(sha1_hex);
+use Encode qw(encode_utf8);
 sub login {
     my $s = shift;
     $s->redirect_to($s->param('url')) if $s->param('url');
@@ -43,7 +45,7 @@ sub userAuth{
     my $dbh = $s->app->model->webdb->dbh;
     # パスワードを確認
     my $data = $dbh->selectall_arrayref(
-                "select 1 as user from user_tbl where userid = ? and password = sha(?)",+{Slice => +{}},$s->param('user'),$s->param('passwd').'qweer.info');
+                "select 1 as user from user_tbl where userid = ? and password = ?",+{Slice => +{}},$s->param('user'), sha1_hex(encode_utf8($s->param('passwd').'qweer.info')));
     return undef unless $data->[0]->{user};
     # セッションにユーザーを登録
     $dbh->do("INSERT INTO  session (session,user) values (?,?)",undef,$sessionId,$s->param('user')); 

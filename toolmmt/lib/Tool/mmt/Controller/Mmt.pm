@@ -3,6 +3,8 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::Log;
 use utf8;
 use Encode;
+use Digest::SHA qw(sha1_hex);
+use Encode qw(encode_utf8);
 
 has 'mmtForm' => 'mmt/mainform';
 has 'mmtDataList' => 'mmt/datalist';
